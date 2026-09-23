@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { flushSync } from 'react-dom';
+import { holdScenery } from '../scenery/hold';
 
 /**
  * Transition types the bundled CSS understands, matched with
@@ -64,6 +65,7 @@ export function morph(update: () => void, options: MorphType | MorphOptions = {}
   } catch {
     transition = document.startViewTransition(run);
   }
+  holdScenery(transition.finished);
   transition.finished.finally(() => {
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((each) => each !== sheet);
   });

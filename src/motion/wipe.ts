@@ -1,4 +1,5 @@
 import { flushSync } from 'react-dom';
+import { holdScenery } from '../scenery/hold';
 
 /**
  * Swap something page-wide — usually the theme — behind a view transition that
@@ -22,6 +23,7 @@ export function wipe(
   root.style.setProperty('--tk-wipe-r', `${radius}px`);
   root.dataset.tkWipe = '';
   const transition = document.startViewTransition(() => flushSync(update));
+  holdScenery(transition.finished);
   transition.finished.finally(() => {
     delete root.dataset.tkWipe;
   });

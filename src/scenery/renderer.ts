@@ -1,4 +1,5 @@
-import { defaultScene, scenes } from './scenes';
+import { sceneryHeld } from './hold';
+import { defaultScene, type SceneInfo, scenes } from './scenes';
 import { type ScenerySettings, scenerySettings } from './settings';
 import blurSource from './shaders/blur.frag.glsl?raw';
 import finishSource from './shaders/finish.frag.glsl?raw';
@@ -62,6 +63,18 @@ interface Target {
   texture: WebGLTexture;
   framebuffer: WebGLFramebuffer;
 }
+
+/** A program whose compile has been queued but not yet checked. */
+interface Build {
+  program: WebGLProgram;
+  shaders: WebGLShader[];
+}
+
+const sceneSource = (scene: SceneInfo) =>
+  `${prelude}\n${scene.source}\nvoid main() { fragColor = render(gl_FragCoord.xy); }\n`;
+
+const idle = (callback: () => void) =>
+  'requestIdleCallback' in window ? requestIdleCallback(callback) : setTimeout(callback, 200);
 
 const vertexSource = `#version 300 es
 in vec2 a_position;
@@ -171,7 +184,10 @@ function readLook(element: Element): Look {
 class SceneryRenderer {
   private canvas = document.createElement('canvas');
   private gl: WebGL2RenderingContext;
-  private scenePasses = new Map<string, Pass>();
+  /** Compiled scenes; null for one that failed, so it isn't retried every frame. */
+  private scenePasses = new Map<string, Pass | null>();
+  private building = new Map<string, Build>();
+  private parallel: KHR_parallel_shader_compile | null = null;
   private blurPass: Pass | null = null;
   private finishPass: Pass | null = null;
   private buffer: WebGLBuffer | null = null;
@@ -191,6 +207,10 @@ class SceneryRenderer {
   private lastRender = 0;
   private frame = 0;
   private presentFrame = 0;
+  private requestFrame = 0;
+  /** Something changed that the next frame must render, whatever the frame rate. */
+  private dirty = false;
+  private queued = false;
 
   constructor() {
     const gl = this.canvas.getContext('webgl2', {
@@ -208,7 +228,7 @@ class SceneryRenderer {
     this.canvas.addEventListener('webglcontextrestored', this.contextRestored);
     document.addEventListener('visibilitychange', this.refresh);
     document.addEventListener('scroll', this.scrolled, { capture: true, passive: true });
-    window.addEventListener('resize', this.refresh);
+    window.addEventListener('resize', this.request);
     this.motion.addEventListener('change', this.refresh);
     // A theme switch anywhere re-inks the surfaces beneath it. Only the theme
     // attribute is watched in the subtree: surfaces restyle their own canvases
@@ -228,35 +248,44 @@ class SceneryRenderer {
     });
     this.unsubscribe = scenerySettings.subscribe((settings) => {
       this.settings = settings;
-      this.refresh();
+      this.request();
     });
     // Start somewhere along each scene's loop rather than always at its first frame.
     this.elapsed = 20 + Math.random() * 40;
+    idle(this.prepare);
   }
 
-  private compile(fragment: string, names: string[]): Pass {
+  /**
+   * Queue a compile and link without waiting for either. The driver works on it
+   * off the main thread; only asking for its status blocks, so `link` asks late.
+   */
+  private build(fragment: string): Build {
     const gl = this.gl;
     const program = gl.createProgram();
     const shaders: WebGLShader[] = [];
+    for (const [type, source] of [
+      [gl.VERTEX_SHADER, vertexSource],
+      [gl.FRAGMENT_SHADER, fragment],
+    ] as const) {
+      const shader = gl.createShader(type);
+      if (!shader) continue;
+      shaders.push(shader);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      gl.attachShader(program, shader);
+    }
+    gl.bindAttribLocation(program, 0, 'a_position');
+    gl.linkProgram(program);
+    return { program, shaders };
+  }
+
+  private link({ program, shaders }: Build, names: string[]): Pass {
+    const gl = this.gl;
     try {
-      for (const [type, source] of [
-        [gl.VERTEX_SHADER, vertexSource],
-        [gl.FRAGMENT_SHADER, fragment],
-      ] as const) {
-        const shader = gl.createShader(type);
-        if (!shader) throw new Error('Unable to create shader');
-        shaders.push(shader);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-          throw new Error(gl.getShaderInfoLog(shader) ?? 'Shader compilation failed');
-        }
-        gl.attachShader(program, shader);
-      }
-      gl.bindAttribLocation(program, 0, 'a_position');
-      gl.linkProgram(program);
+      // One status query, not one per shader: each is a round trip to the GPU.
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        throw new Error(gl.getProgramInfoLog(program) ?? 'Shader linking failed');
+        const log = shaders.map((shader) => gl.getShaderInfoLog(shader)).find(Boolean);
+        throw new Error(log || gl.getProgramInfoLog(program) || 'Shader linking failed');
       }
       return {
         program,
@@ -270,27 +299,65 @@ class SceneryRenderer {
     }
   }
 
+  private compile(fragment: string, names: string[]): Pass {
+    return this.link(this.build(fragment), names);
+  }
+
   private scenePass(id: string): Pass | null {
-    const cached = this.scenePasses.get(id);
-    if (cached) return cached;
+    if (this.scenePasses.has(id)) return this.scenePasses.get(id) ?? null;
     const scene = scenes[id] ?? scenes[defaultScene]!;
+    let pass: Pass | null = null;
     try {
-      const pass = this.compile(
-        `${prelude}\n${scene.source}\nvoid main() { fragColor = render(gl_FragCoord.xy); }\n`,
-        sceneUniforms,
-      );
-      this.scenePasses.set(id, pass);
-      return pass;
+      pass = this.link(this.building.get(id) ?? this.build(sceneSource(scene)), sceneUniforms);
     } catch (error) {
       console.warn(`Scenery scene "${id}" failed to compile:`, error);
-      return null;
     }
+    this.building.delete(id);
+    this.scenePasses.set(id, pass);
+    return pass;
   }
+
+  /**
+   * Ready the scenes nobody has shown yet, one step per idle period, so a page
+   * that later shows them doesn't wait on the driver mid-transition. A step
+   * either queues a compile or finishes one and draws it once: some drivers put
+   * off the real work until a program's first draw.
+   */
+  private prepare = (): void => {
+    const gl = this.gl;
+    if (renderer !== this || gl.isContextLost()) return;
+    const done = [...this.building].find(
+      ([, { program }]) =>
+        !this.parallel || gl.getProgramParameter(program, this.parallel.COMPLETION_STATUS_KHR),
+    );
+    const next = Object.entries(scenes).find(
+      ([id]) => !this.scenePasses.has(id) && !this.building.has(id),
+    );
+    if (done) {
+      const pass = this.scenePass(done[0]);
+      if (pass) {
+        const [target] = this.target(1, 1);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, target.framebuffer);
+        gl.viewport(0, 0, 1, 1);
+        gl.useProgram(pass.program);
+        gl.uniform1f(pass.uniforms.get('u_time')!, 0);
+        gl.uniform2f(pass.uniforms.get('u_resolution')!, 1, 1);
+        gl.uniform2f(pass.uniforms.get('u_parallax')!, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
+    } else if (next) {
+      this.building.set(next[0], this.build(sceneSource(next[1])));
+    }
+    if (next || this.building.size) idle(this.prepare);
+  };
 
   private initialize(): void {
     const gl = this.gl;
     this.scenePasses.clear();
+    this.building.clear();
     this.targets.clear();
+    this.parallel = gl.getExtension('KHR_parallel_shader_compile');
     this.blurPass = this.compile(blurSource, blurUniforms);
     this.finishPass = this.compile(finishSource, finishUniforms);
     this.buffer = gl.createBuffer();
@@ -349,6 +416,7 @@ class SceneryRenderer {
     if (!blur || !finish) return;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    this.dirty = false;
     for (const frame of this.frames.values()) frame.used = false;
 
     // Group surfaces that can share a ray-march, then a palette.
@@ -515,13 +583,20 @@ class SceneryRenderer {
     }
     const delta = this.lastTime ? Math.min((now - this.lastTime) / 1000, 0.2) : 0;
     this.lastTime = now;
-    if (!this.settings.paused) this.elapsed += delta * this.settings.speed;
-    this.parallax += (this.parallaxTarget - this.parallax) * (1 - Math.exp(-delta * 6));
-    if (Math.abs(this.parallaxTarget - this.parallax) < 0.0005) this.parallax = this.parallaxTarget;
+    // While a transition holds the scenery, the clock and camera stand still and
+    // only changes (a window mounting, a theme swap) render.
+    const held = sceneryHeld();
+    if (!held) {
+      if (!this.settings.paused) this.elapsed += delta * this.settings.speed;
+      this.parallax += (this.parallaxTarget - this.parallax) * (1 - Math.exp(-delta * 6));
+      if (Math.abs(this.parallaxTarget - this.parallax) < 0.0005) {
+        this.parallax = this.parallaxTarget;
+      }
+    }
     // The scene is slow: 15fps, or 30 while the camera eases after a scroll.
     // Crops are re-presented every frame so windows track moving boxes smoothly.
     const fps = this.cameraMoving() ? 30 : 15;
-    if (now - this.lastRender >= 1000 / fps - 2) {
+    if (this.dirty || (!held && now - this.lastRender >= 1000 / fps - 2)) {
       this.lastRender = now;
       this.render();
     } else {
@@ -592,6 +667,7 @@ class SceneryRenderer {
     try {
       this.initialize();
       this.refresh();
+      idle(this.prepare);
     } catch (error) {
       console.warn('Scenery could not be restored:', error);
     }
@@ -600,7 +676,34 @@ class SceneryRenderer {
   /** Re-read every surface's CSS (theme or token change) and redraw. */
   invalidate = (): void => {
     for (const surface of this.surfaces) surface.look = null;
-    this.refresh();
+    this.renderSoon();
+  };
+
+  /**
+   * Render once when the current task ends, however many callers ask: a page of
+   * windows mounting in one commit costs one render, not one each. It still lands
+   * before the next paint, so a view transition captures the windows filled.
+   */
+  renderSoon = (): void => {
+    if (this.queued) return;
+    this.queued = true;
+    queueMicrotask(() => {
+      this.queued = false;
+      this.refresh();
+    });
+  };
+
+  /**
+   * Render once on the next frame. For observers and events that report in
+   * bursts; a running loop picks it up on its next tick.
+   */
+  request = (): void => {
+    this.dirty = true;
+    if (this.frame || this.requestFrame) return;
+    this.requestFrame = requestAnimationFrame(() => {
+      this.requestFrame = 0;
+      if (this.dirty) this.refresh();
+    });
   };
 
   refresh = (): void => {
@@ -623,15 +726,14 @@ class SceneryRenderer {
 
   remove(surface: Surface): void {
     this.surfaces.delete(surface);
-    if (this.surfaces.size) {
-      this.refresh();
-      return;
-    }
+    // The others' frames are still good; the loop stops itself if none is visible.
+    if (this.surfaces.size) return;
     cancelAnimationFrame(this.frame);
     cancelAnimationFrame(this.presentFrame);
+    cancelAnimationFrame(this.requestFrame);
     document.removeEventListener('visibilitychange', this.refresh);
     document.removeEventListener('scroll', this.scrolled, true);
-    window.removeEventListener('resize', this.refresh);
+    window.removeEventListener('resize', this.request);
     this.motion.removeEventListener('change', this.refresh);
     this.themeObserver.disconnect();
     this.rootObserver.disconnect();
@@ -641,6 +743,10 @@ class SceneryRenderer {
     const gl = this.gl;
     for (const pass of [...this.scenePasses.values(), this.blurPass, this.finishPass]) {
       if (pass) gl.deleteProgram(pass.program);
+    }
+    for (const { program, shaders } of this.building.values()) {
+      gl.deleteProgram(program);
+      for (const shader of shaders) gl.deleteShader(shader);
     }
     for (const pair of this.targets.values()) {
       for (const target of pair) {
@@ -676,19 +782,29 @@ export function attachScenery(canvas: HTMLCanvasElement, bounds: HTMLElement): (
   }
   const surface: Surface = { canvas, bounds, context, visible: false, look: null, frame: null };
   active.add(surface);
-  const resize = new ResizeObserver(() => active.refresh());
+  // Both observers report once on observing. Those first reports repeat what the
+  // mount below already knows, so only real changes render.
+  let size = `${bounds.clientWidth}x${bounds.clientHeight}`;
+  const resize = new ResizeObserver(() => {
+    const next = `${bounds.clientWidth}x${bounds.clientHeight}`;
+    if (next === size) return;
+    size = next;
+    active.request();
+  });
   const visibility = new IntersectionObserver(([entry]) => {
-    surface.visible = entry?.isIntersecting ?? false;
-    if (!surface.visible) {
+    const visible = entry?.isIntersecting ?? false;
+    if (visible === surface.visible) return;
+    surface.visible = visible;
+    if (!visible) {
       canvas.width = 1;
       canvas.height = 1;
     }
-    active.refresh();
+    active.request();
   });
   // Props like `scene` arrive as inline custom properties on the bounds element.
   const tokens = new MutationObserver(() => {
     surface.look = null;
-    active.refresh();
+    active.renderSoon();
   });
   resize.observe(bounds);
   visibility.observe(bounds);
@@ -701,7 +817,7 @@ export function attachScenery(canvas: HTMLCanvasElement, bounds: HTMLElement): (
   const rect = bounds.getBoundingClientRect();
   if (rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth) {
     surface.visible = true;
-    active.refresh();
+    active.renderSoon();
   }
   return () => {
     resize.disconnect();

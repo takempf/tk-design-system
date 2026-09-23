@@ -1,3 +1,4 @@
+export { holdScenery } from './hold';
 export type { Attachment } from './renderer';
 export { attachScenery, refreshScenery } from './renderer';
 export { SceneryBackdrop, type SceneryProps, SceneryWindow } from './Scenery';
