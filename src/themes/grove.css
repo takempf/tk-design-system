@@ -1,0 +1,82 @@
+/*
+  Grove — a dark, cozy forest after dusk.
+  Phthalo greens for depth and selection, orange-red for embers and labels,
+  pale lavender for moonlight: primary actions, focus, and the brightest ink.
+  Beveled corners give controls a cut-stone, runic silhouette. Motion is slow
+  and misty: things surface through a short blur rather than snapping in.
+*/
+@layer tk.themes {
+  [data-tk-theme='grove'] {
+    --tk-bg: #0c1613;
+    --tk-surface: #09110f;
+    --tk-surface-raised: #11201c;
+    --tk-surface-hover: #162a24;
+    --tk-fg: #e7e3ee;
+    --tk-fg-muted: #a7b3ad;
+    --tk-fg-subtle: #74867e;
+    --tk-fg-bright: #f7f4fb;
+    --tk-fg-inverse: #0b1512;
+    --tk-border-subtle: #1a2c27;
+    --tk-border: #284039;
+    --tk-border-strong: #4d6b61;
+    --tk-primary: #d4cbf0;
+    --tk-primary-hover: #b9addf;
+    --tk-primary-fg: #0b1512;
+    --tk-accent: #3fae93;
+    --tk-label: #ff6440;
+    --tk-highlight: #1d5546;
+    --tk-highlight-fg: #f7f4fb;
+    --tk-danger: #ff7b69;
+    --tk-warning: #e9c37e;
+    --tk-focus-color: #c9bef0;
+    --tk-selection-bg: #c9bef0;
+    --tk-selection-fg: #0b1512;
+
+    --tk-font-sans: 'Instrument Sans Variable', var(--tk-font-fallback), sans-serif;
+    --tk-font-label: var(--tk-font-sans);
+    --tk-tracking: 0.012em;
+    --tk-weight-regular: 460;
+    --tk-weight-medium: 560;
+    --tk-weight-bold: 640;
+    --tk-label-size: var(--tk-text-xs);
+    --tk-label-tracking: 0.2em;
+    --tk-label-stretch: 75%;
+
+    --tk-radius: 7px;
+    --tk-radius-sm: 4px;
+    --tk-radius-lg: 12px;
+    --tk-corner-shape: bevel;
+    --tk-knob-radius: 1px;
+    --tk-knob-rotate: 45deg;
+    --tk-radio-radius: 1px;
+    --tk-radio-scale: 0.86;
+    --tk-knob-scale: 0.74;
+    --tk-icon-stroke: 1.4;
+    --tk-shadow-popup: 0 1rem 2.5rem rgb(2 8 6 / 55%);
+
+    --tk-duration-1: 160ms;
+    --tk-duration-2: 260ms;
+    --tk-duration-3: 440ms;
+    --tk-duration-morph: 560ms;
+    --tk-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --tk-ease-in-out: cubic-bezier(0.45, 0, 0.2, 1);
+    /* A soft overshoot, like a branch settling. */
+    --tk-ease-morph: linear(0, 0.18 8%, 0.52 20%, 0.84 34%, 0.99 48%, 1.025 58%, 1.012 72%, 1);
+    --tk-enter-offset: 10px;
+    --tk-enter-scale: 0.985;
+    --tk-enter-blur: 6px;
+
+    --tk-decipher-glyphs: '○●◇◆□■△▲◎◈▣▽';
+
+    --tk-scenery-scene: 'grove';
+    --tk-scenery-ink-0: oklch(0.13 0.012 172);
+    --tk-scenery-ink-1: oklch(0.165 0.02 170);
+    --tk-scenery-ink-2: oklch(0.205 0.03 169);
+    --tk-scenery-ink-3: oklch(0.245 0.038 169);
+    --tk-scenery-ink-4: oklch(0.285 0.045 169);
+    --tk-scenery-ember: oklch(0.28 0.065 36);
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.08;
+    --tk-scenery-tone-high: 0.65;
+  }
+}

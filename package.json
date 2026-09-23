@@ -1,0 +1,67 @@
+{
+  "name": "tk-design-system",
+  "version": "0.1.0",
+  "description": "Base UI components, token themes, view-transition motion, and dithered WebGL scenery.",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./motion": {
+      "types": "./dist/types/motion/index.d.ts",
+      "import": "./dist/motion.js"
+    },
+    "./scenery": {
+      "types": "./dist/types/scenery/index.d.ts",
+      "import": "./dist/scenery.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./fonts.css": "./src/fonts.css",
+    "./source/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json",
+    "build:playground": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "check": "biome check .",
+    "format": "biome format --write .",
+    "lint": "biome lint ."
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.8.0",
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@fontsource-variable/noto-sans-kr": "^5.3.0",
+    "@fontsource/noto-color-emoji": "^5.3.2",
+    "zustand": "^5.0.15"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.14",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}

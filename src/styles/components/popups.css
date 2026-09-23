@@ -1,0 +1,582 @@
+@layer tk.components {
+  /* Shared popup surface -------------------------------------------------- */
+
+  .tk-positioner {
+    z-index: var(--tk-z-popup);
+    outline: 0;
+  }
+
+  /* Enters by rising out of its trigger (through mist, in Grove); leaves faster. */
+  .tk-popup {
+    --_from-y: calc(var(--tk-enter-offset) * -1);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius-popup);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface-raised);
+    color: var(--tk-fg);
+    box-shadow: var(--tk-shadow-popup);
+    outline: 0;
+    transform-origin: var(--transform-origin);
+    transition:
+      opacity var(--tk-duration-2) var(--tk-ease-fade),
+      transform var(--tk-duration-2) var(--tk-ease-out),
+      filter var(--tk-duration-2) var(--tk-ease-out);
+
+    &[data-side='top'] {
+      --_from-y: var(--tk-enter-offset);
+    }
+
+    &[data-side='left'],
+    &[data-side='right'] {
+      --_from-y: 0px;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+      transform: translateY(var(--_from-y)) scale(var(--tk-enter-scale));
+      filter: blur(var(--tk-enter-blur));
+    }
+
+    &[data-ending-style] {
+      transition-duration: var(--tk-duration-1);
+      transition-timing-function: var(--tk-ease-in);
+    }
+  }
+
+  /* Opening inside a morph, a popup fades in place instead: its box must already
+     be where it will stay when the view transition captures it. */
+  :root:active-view-transition :is(.tk-popup, .tk-dialog)[data-starting-style] {
+    transform: none;
+    filter: none;
+  }
+
+  /* Lists: select, combobox and menu share one item style ----------------- */
+
+  .tk-list-popup {
+    min-width: max(var(--anchor-width, 0px), 12rem);
+    max-width: var(--available-width);
+    max-height: min(24rem, var(--available-height));
+    padding: var(--tk-space-1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .tk-list {
+    outline: 0;
+  }
+
+  .tk-list-item {
+    display: grid;
+    grid-template-columns: 1.1rem 1fr auto;
+    align-items: center;
+    gap: var(--tk-space-2);
+    min-height: var(--tk-control-h);
+    padding: var(--tk-space-1) var(--tk-space-3) var(--tk-space-1) var(--tk-space-2);
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+    color: var(--tk-fg);
+    font-size: var(--tk-control-text);
+    line-height: var(--tk-leading-tight);
+    cursor: default;
+    outline: 0;
+    user-select: none;
+    scroll-margin: var(--tk-space-1);
+
+    &[data-highlighted] {
+      background: var(--tk-highlight);
+      color: var(--tk-highlight-fg);
+    }
+
+    &[data-tone='danger'] {
+      color: var(--tk-danger);
+
+      &[data-highlighted] {
+        background: var(--tk-danger-soft);
+        color: var(--tk-danger);
+      }
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+    }
+
+    &[data-popup-open]:not([data-highlighted]) {
+      background: var(--tk-surface-hover);
+    }
+  }
+
+  .tk-list-indicator {
+    grid-column: 1;
+    display: flex;
+    justify-content: center;
+    font-size: 0.9em;
+  }
+
+  .tk-list-text {
+    grid-column: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tk-list-trailing {
+    grid-column: 3;
+    color: var(--tk-fg-subtle);
+  }
+
+  [data-highlighted] > .tk-list-trailing {
+    color: inherit;
+  }
+
+  .tk-list-separator {
+    height: var(--tk-border-width);
+    margin: var(--tk-space-1) calc(var(--tk-space-1) * -1);
+    background: var(--tk-border-subtle);
+  }
+
+  .tk-list-group-label {
+    padding: var(--tk-space-2) var(--tk-space-3) var(--tk-space-1);
+    color: var(--tk-label);
+    font-family: var(--tk-label-font);
+    font-size: var(--tk-text-xs);
+    font-weight: var(--tk-label-weight);
+    font-stretch: var(--tk-label-stretch);
+    letter-spacing: var(--tk-label-tracking);
+    text-transform: var(--tk-label-transform);
+  }
+
+  .tk-list-empty {
+    padding: var(--tk-space-3);
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-text-sm);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  /* Select & combobox trigger --------------------------------------------- */
+
+  .tk-select-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tk-space-3);
+    width: 100%;
+    min-width: 12rem;
+    min-height: var(--tk-control-h);
+    padding: 0 var(--tk-space-2) 0 var(--tk-space-3);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface);
+    color: var(--tk-fg);
+    font-size: var(--tk-control-text);
+    text-align: start;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:hover:not([data-disabled]),
+    &[data-popup-open] {
+      border-color: var(--tk-border-strong);
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &[data-size='sm'] {
+      min-height: var(--tk-control-h-sm);
+      font-size: var(--tk-text-sm);
+    }
+
+    &[data-size='lg'] {
+      min-height: var(--tk-control-h-lg);
+      font-size: var(--tk-text-lg);
+    }
+  }
+
+  .tk-select-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &[data-placeholder] {
+      color: var(--tk-fg-subtle);
+    }
+
+    /* The morphing span hugs its text, so the flight is text-sized. */
+    & > span {
+      display: inline-block;
+    }
+  }
+
+  .tk-select-icon {
+    display: flex;
+    color: var(--tk-fg-subtle);
+  }
+
+  .tk-combobox-search {
+    position: relative;
+    display: flex;
+    flex: none;
+    align-items: center;
+    border-bottom: var(--tk-border-width) solid var(--tk-border-subtle);
+  }
+
+  .tk-combobox-popup {
+    display: flex;
+    flex-direction: column;
+    min-width: max(var(--anchor-width, 0px), 16rem);
+    padding: 0;
+    overflow: hidden;
+
+    /* Opened upward: keep the search field beside the trigger it came from. */
+    &[data-side='top'] {
+      flex-direction: column-reverse;
+
+      & .tk-combobox-search {
+        border-top: var(--tk-border-width) solid var(--tk-border-subtle);
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .tk-combobox-popup .tk-list,
+  .tk-combobox-popup .tk-list-empty {
+    min-height: 0;
+    padding: var(--tk-space-1);
+    overflow-y: auto;
+  }
+
+  .tk-combobox-search-icon {
+    position: absolute;
+    left: var(--tk-space-3);
+    color: var(--tk-fg-subtle);
+    pointer-events: none;
+  }
+
+  .tk-combobox-input {
+    width: 100%;
+    min-height: var(--tk-control-h-lg);
+    padding: 0 var(--tk-space-3) 0 calc(var(--tk-space-3) * 2 + 1em);
+    border: 0;
+    background: transparent;
+    color: var(--tk-fg);
+    font-size: var(--tk-control-text);
+    outline: 0;
+  }
+
+  .tk-combobox-placeholder {
+    position: absolute;
+    left: calc(var(--tk-space-3) * 2 + 1em);
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-control-text);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* Popover & tooltip ----------------------------------------------------- */
+
+  .tk-popover {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-2);
+    max-width: min(24rem, var(--available-width));
+    padding: var(--tk-space-4) var(--tk-space-5);
+  }
+
+  .tk-popover-title {
+    margin: 0;
+    font-size: var(--tk-text-md);
+    font-weight: var(--tk-weight-bold);
+  }
+
+  .tk-popover-description {
+    margin: 0;
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-text-sm);
+  }
+
+  .tk-tooltip {
+    max-width: 18rem;
+    padding: var(--tk-space-1) var(--tk-space-2);
+    border-color: var(--tk-primary);
+    background: var(--tk-primary);
+    color: var(--tk-primary-fg);
+    font-size: var(--tk-text-sm);
+    font-weight: var(--tk-weight-medium);
+  }
+
+  /* Dialog ---------------------------------------------------------------- */
+
+  .tk-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--tk-overlay);
+    backdrop-filter: blur(3px);
+    transition: opacity var(--tk-duration-2) var(--tk-ease-fade);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+    }
+  }
+
+  .tk-dialog-viewport {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--tk-space-4);
+  }
+
+  .tk-dialog {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-4);
+    width: min(100%, 32rem);
+    max-height: 100%;
+    overflow: auto;
+    padding: var(--tk-space-6);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius-lg);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface-raised);
+    color: var(--tk-fg);
+    box-shadow: var(--tk-shadow-dialog);
+    outline: 0;
+    transition:
+      opacity var(--tk-duration-2) var(--tk-ease-fade),
+      transform var(--tk-duration-3) var(--tk-ease-out),
+      filter var(--tk-duration-3) var(--tk-ease-out);
+
+    &[data-size='sm'] {
+      width: min(100%, 26rem);
+    }
+
+    &[data-size='lg'] {
+      width: min(100%, 46rem);
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+      transform: translateY(calc(var(--tk-enter-offset) * 2)) scale(var(--tk-enter-scale));
+      filter: blur(var(--tk-enter-blur));
+    }
+
+    &[data-ending-style] {
+      transition-duration: var(--tk-duration-1);
+    }
+  }
+
+  .tk-dialog-title {
+    margin: 0;
+    font-size: var(--tk-text-xl);
+  }
+
+  .tk-dialog-description {
+    margin: 0;
+    color: var(--tk-fg-muted);
+  }
+
+  /* Toast ----------------------------------------------------------------- */
+
+  .tk-toast-viewport {
+    position: fixed;
+    right: var(--tk-space-4);
+    bottom: var(--tk-space-4);
+    z-index: calc(var(--tk-z-popup) + 10);
+    width: min(22rem, calc(100vw - 2 * var(--tk-space-4)));
+  }
+
+  .tk-toast {
+    --gap: 0.75rem;
+    --peek: 0.75rem;
+    --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+    --shrink: calc(1 - var(--scale));
+    --height: var(--toast-frontmost-height, var(--toast-height));
+    --offset-y: calc(
+      var(--toast-offset-y) *
+      -1 +
+      (var(--toast-index) * var(--gap) * -1) +
+      var(--toast-swipe-movement-y)
+    );
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: calc(1000 - var(--toast-index));
+    width: 100%;
+    height: var(--height);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius-popup);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface-raised);
+    color: var(--tk-fg);
+    box-shadow: var(--tk-shadow-popup);
+    transform-origin: bottom center;
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(
+        calc(
+          var(--toast-swipe-movement-y) -
+          (var(--toast-index) * var(--peek)) -
+          (var(--shrink) * var(--height))
+        )
+      )
+      scale(var(--scale));
+    transition:
+      transform var(--tk-duration-3) var(--tk-ease-out),
+      opacity var(--tk-duration-3) var(--tk-ease-fade),
+      height var(--tk-duration-1);
+    user-select: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: calc(var(--gap) + 1px);
+    }
+
+    &[data-expanded] {
+      height: var(--toast-height);
+      transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      transform: translateY(150%);
+    }
+
+    &[data-limited],
+    &[data-ending-style] {
+      opacity: 0;
+    }
+
+    &[data-ending-style][data-swipe-direction='right'] {
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%)) translateY(var(--offset-y));
+    }
+
+    &[data-ending-style][data-swipe-direction='down'] {
+      transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+    }
+
+    &[data-tone='success'] {
+      border-inline-start: 3px solid var(--tk-success);
+    }
+
+    &[data-tone='danger'] {
+      border-inline-start: 3px solid var(--tk-danger);
+    }
+  }
+
+  .tk-toast-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tk-space-3);
+    padding: var(--tk-space-3) var(--tk-space-3) var(--tk-space-3) var(--tk-space-4);
+    overflow: hidden;
+    transition: opacity var(--tk-duration-2);
+
+    &[data-behind] {
+      opacity: 0;
+    }
+
+    &[data-expanded] {
+      opacity: 1;
+    }
+  }
+
+  .tk-toast-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--tk-space-1);
+    min-width: 0;
+  }
+
+  .tk-toast-title {
+    margin: 0;
+    font-size: var(--tk-text-md);
+    font-weight: var(--tk-weight-bold);
+  }
+
+  .tk-toast-description {
+    margin: 0;
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-text-sm);
+  }
+
+  .tk-toast-close {
+    display: grid;
+    place-items: center;
+    width: var(--tk-control-h-sm);
+    height: var(--tk-control-h-sm);
+    padding: 0;
+    border: 0;
+    border-radius: var(--tk-radius-sm);
+    background: transparent;
+    color: var(--tk-fg-subtle);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--tk-surface-hover);
+      color: var(--tk-fg);
+    }
+  }
+
+  /* Select over its trigger ------------------------------------------------ */
+
+  /* Laid over its trigger (data-side='none'): the chosen row sits on the trigger's
+     value, so the list unfolds out of the trigger's own box and folds back into
+     it. That box arrives as --tk-unfold-* (see useUnfoldFrom). */
+  .tk-select-popup[data-side='none'] {
+    /* The popup starts left of the trigger by a row's text inset less the
+       trigger's; widen it by as much (and a hair) to cover the trigger's edge. */
+    --_shift: calc(var(--tk-space-1) + var(--tk-space-2) * 2 + 1.1rem - var(--tk-space-3));
+    min-width: max(calc(var(--anchor-width, 0px) + var(--_shift) + var(--tk-border-width)), 12rem);
+    /* Base UI's overlay lands one border-width high; set the row on the value. */
+    translate: 0 var(--tk-border-width);
+    /* A clip would cut a box-shadow; the positioner casts one instead (below). */
+    box-shadow: none;
+    clip-path: inset(0 round var(--tk-radius-popup));
+    transition:
+      clip-path var(--tk-duration-morph) var(--tk-ease-morph),
+      opacity var(--tk-duration-1) var(--tk-ease-fade);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      clip-path: inset(
+        var(--tk-unfold-top, 50%) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 50%)
+          var(--tk-unfold-left, 0px) round var(--tk-radius-popup)
+      );
+      transform: none;
+      filter: none;
+    }
+
+    &[data-ending-style] {
+      transition-duration: var(--tk-duration-2);
+      transition-timing-function: var(--tk-ease-in);
+    }
+
+    /* The chosen label is carried back to the trigger (a morph). The rows empty
+       at once, so no copy of it, and no old value, is left for it to land on. */
+    &[data-ending-style] .tk-list-item > * {
+      visibility: hidden;
+    }
+  }
+
+  /* Cast after the clip, so the shadow unfolds with the list. */
+  .tk-positioner:has(> .tk-select-popup[data-side='none']) {
+    filter: drop-shadow(var(--tk-shadow-popup));
+  }
+}

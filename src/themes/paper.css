@@ -1,0 +1,67 @@
+/*
+  Paper — tk-ai's document preview promoted to a full light theme.
+  Warm grey stock, near-black ink, a serif display face, typewriter labels.
+*/
+@layer tk.themes {
+  [data-tk-theme='paper'] {
+    color-scheme: light;
+
+    --tk-bg: #e5e5e2;
+    --tk-surface: #f1f1ee;
+    --tk-surface-raised: #f7f7f4;
+    --tk-surface-hover: #dddcd7;
+    --tk-fg: #202020;
+    --tk-fg-muted: #555552;
+    --tk-fg-subtle: #767671;
+    --tk-fg-bright: #000000;
+    --tk-fg-inverse: #f7f7f4;
+    --tk-border-subtle: #d3d3ce;
+    --tk-border: #b7b7b2;
+    --tk-border-strong: #85857f;
+    --tk-primary: #202020;
+    --tk-primary-hover: #3c3c3a;
+    --tk-primary-fg: #f7f7f4;
+    --tk-accent: #00685d;
+    --tk-label: #b4232c;
+    --tk-highlight: #202020;
+    --tk-highlight-fg: #f7f7f4;
+    --tk-danger: #b3261e;
+    --tk-warning: #8a6100;
+    --tk-shadow-popup: 0 0.75rem 2rem rgb(40 38 30 / 16%);
+    --tk-shadow-dialog: 0 1.5rem 4rem rgb(40 38 30 / 25%);
+
+    --tk-font-display: 'Newsreader Variable', var(--tk-font-fallback), serif;
+    --tk-font-label: var(--tk-font-mono);
+    --tk-label-stretch: normal;
+    --tk-weight-regular: 450;
+    --tk-tracking: 0.005em;
+    --tk-tracking-display: -0.015em;
+    --tk-label-size: var(--tk-text-xs);
+    --tk-label-weight: var(--tk-weight-medium);
+    --tk-label-tracking: 0.08em;
+
+    --tk-radius: 3px;
+    --tk-radius-sm: 2px;
+    --tk-radius-lg: 6px;
+    --tk-knob-radius: 50%;
+    --tk-icon-stroke: 1.3;
+    --tk-icon-cap: round;
+    --tk-icon-join: round;
+
+    --tk-enter-offset: 6px;
+
+    --tk-decipher-glyphs: 'abcdefghijklmnopqrstuvwxyz';
+
+    --tk-scenery-scene: 'contour';
+    /* Runs light to dark: every scene prints as a negative, like a subtle watermark on stock. */
+    --tk-scenery-ink-0: oklch(0.955 0.004 95);
+    --tk-scenery-ink-1: oklch(0.92 0.007 95);
+    --tk-scenery-ink-2: oklch(0.885 0.01 93);
+    --tk-scenery-ink-3: oklch(0.855 0.012 92);
+    --tk-scenery-ink-4: oklch(0.825 0.014 92);
+    --tk-scenery-ember: oklch(0.83 0.032 20);
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.1;
+    --tk-scenery-tone-high: 0.68;
+  }
+}

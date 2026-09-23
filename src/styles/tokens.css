@@ -1,0 +1,162 @@
+/*
+  Base tokens. Every component reads only these custom properties, so a theme is
+  nothing more than a block that re-declares some of them.
+
+  Tokens are declared on :root and on every [data-tk-theme] scope. A nested theme
+  therefore starts from this full base, never from its parent theme's leftovers.
+  Derived tokens (the color-mix() ones) resolve per scope, so overriding a single
+  source color updates everything built from it.
+
+  The defaults are the "base" theme: tk-ai's neutral dark surfaces, off-white
+  primary fills, teal focus, and red condensed section labels.
+*/
+@layer tk.tokens {
+  :root,
+  [data-tk-theme] {
+    color-scheme: dark;
+
+    /* Palette — the only raw colors a theme needs to supply. */
+    --tk-bg: #1f1f1f;
+    --tk-surface: #0c0c0c;
+    --tk-surface-raised: #171717;
+    --tk-surface-hover: #202020;
+    --tk-fg: #e5e5e2;
+    --tk-fg-muted: #a3a3a0;
+    --tk-fg-subtle: #858582;
+    --tk-fg-bright: #ffffff;
+    --tk-fg-inverse: #171717;
+    --tk-border-subtle: #292929;
+    --tk-border: #454545;
+    --tk-border-strong: #858582;
+    --tk-primary: #e5e5e2;
+    --tk-primary-hover: #a3a3a0;
+    --tk-primary-fg: #171717;
+    --tk-accent: #00c8b4;
+    --tk-label: #ff353f;
+    --tk-highlight: #e5e5e2;
+    --tk-highlight-fg: #171717;
+    --tk-danger: #ff535c;
+    --tk-success: var(--tk-accent);
+    --tk-warning: #e3bf74;
+
+    /* Derived colors. */
+    --tk-accent-soft: color-mix(in oklab, var(--tk-accent) 18%, transparent);
+    --tk-danger-soft: color-mix(in oklab, var(--tk-danger) 14%, var(--tk-surface));
+    --tk-overlay: color-mix(in oklab, var(--tk-bg) 70%, transparent);
+    --tk-selection-bg: var(--tk-highlight);
+    --tk-selection-fg: var(--tk-highlight-fg);
+
+    /* Type. Generous sizes; weight 500 keeps the letterforms full. Every face is
+       a Fontsource variable font (see fonts.css); stacks end in the shared
+       fallback for Korean and emoji, then only a generic family. */
+    --tk-root-size: 18px;
+    --tk-font-fallback: 'Noto Sans KR Variable', 'Noto Color Emoji';
+    --tk-font-sans: 'Geist Variable', var(--tk-font-fallback), sans-serif;
+    --tk-font-display: var(--tk-font-sans);
+    --tk-display-stretch: normal;
+    /* Archivo's width axis runs 62–125%: labels are the narrow cut. */
+    --tk-font-label: 'Archivo Variable', var(--tk-font-fallback), sans-serif;
+    --tk-font-mono: 'Geist Mono Variable', var(--tk-font-fallback), monospace;
+    --tk-text-xs: 0.75rem;
+    --tk-text-sm: 0.875rem;
+    --tk-text-md: 1rem;
+    --tk-text-lg: 1.125rem;
+    --tk-text-xl: 1.5rem;
+    --tk-text-2xl: 2.25rem;
+    --tk-text-3xl: 3.25rem;
+    --tk-weight-regular: 500;
+    --tk-weight-medium: 600;
+    --tk-weight-bold: 675;
+    --tk-leading-tight: 1.2;
+    --tk-leading-normal: 1.5;
+    --tk-leading-reading: 1.65;
+    --tk-tracking: 0.025em;
+    --tk-tracking-display: -0.01em;
+    --tk-label-font: var(--tk-font-label);
+    --tk-label-size: var(--tk-text-sm);
+    --tk-label-weight: var(--tk-weight-bold);
+    --tk-label-tracking: 0.1em;
+    --tk-label-transform: uppercase;
+    --tk-label-stretch: 66%;
+
+    /* Space. */
+    --tk-space-1: 0.25rem;
+    --tk-space-2: 0.5rem;
+    --tk-space-3: 0.75rem;
+    --tk-space-4: 1rem;
+    --tk-space-5: 1.25rem;
+    --tk-space-6: 1.5rem;
+    --tk-space-8: 2rem;
+    --tk-space-10: 2.5rem;
+    --tk-space-12: 3rem;
+    --tk-space-16: 4rem;
+
+    /* Shape. corner-shape turns a radius into a bevel/notch where supported. */
+    --tk-border-width: 1px;
+    --tk-radius: 0px;
+    --tk-radius-sm: 0px;
+    --tk-radius-lg: 0px;
+    /* Menus, listboxes and toasts. Its own token so pill controls needn't make pill menus. */
+    --tk-radius-popup: var(--tk-radius);
+    --tk-radius-round: 999px;
+    --tk-corner-shape: round;
+    --tk-control-text: var(--tk-text-md);
+    --tk-button-text: var(--tk-text-sm);
+    --tk-control-h-sm: 2rem;
+    --tk-control-h: 2.5rem;
+    --tk-control-h-lg: 3rem;
+    /* Knobs: slider thumbs, radios, switch thumbs. Rotate 45deg for diamonds. */
+    --tk-knob-radius: 0px;
+    --tk-knob-rotate: 0deg;
+    --tk-radio-radius: 50%;
+    /* A rotated square needs shrinking to sit in the same box. */
+    --tk-radio-scale: 1;
+    --tk-knob-scale: 1;
+    --tk-icon-stroke: 1.5;
+    --tk-icon-cap: square;
+    --tk-icon-join: miter;
+    --tk-focus-width: 2px;
+    --tk-focus-offset: 3px;
+    --tk-focus-color: var(--tk-accent);
+    --tk-shadow-popup: none;
+    --tk-shadow-dialog: 0 1.5rem 4rem rgb(0 0 0 / 50%);
+    --tk-z-popup: 100;
+
+    /* Motion. Durations scale together; fades and moves ease separately, so a
+       theme can make opacity flicker while position glides. */
+    --tk-duration-1: 110ms;
+    --tk-duration-2: 160ms;
+    --tk-duration-3: 280ms;
+    --tk-duration-morph: 320ms;
+    --tk-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --tk-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --tk-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --tk-ease-fade: var(--tk-ease-out);
+    --tk-ease-morph: var(--tk-ease-out);
+    --tk-enter-offset: 4px;
+    --tk-enter-scale: 0.98;
+    --tk-enter-blur: 0px;
+
+    /* Text decoding (see <Decipher>): the glyphs text resolves through. */
+    --tk-decipher-glyphs: '▓▒░█▚▞▟▙/\\|_-=+#';
+
+    /* Scenery: the dithered WebGL illustration revealed through windows. The
+       ramp runs dark → light; the ember ink marks a scene's emissive spots. */
+    --tk-scenery-scene: 'trapper';
+    --tk-scenery-attachment: fixed;
+    --tk-scenery-ink-0: oklch(0.15 0.005 180);
+    --tk-scenery-ink-1: oklch(0.19 0.012 178);
+    --tk-scenery-ink-2: oklch(0.235 0.02 176);
+    --tk-scenery-ink-3: oklch(0.28 0.03 176);
+    --tk-scenery-ink-4: oklch(0.33 0.038 176);
+    --tk-scenery-ember: oklch(0.32 0.045 176);
+    --tk-scenery-pixel: 2;
+    --tk-scenery-bayer: 8;
+    /* Exposure: every frame is scaled so its average lightness meets the key.
+       The tone range is then the window of lightness spread across the inks. */
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.1;
+    --tk-scenery-tone-high: 0.65;
+    --tk-scenery-softness: 9;
+  }
+}

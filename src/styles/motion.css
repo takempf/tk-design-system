@@ -1,0 +1,180 @@
+/*
+  View transition styling. Durations and easings come from the document theme's
+  motion tokens, so Grove morphs slowly with a settle and Bureau snaps.
+
+  The root is not captured: only elements that opt in with <Morph>/<Reveal>
+  animate, and everything else updates in place, instantly.
+*/
+@layer tk.base {
+  :root {
+    view-transition-name: none;
+  }
+
+  ::view-transition {
+    pointer-events: none;
+  }
+
+  /* Names are switched on by morph() itself, per scope (see motion/morph.tsx);
+     this sheet only says how named things move. */
+
+  /* Shared elements: the box glides, the old and new renderings crossfade. */
+  ::view-transition-group(.tk-morph),
+  ::view-transition-group(.tk-morph-text),
+  ::view-transition-group(.tk-reveal) {
+    animation-duration: var(--tk-duration-morph);
+    animation-timing-function: var(--tk-ease-morph);
+  }
+
+  ::view-transition-old(.tk-morph),
+  ::view-transition-new(.tk-morph),
+  ::view-transition-old(.tk-morph-text),
+  ::view-transition-new(.tk-morph-text) {
+    height: 100%;
+    animation-duration: calc(var(--tk-duration-morph) * 0.6);
+    animation-timing-function: var(--tk-ease-fade);
+    mix-blend-mode: normal;
+  }
+
+  /* Text keeps its true size and rides the left edge of the moving box. */
+  ::view-transition-old(.tk-morph-text),
+  ::view-transition-new(.tk-morph-text) {
+    width: auto;
+    object-fit: none;
+    object-position: left center;
+  }
+
+  @keyframes tk-vt-rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--tk-enter-offset) * 2));
+      filter: blur(var(--tk-enter-blur));
+    }
+  }
+
+  @keyframes tk-vt-sink-out {
+    to {
+      opacity: 0;
+      transform: translateY(calc(var(--tk-enter-offset) * -1));
+      filter: blur(var(--tk-enter-blur));
+    }
+  }
+
+  @keyframes tk-vt-from-right {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--tk-enter-offset) * 4));
+      filter: blur(var(--tk-enter-blur));
+    }
+  }
+
+  @keyframes tk-vt-from-left {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--tk-enter-offset) * -4));
+      filter: blur(var(--tk-enter-blur));
+    }
+  }
+
+  @keyframes tk-vt-to-left {
+    to {
+      opacity: 0;
+      transform: translateX(calc(var(--tk-enter-offset) * -3));
+    }
+  }
+
+  @keyframes tk-vt-to-right {
+    to {
+      opacity: 0;
+      transform: translateX(calc(var(--tk-enter-offset) * 3));
+    }
+  }
+
+  /* Only a new image: the element entered. Only an old one: it left. */
+  ::view-transition-new(.tk-reveal):only-child {
+    animation: tk-vt-rise-in var(--tk-duration-3) var(--tk-ease-out) both;
+  }
+
+  ::view-transition-old(.tk-reveal):only-child {
+    animation: tk-vt-sink-out var(--tk-duration-1) var(--tk-ease-in) both;
+  }
+
+  :root:active-view-transition-type(forward) {
+    &::view-transition-new(.tk-directional):only-child {
+      animation-name: tk-vt-from-right;
+    }
+
+    &::view-transition-old(.tk-directional):only-child {
+      animation-name: tk-vt-to-left;
+    }
+  }
+
+  :root:active-view-transition-type(back) {
+    &::view-transition-new(.tk-directional):only-child {
+      animation-name: tk-vt-from-left;
+    }
+
+    &::view-transition-old(.tk-directional):only-child {
+      animation-name: tk-vt-to-right;
+    }
+  }
+
+  /* wipe(): the page is captured whole and the new state opens from a point. */
+  :root[data-tk-wipe] {
+    view-transition-name: root;
+  }
+
+  @keyframes tk-wipe-reveal {
+    from {
+      clip-path: circle(0 at var(--tk-wipe-x) var(--tk-wipe-y));
+    }
+
+    to {
+      clip-path: circle(var(--tk-wipe-r) at var(--tk-wipe-x) var(--tk-wipe-y));
+    }
+  }
+
+  :root[data-tk-wipe]::view-transition-old(root) {
+    animation: none;
+  }
+
+  :root[data-tk-wipe]::view-transition-new(root) {
+    animation: tk-wipe-reveal calc(var(--tk-duration-morph) * 1.6) var(--tk-ease-in-out) both;
+  }
+
+  /* <Decipher>: the real text holds the space; the scramble sits on top. */
+  .tk-decipher {
+    display: inline-grid;
+  }
+
+  .tk-decipher > * {
+    grid-area: 1 / 1;
+  }
+
+  .tk-decipher-overlay {
+    white-space: pre;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .tk-decipher:has(.tk-decipher-overlay:not(:empty)) .tk-decipher-text {
+    color: transparent;
+  }
+
+  .tk-portal {
+    display: contents;
+  }
+
+  /* A scoped theme paints its own ground. */
+  .tk-theme {
+    background: var(--tk-bg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      /* biome-ignore lint/complexity/noImportantStyles: the reduced-motion kill switch must beat every animation rule */
+      animation: none !important;
+    }
+  }
+}

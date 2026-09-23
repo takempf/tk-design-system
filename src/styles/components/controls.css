@@ -1,0 +1,633 @@
+@layer tk.components {
+  /* Icon ------------------------------------------------------------------ */
+
+  .tk-icon {
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--tk-icon-stroke);
+    stroke-linecap: var(--tk-icon-cap);
+    stroke-linejoin: var(--tk-icon-join);
+
+    & .tk-icon-fill {
+      fill: currentColor;
+      stroke: none;
+    }
+
+    & .tk-icon-inner {
+      stroke-linecap: butt;
+    }
+  }
+
+  /* Button ---------------------------------------------------------------- */
+
+  .tk-button {
+    --_h: var(--tk-control-h);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tk-space-2);
+    min-height: var(--_h);
+    padding: 0 var(--tk-space-4);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface);
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-button-text);
+    font-weight: var(--tk-weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    transition-property: background-color, border-color, color, translate;
+    transition-duration: var(--tk-duration-1);
+    transition-timing-function: var(--tk-ease-out);
+
+    & .tk-icon {
+      font-size: 1.15em;
+    }
+
+    &:hover:not([data-disabled]) {
+      background: var(--tk-surface-hover);
+      border-color: var(--tk-border-strong);
+      color: var(--tk-fg);
+    }
+
+    &:active:not([data-disabled]) {
+      translate: 0 1px;
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &[data-size='sm'] {
+      --_h: var(--tk-control-h-sm);
+      padding-inline: var(--tk-space-3);
+      font-size: var(--tk-text-xs);
+    }
+
+    &[data-size='lg'] {
+      --_h: var(--tk-control-h-lg);
+      padding-inline: var(--tk-space-6);
+      font-size: var(--tk-text-md);
+    }
+
+    &[data-square] {
+      width: var(--_h);
+      padding: 0;
+    }
+
+    &[data-variant='primary'] {
+      background: var(--tk-primary);
+      border-color: var(--tk-primary);
+      color: var(--tk-primary-fg);
+      font-weight: var(--tk-weight-bold);
+
+      &:hover:not([data-disabled]) {
+        background: var(--tk-primary-hover);
+        border-color: var(--tk-primary-hover);
+        color: var(--tk-primary-fg);
+      }
+    }
+
+    &[data-variant='ghost'] {
+      background: transparent;
+      border-color: transparent;
+
+      &:hover:not([data-disabled]) {
+        background: var(--tk-surface-hover);
+        border-color: var(--tk-border-subtle);
+      }
+    }
+
+    &[data-variant='danger'] {
+      background: transparent;
+      border-color: var(--tk-border-subtle);
+      color: var(--tk-danger);
+
+      &:hover:not([data-disabled]) {
+        background: var(--tk-danger-soft);
+        border-color: var(--tk-danger);
+        color: var(--tk-danger);
+      }
+    }
+  }
+
+  /* Field ----------------------------------------------------------------- */
+
+  .tk-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-2);
+    min-width: 0;
+  }
+
+  .tk-field-label {
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-text-sm);
+    font-weight: var(--tk-weight-medium);
+  }
+
+  .tk-field-description {
+    margin: 0;
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-text-sm);
+  }
+
+  .tk-field-error {
+    margin: 0;
+    color: var(--tk-danger);
+    font-size: var(--tk-text-sm);
+  }
+
+  .tk-fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-4);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .tk-fieldset-legend {
+    margin-bottom: var(--tk-space-2);
+    padding: 0;
+    color: var(--tk-label);
+    font-family: var(--tk-label-font);
+    font-size: var(--tk-label-size);
+    font-weight: var(--tk-label-weight);
+    font-stretch: var(--tk-label-stretch);
+    letter-spacing: var(--tk-label-tracking);
+    text-transform: var(--tk-label-transform);
+  }
+
+  /* Input ----------------------------------------------------------------- */
+
+  .tk-input {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--tk-control-h);
+    padding: 0 var(--tk-space-3);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface);
+    color: var(--tk-fg);
+    font-size: var(--tk-control-text);
+    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &::placeholder {
+      color: var(--tk-fg-subtle);
+      opacity: 1;
+    }
+
+    &:hover:not([data-disabled]) {
+      border-color: var(--tk-border-strong);
+    }
+
+    &:focus {
+      border-color: var(--tk-focus-color);
+      outline: 0;
+    }
+
+    &:focus-visible {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: 2px;
+    }
+
+    &[data-invalid] {
+      border-color: var(--tk-danger);
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &[data-size='sm'] {
+      min-height: var(--tk-control-h-sm);
+      font-size: var(--tk-text-sm);
+    }
+
+    &[data-size='lg'] {
+      min-height: var(--tk-control-h-lg);
+      padding-inline: var(--tk-space-4);
+      font-size: var(--tk-text-lg);
+    }
+  }
+
+  .tk-textarea {
+    min-height: 7rem;
+    /* It grows, so never rounder than a surface: pill inputs, not pill paragraphs. */
+    border-radius: min(var(--tk-radius), var(--tk-radius-lg));
+    padding-block: var(--tk-space-2);
+    line-height: var(--tk-leading-reading);
+    resize: vertical;
+  }
+
+  /* Checkbox, radio, switch ----------------------------------------------- */
+
+  .tk-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tk-space-3);
+    color: var(--tk-fg);
+    cursor: pointer;
+    user-select: none;
+
+    &:has([data-disabled]) {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .tk-checkbox,
+  .tk-radio {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: var(--tk-border-width) solid var(--tk-border-strong);
+    background: var(--tk-surface);
+    color: var(--tk-primary-fg);
+    cursor: inherit;
+    transition-property: background-color, border-color;
+    transition-duration: var(--tk-duration-1);
+  }
+
+  .tk-checkbox {
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+
+    &[data-checked],
+    &[data-indeterminate] {
+      background: var(--tk-primary);
+      border-color: var(--tk-primary);
+    }
+  }
+
+  .tk-checkbox-indicator {
+    display: flex;
+    font-size: 0.95rem;
+    transition:
+      scale var(--tk-duration-2) var(--tk-ease-out),
+      opacity var(--tk-duration-1) var(--tk-ease-fade);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      scale: 0.4;
+      opacity: 0;
+    }
+  }
+
+  .tk-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-3);
+  }
+
+  .tk-radio {
+    border-radius: var(--tk-radio-radius);
+    rotate: var(--tk-knob-rotate);
+    scale: var(--tk-radio-scale);
+
+    &[data-checked] {
+      border-color: var(--tk-primary);
+    }
+  }
+
+  .tk-radio-indicator {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: var(--tk-radio-radius);
+    background: var(--tk-primary);
+    transition: scale var(--tk-duration-2) var(--tk-ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      scale: 0;
+    }
+
+    &[data-unchecked] {
+      display: none;
+    }
+  }
+
+  .tk-switch {
+    --_w: 2.5rem;
+    --_h: 1.4rem;
+    --_inset: 3px;
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    width: var(--_w);
+    height: var(--_h);
+    padding: 0;
+    border: var(--tk-border-width) solid var(--tk-border-strong);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface);
+    cursor: inherit;
+    transition:
+      background-color var(--tk-duration-2) var(--tk-ease-out),
+      border-color var(--tk-duration-2) var(--tk-ease-out);
+
+    &[data-checked] {
+      background: var(--tk-primary);
+      border-color: var(--tk-primary);
+    }
+  }
+
+  .tk-switch-thumb {
+    --_size: calc(var(--_h) - 2 * var(--_inset) - 2 * var(--tk-border-width));
+    width: var(--_size);
+    height: var(--_size);
+    margin-inline-start: var(--_inset);
+    border-radius: var(--tk-knob-radius);
+    background: var(--tk-fg-muted);
+    rotate: var(--tk-knob-rotate);
+    scale: var(--tk-knob-scale);
+    transition:
+      translate var(--tk-duration-2) var(--tk-ease-out),
+      background-color var(--tk-duration-2) var(--tk-ease-out),
+      rotate var(--tk-duration-3) var(--tk-ease-out);
+
+    &[data-checked] {
+      translate: calc(var(--_w) - var(--_size) - 2 * var(--_inset) - 2 * var(--tk-border-width)) 0;
+      rotate: calc(var(--tk-knob-rotate) * 3);
+      background: var(--tk-primary-fg);
+    }
+  }
+
+  /* Slider, progress, meter ----------------------------------------------- */
+
+  .tk-slider,
+  .tk-meter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-2);
+    width: 100%;
+  }
+
+  .tk-range-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tk-space-3);
+  }
+
+  .tk-range-label {
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-text-sm);
+    font-weight: var(--tk-weight-medium);
+  }
+
+  .tk-range-value {
+    color: var(--tk-fg);
+    font-family: var(--tk-font-mono);
+    font-size: var(--tk-text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tk-slider-control {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-block: var(--tk-space-3);
+    touch-action: none;
+    cursor: pointer;
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .tk-slider-track {
+    position: relative;
+    width: 100%;
+    height: 3px;
+    background: var(--tk-border);
+  }
+
+  .tk-slider-indicator {
+    background: var(--tk-primary);
+  }
+
+  .tk-slider-thumb {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: var(--tk-knob-radius);
+    background: var(--tk-primary);
+    outline: 3px solid var(--tk-bg);
+    rotate: var(--tk-knob-rotate);
+    transition: scale var(--tk-duration-1) var(--tk-ease-out);
+
+    &[data-dragging] {
+      scale: 1.2;
+    }
+
+    &:has(:focus-visible) {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: 2px;
+    }
+  }
+
+  .tk-meter-track {
+    height: 0.4rem;
+    overflow: hidden;
+    border-radius: var(--tk-radius-sm);
+    background: var(--tk-surface);
+    box-shadow: inset 0 0 0 var(--tk-border-width) var(--tk-border-subtle);
+  }
+
+  .tk-meter-indicator {
+    height: 100%;
+    background: var(--tk-accent);
+    transition: width var(--tk-duration-3) var(--tk-ease-out);
+  }
+
+  @keyframes tk-indeterminate {
+    from {
+      translate: -100% 0;
+    }
+
+    to {
+      translate: 250% 0;
+    }
+  }
+
+  .tk-meter[data-indeterminate] .tk-meter-indicator {
+    width: 40%;
+    animation: tk-indeterminate 1.4s var(--tk-ease-in-out) infinite;
+  }
+
+  /* Toggle group ---------------------------------------------------------- */
+
+  .tk-toggle-group {
+    --tk-marker-x: 0px;
+    --tk-marker-y: 0px;
+    --tk-marker-w: 0px;
+    --tk-marker-h: 0px;
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    width: fit-content;
+    gap: 2px;
+    padding: 2px;
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-surface);
+
+    &[data-orientation='vertical'] {
+      flex-direction: column;
+    }
+  }
+
+  .tk-toggle {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tk-space-2);
+    min-height: calc(var(--tk-control-h) - 6px);
+    padding: 0 var(--tk-space-3);
+    border: 0;
+    border-radius: calc(var(--tk-radius) - 2px);
+    corner-shape: var(--tk-corner-shape);
+    background: transparent;
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-button-text);
+    font-weight: var(--tk-weight-medium);
+    cursor: pointer;
+    transition:
+      background-color var(--tk-duration-2) var(--tk-ease-out),
+      color var(--tk-duration-2) var(--tk-ease-out);
+
+    /* Hover: a faint ghost of the pressed fill. Under the marker it's hidden,
+       so a click leaves no gap while the marker slides over. */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--tk-primary);
+      opacity: 0;
+      transition: opacity var(--tk-duration-2) var(--tk-ease-out);
+    }
+
+    &:is(:hover, :focus-visible):not([data-disabled])::before {
+      opacity: 0.125;
+    }
+
+    &:is(:hover, :focus-visible):not([data-pressed]):not([data-disabled]) {
+      color: var(--tk-fg);
+    }
+
+    &[data-pressed] {
+      background: var(--tk-primary);
+      color: var(--tk-primary-fg);
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .tk-toggle-group[data-size='sm'] & {
+      min-height: calc(var(--tk-control-h-sm) - 6px);
+      padding-inline: var(--tk-space-2);
+      font-size: var(--tk-text-xs);
+    }
+  }
+
+  /* Single choice: the pressed fill is one marker that slides between toggles
+     (measured into --tk-marker-*, see ToggleGroup.tsx). Above it, a lit copy of
+     the row in the pressed colours is cut to the marker's box. */
+  .tk-toggle-group[data-sliding] > .tk-toggle[data-pressed] {
+    background: transparent;
+  }
+
+  .tk-toggle-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--tk-marker-w);
+    height: var(--tk-marker-h);
+    translate: var(--tk-marker-x) var(--tk-marker-y);
+    border-radius: calc(var(--tk-radius) - 2px);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-primary);
+    pointer-events: none;
+  }
+
+  /* Laid out exactly like the group, so every label sits on its original. */
+  .tk-toggle-lit {
+    position: absolute;
+    inset: 0;
+    display: inherit;
+    flex-direction: inherit;
+    gap: inherit;
+    padding: inherit;
+    pointer-events: none;
+    clip-path: inset(
+      var(--tk-marker-y) calc(100% - var(--tk-marker-x) - var(--tk-marker-w))
+        calc(100% - var(--tk-marker-y) - var(--tk-marker-h)) var(--tk-marker-x)
+    );
+
+    & > .tk-toggle {
+      color: var(--tk-primary-fg);
+    }
+  }
+
+  .tk-toggle-group[data-empty] > :is(.tk-toggle-marker, .tk-toggle-lit) {
+    opacity: 0;
+  }
+
+  /* Both edges ride the same numbers on the same curve, so they never part. */
+  .tk-toggle-group[data-placed] > :is(.tk-toggle-marker, .tk-toggle-lit) {
+    transition-property: translate, width, height, clip-path, opacity;
+    transition-duration: var(--tk-duration-morph);
+    transition-timing-function: var(--tk-ease-morph);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  /* Multiple choice: the pressed fill is its own layer, so it can grow out of
+     the click (animated from ToggleGroup.tsx) rather than just appear. */
+  .tk-toggle-group:not([data-sliding]) > .tk-toggle {
+    &[data-pressed] {
+      background: transparent;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--tk-primary);
+      scale: 0;
+      pointer-events: none;
+    }
+
+    &[data-pressed]::after {
+      scale: 1;
+    }
+  }
+}

@@ -1,0 +1,76 @@
+/*
+  Bureau — the base look pushed toward a brutalist government building.
+  Black concrete, white selection blocks, red wayfinding. Fades flicker like a
+  failing fluorescent tube while movement stays crisp.
+*/
+@layer tk.themes {
+  [data-tk-theme='bureau'] {
+    --tk-bg: #111110;
+    --tk-surface: #070707;
+    --tk-surface-raised: #141413;
+    --tk-surface-hover: #1c1c1a;
+    --tk-fg: #efeee8;
+    --tk-fg-muted: #a8a7a0;
+    --tk-fg-subtle: #7b7a74;
+    --tk-fg-inverse: #070707;
+    --tk-border-subtle: #242422;
+    --tk-border: #3d3d3a;
+    --tk-border-strong: #8a8983;
+    --tk-primary: #efeee8;
+    --tk-primary-hover: #c9c8c1;
+    --tk-primary-fg: #070707;
+    --tk-accent: #efeee8;
+    --tk-label: #e8222d;
+    --tk-highlight: #efeee8;
+    --tk-highlight-fg: #070707;
+    --tk-danger: #ff4a52;
+    --tk-success: #8fd6a4;
+    --tk-focus-color: #e8222d;
+
+    --tk-label-tracking: 0.16em;
+    --tk-font-display: var(--tk-font-label);
+    --tk-display-stretch: 72%;
+    --tk-label-stretch: 62%;
+    --tk-tracking-display: 0.02em;
+
+    --tk-duration-1: 90ms;
+    --tk-duration-2: 150ms;
+    --tk-duration-3: 240ms;
+    --tk-duration-morph: 260ms;
+    --tk-ease-out: cubic-bezier(0.2, 1, 0.2, 1);
+    /* On, off, on: a tube catching. Only opacity uses it. */
+    --tk-ease-fade: linear(0, 0.85 12%, 0.1 22%, 0.7 34%, 0.25 44%, 1 58%, 1);
+    --tk-enter-offset: 3px;
+    --tk-enter-scale: 1;
+
+    --tk-decipher-glyphs: '0123456789#%&/<>[]{}=+';
+
+    --tk-scenery-scene: 'monolith';
+    --tk-scenery-ink-0: oklch(0.115 0.001 100);
+    --tk-scenery-ink-1: oklch(0.15 0.002 100);
+    --tk-scenery-ink-2: oklch(0.19 0.003 100);
+    --tk-scenery-ink-3: oklch(0.23 0.004 100);
+    --tk-scenery-ink-4: oklch(0.27 0.006 100);
+    --tk-scenery-ember: oklch(0.265 0.075 24);
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.08;
+    --tk-scenery-tone-high: 0.66;
+  }
+}
+
+/* Bureau's page wipe is a stepped scan, top to bottom, like a CRT catching. */
+@layer tk.themes {
+  @keyframes tk-wipe-scan {
+    from {
+      clip-path: inset(0 0 100% 0);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  :root[data-tk-theme='bureau'][data-tk-wipe]::view-transition-new(root) {
+    animation: tk-wipe-scan 360ms steps(9, jump-end) both;
+  }
+}

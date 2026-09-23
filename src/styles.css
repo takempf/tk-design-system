@@ -1,0 +1,22 @@
+/*
+  tk-design-system stylesheet. Cascade layers keep every rule here below your own
+  unlayered CSS, so overriding a token or a component never needs !important.
+
+    tk.reset       element defaults
+    tk.tokens      the base theme, on :root and every [data-tk-theme]
+    tk.base        view transitions and small utilities
+    tk.components  one class per part: .tk-button, .tk-list-item, …
+    tk.themes      bundled themes: token overrides first, then anything a
+                   theme wants to restyle beyond tokens (it wins over the above)
+*/
+@layer tk.reset, tk.tokens, tk.base, tk.components, tk.themes;
+
+@import './styles/reset.css';
+@import './styles/tokens.css';
+@import './themes/grove.css';
+@import './themes/bureau.css';
+@import './themes/paper.css';
+@import './styles/motion.css';
+@import './styles/components/controls.css';
+@import './styles/components/popups.css';
+@import './styles/components/surfaces.css';

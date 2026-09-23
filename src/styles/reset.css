@@ -1,0 +1,128 @@
+@layer tk.reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: var(--tk-root-size);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* Lets Base UI backdrops use position: absolute after scrolling on iOS. */
+    position: relative;
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--tk-bg);
+  }
+
+  /* Every theme scope carries its own type and ink, not only the document. */
+  html,
+  [data-tk-theme] {
+    color: var(--tk-fg);
+    font-family: var(--tk-font-sans);
+    font-size: var(--tk-text-md);
+    font-weight: var(--tk-weight-regular);
+    line-height: var(--tk-leading-normal);
+    letter-spacing: var(--tk-tracking);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+  }
+
+  :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote) {
+    margin: 0;
+  }
+
+  :where(h1, h2, h3, h4) {
+    font-family: var(--tk-font-display);
+    font-stretch: var(--tk-display-stretch);
+    font-weight: var(--tk-weight-bold);
+    line-height: var(--tk-leading-tight);
+    letter-spacing: var(--tk-tracking-display);
+    text-wrap: balance;
+  }
+
+  :where(h1) {
+    font-size: var(--tk-text-3xl);
+  }
+
+  :where(h2) {
+    font-size: var(--tk-text-2xl);
+  }
+
+  :where(h3) {
+    font-size: var(--tk-text-xl);
+  }
+
+  :where(h4) {
+    font-size: var(--tk-text-lg);
+  }
+
+  :where(p) {
+    text-wrap: pretty;
+  }
+
+  :where(code, kbd, pre, samp) {
+    font-family: var(--tk-font-mono);
+    font-size: 0.9em;
+  }
+
+  :where(button, input, select, textarea) {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
+
+  :where(a) {
+    color: var(--tk-accent);
+    text-underline-offset: 0.25em;
+  }
+
+  :where(img, svg, video, canvas) {
+    display: block;
+    max-width: 100%;
+  }
+
+  :where(strong, b) {
+    font-weight: var(--tk-weight-bold);
+    color: color-mix(in oklab, currentColor, var(--tk-fg-bright) 70%);
+  }
+
+  ::selection {
+    background: var(--tk-selection-bg);
+    color: var(--tk-selection-fg);
+    text-shadow: none;
+  }
+
+  :focus-visible {
+    outline: var(--tk-focus-width) solid var(--tk-focus-color);
+    outline-offset: var(--tk-focus-offset);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tk-border-strong) transparent;
+  }
+
+  /* Popups stack above page content without z-index wars. */
+  #root,
+  .tk-theme {
+    isolation: isolate;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      /* biome-ignore-start lint/complexity/noImportantStyles: the reduced-motion kill switch must beat every animation rule */
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+      /* biome-ignore-end lint/complexity/noImportantStyles: the reduced-motion kill switch must beat every animation rule */
+    }
+  }
+}
