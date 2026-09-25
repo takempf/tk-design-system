@@ -26,6 +26,7 @@
     },
     "./styles.css": "./dist/styles.css",
     "./fonts.css": "./src/fonts.css",
+    "./logo.svg": "./src/icons/logo.svg",
     "./source/*": "./src/*"
   },
   "scripts": {

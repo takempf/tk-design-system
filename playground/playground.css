@@ -43,29 +43,21 @@
 }
 
 .pg-brand-mark {
-  font-size: 2.2rem;
-  color: var(--tk-label);
+  font-size: 1.75rem;
+  filter: drop-shadow(2px 2px 1px oklch(0% 0 0 / 0.6));
+}
+
+[data-tk-theme='paper'] .pg-brand-mark {
+  filter: none;
 }
 
 .pg-brand-text {
-  display: flex;
-  flex-direction: column;
+  font-family: var(--tk-label-font);
+  font-size: var(--tk-text-xs);
+  font-stretch: var(--tk-label-stretch);
+  letter-spacing: var(--tk-label-tracking);
   line-height: 1.1;
-
-  & strong {
-    font-family: var(--tk-font-display);
-    font-stretch: var(--tk-display-stretch);
-    font-size: var(--tk-text-xl);
-    color: inherit;
-  }
-
-  & span {
-    font-family: var(--tk-label-font);
-    font-size: var(--tk-text-xs);
-    font-stretch: var(--tk-label-stretch);
-    letter-spacing: var(--tk-label-tracking);
-    text-transform: var(--tk-label-transform);
-  }
+  text-transform: var(--tk-label-transform);
 }
 
 /* The links, the marker and a lit copy of the links, stacked in one cell. */
@@ -563,6 +555,24 @@
 
   &[data-marks] li {
     color: var(--tk-label);
+  }
+}
+
+.pg-logo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--tk-space-8);
+  margin: 0 0 var(--tk-space-6);
+  padding: var(--tk-space-8);
+  color: var(--tk-fg-bright);
+
+  & p {
+    display: flex;
+    align-items: center;
+    gap: var(--tk-space-2);
+    margin: 0;
+    color: var(--tk-fg);
   }
 }
 

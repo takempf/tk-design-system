@@ -49,6 +49,7 @@ export {
   type ToggleProps,
 } from './components/ToggleGroup';
 export { Icon, type IconName, type IconProps, iconNames, markNames } from './icons/Icon';
+export { Logo, type LogoProps, logoPaths } from './icons/Logo';
 export * from './motion';
 export * from './scenery';
 export { Theme, usePortalContainer, useTheme } from './theme/Theme';

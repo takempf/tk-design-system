@@ -99,7 +99,8 @@ inside a Paper panel is Paper even on a Grove page.
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Icon` (utility icons plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
-and one optical size).
+and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;
+also shipped as a file at `tk-design-system/logo.svg`).
 
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.

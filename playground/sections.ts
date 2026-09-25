@@ -48,7 +48,7 @@ export const sections: readonly Section[] = [
     id: 'glyphs',
     title: 'Glyphs',
     mark: 'dot',
-    blurb: 'Icons and marks: plain geometry, one stroke weight, one optical size.',
+    blurb: 'The logo, icons and marks: plain geometry, one stroke weight, one optical size.',
   },
   {
     id: 'themes',

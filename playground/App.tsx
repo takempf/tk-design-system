@@ -5,6 +5,7 @@ import {
   Eyebrow,
   Icon,
   Kbd,
+  Logo,
   morph,
   Popover,
   Reveal,
@@ -117,11 +118,8 @@ export function App() {
             <aside className="pg-rail">
               <a className="pg-brand" href="#/hall">
                 <SceneryWindow />
-                <Icon name="square-in-circle" className="pg-brand-mark" />
-                <span className="pg-brand-text">
-                  <strong>tk</strong>
-                  <span>Proving Grounds</span>
-                </span>
+                <Logo className="pg-brand-mark" />
+                <span className="pg-brand-text">Proving Grounds</span>
               </a>
               <Nav activeId={section.id} />
               <div className="pg-rail-footer">

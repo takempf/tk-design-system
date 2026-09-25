@@ -19,6 +19,12 @@
     }
   }
 
+  .tk-logo {
+    flex: none;
+    width: auto;
+    fill: currentColor;
+  }
+
   /* Button ---------------------------------------------------------------- */
 
   .tk-button {
