@@ -31,7 +31,7 @@ function AccordionTrigger({
     <BaseAccordion.Header className="tk-accordion-header">
       <BaseAccordion.Trigger {...props} className={withBase('tk-accordion-trigger', className)}>
         <span>{children}</span>
-        <Icon name="plus" className="tk-accordion-icon" />
+        <Icon name="chevron-down" className="tk-accordion-icon" />
       </BaseAccordion.Trigger>
     </BaseAccordion.Header>
   );

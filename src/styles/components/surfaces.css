@@ -259,7 +259,7 @@
     transition: rotate var(--tk-duration-3) var(--tk-ease-morph);
 
     [data-panel-open] > & {
-      rotate: 135deg;
+      rotate: 180deg;
       color: var(--tk-label);
     }
   }
