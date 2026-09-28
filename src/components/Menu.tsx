@@ -9,14 +9,21 @@ type PositionerProps = Pick<
   'side' | 'align' | 'sideOffset' | 'alignOffset'
 >;
 
+type PopupProps = ComponentProps<typeof BaseMenu.Popup> &
+  PositionerProps & {
+    /** Matches the trigger button's size, so the rows read at its type size. */
+    readonly size?: 'sm' | 'md' | 'lg';
+  };
+
 function Popup({
   side,
   align = 'start',
   sideOffset = 6,
   alignOffset,
+  size = 'md',
   className,
   ...props
-}: ComponentProps<typeof BaseMenu.Popup> & PositionerProps) {
+}: PopupProps) {
   const container = usePortalContainer();
   return (
     <BaseMenu.Portal container={container}>
@@ -27,7 +34,11 @@ function Popup({
         sideOffset={sideOffset}
         alignOffset={alignOffset}
       >
-        <BaseMenu.Popup {...props} className={withBase('tk-popup tk-list-popup', className)} />
+        <BaseMenu.Popup
+          {...props}
+          className={withBase('tk-popup tk-list-popup tk-menu-popup', className)}
+          data-size={size}
+        />
       </BaseMenu.Positioner>
     </BaseMenu.Portal>
   );
@@ -104,8 +115,9 @@ function SubmenuTrigger({
 }
 
 /**
- * A list of actions. `Menu.Popup` bundles the portal and positioner; items take
- * an optional `icon` and `data-tone="danger"`.
+ * A list of actions. `Menu.Popup` bundles the portal and positioner, and takes
+ * the trigger button's `size`; items take an optional `icon` and
+ * `data-tone="danger"`.
  *
  *   <Menu.Root>
  *     <Menu.Trigger render={<Button />}>Options</Menu.Trigger>

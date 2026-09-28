@@ -53,7 +53,10 @@
 
   /* Lists: select, combobox and menu share one item style ----------------- */
 
+  /* Rows match the trigger's size: a select's rows its type, a menu's its button's. */
   .tk-list-popup {
+    --_item-h: var(--tk-control-h);
+    --_item-text: var(--tk-control-text);
     min-width: max(var(--anchor-width, 0px), 12rem);
     max-width: var(--available-width);
     max-height: min(24rem, var(--available-height));
@@ -61,6 +64,28 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
+
+    &[data-size='sm'] {
+      --_item-h: var(--tk-control-h-sm);
+      --_item-text: var(--tk-text-sm);
+    }
+
+    &[data-size='lg'] {
+      --_item-h: var(--tk-control-h-lg);
+      --_item-text: var(--tk-text-lg);
+    }
+  }
+
+  .tk-menu-popup {
+    --_item-text: var(--tk-button-text);
+
+    &[data-size='sm'] {
+      --_item-text: var(--tk-text-xs);
+    }
+
+    &[data-size='lg'] {
+      --_item-text: var(--tk-text-md);
+    }
   }
 
   .tk-list {
@@ -72,12 +97,12 @@
     grid-template-columns: 1.1rem 1fr auto;
     align-items: center;
     gap: var(--tk-space-2);
-    min-height: var(--tk-control-h);
+    min-height: var(--_item-h, var(--tk-control-h));
     padding: var(--tk-space-1) var(--tk-space-3) var(--tk-space-1) var(--tk-space-2);
     border-radius: var(--tk-radius-sm);
     corner-shape: var(--tk-corner-shape);
     color: var(--tk-fg);
-    font-size: var(--tk-control-text);
+    font-size: var(--_item-text, var(--tk-control-text));
     line-height: var(--tk-leading-tight);
     cursor: default;
     outline: 0;

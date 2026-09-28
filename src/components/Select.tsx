@@ -95,7 +95,11 @@ export function Select<V>({
       </BaseSelect.Trigger>
       <BaseSelect.Portal container={container}>
         <BaseSelect.Positioner className="tk-positioner" sideOffset={6} align="start">
-          <BaseSelect.Popup ref={unfold} className="tk-popup tk-list-popup tk-select-popup">
+          <BaseSelect.Popup
+            ref={unfold}
+            className="tk-popup tk-list-popup tk-select-popup"
+            data-size={size}
+          >
             <BaseSelect.List className="tk-list">
               {items.map((item) => (
                 <BaseSelect.Item
