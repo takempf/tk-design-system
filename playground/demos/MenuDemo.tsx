@@ -4,7 +4,8 @@ import { Button, Icon, Menu, toasts } from 'tk-design-system';
 export const meta = {
   section: 'actions',
   title: 'Menu',
-  description: 'Groups, checkable items, radio items, a submenu and a danger action.',
+  description:
+    'It opens out of its button, whose label becomes the first row. Groups, checkable and radio items, a submenu and a danger action.',
   order: 3,
 };
 

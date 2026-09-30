@@ -1,4 +1,4 @@
-import type { ComponentProps, ComponentType } from 'react';
+import type { ComponentProps, ComponentType, Ref, RefCallback } from 'react';
 
 /** Base UI accepts `className` as a string or as a function of component state. */
 export type ClassName<State = never> = string | ((state: State) => string | undefined) | undefined;
@@ -12,6 +12,25 @@ export function withBase<State>(base: string, className: ClassName<State>): Clas
     return (state: State) => cx(base, className(state));
   }
   return cx(base, className);
+}
+
+/** One ref callback that feeds several refs (object or function), cleanups included. */
+export function mergeRefs<T>(...refs: (Ref<T> | undefined)[]): RefCallback<T> {
+  return (node) => {
+    const cleanups = refs.map((ref) => {
+      if (typeof ref === 'function') return ref(node);
+      if (ref) ref.current = node;
+      return undefined;
+    });
+    return () => {
+      refs.forEach((ref, i) => {
+        const cleanup = cleanups[i];
+        if (typeof cleanup === 'function') cleanup();
+        else if (typeof ref === 'function') ref(null);
+        else if (ref) ref.current = null;
+      });
+    };
+  };
 }
 
 /**

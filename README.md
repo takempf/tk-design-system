@@ -123,11 +123,14 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   follows `forward`/`back` types.
 - `scope` keeps a local change local: names only exist for the morph that asks for them,
   so opening a popup never captures (or covers) the rest of the page.
-- `Combobox` uses this internally: open it and the shared text (the value, or the
-  placeholder) travels from the trigger to its place in the popup.
-- `Select` opens over its trigger with the chosen row exactly on the value, unfolding out
-  of the trigger's own box, so nothing moves and nothing appears twice. Choosing folds the
-  list back into the trigger while the new label is carried home.
+- `Select`, `Combobox` and `Menu` open over their trigger, unfolding out of its own box,
+  so the trigger's text becomes part of the popup and never appears twice. Closing folds
+  the popup back into the trigger while the shared text is carried home.
+  - `Select` lays the chosen row exactly on the value, so nothing moves.
+  - `Combobox` lands its search field on the trigger. The placeholder slides into the field,
+    or the value slides onto its row in the list.
+  - `Menu` makes the button's own label the popup's first row (pressing it closes), with the
+    items below, or above when there is no room. Submenus open beside their row as usual.
 - `<Decipher>` resolves changed text through the theme's glyphs (`--tk-decipher-glyphs`):
   geometric shapes in Grove, digits in Bureau.
 - `wipe(update, origin)` swaps the theme behind a circular reveal (Bureau scans instead).

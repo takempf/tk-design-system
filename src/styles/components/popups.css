@@ -246,12 +246,16 @@
     color: var(--tk-fg-subtle);
   }
 
+  /* Lands on the trigger: its height less the popup's border, so the rule below
+     it falls on the trigger's own bottom edge, and its type size. */
   .tk-combobox-search {
     position: relative;
     display: flex;
     flex: none;
-    align-items: center;
+    align-items: stretch;
+    min-height: calc(var(--_item-h) - var(--tk-border-width));
     border-bottom: var(--tk-border-width) solid var(--tk-border-subtle);
+    font-size: var(--_item-text);
   }
 
   .tk-combobox-popup {
@@ -261,7 +265,7 @@
     padding: 0;
     overflow: hidden;
 
-    /* Opened upward: keep the search field beside the trigger it came from. */
+    /* Opened upward: the search field stays on the trigger, at the bottom. */
     &[data-side='top'] {
       flex-direction: column-reverse;
 
@@ -281,27 +285,29 @@
 
   .tk-combobox-search-icon {
     position: absolute;
+    top: 50%;
     left: var(--tk-space-3);
+    translate: 0 -50%;
     color: var(--tk-fg-subtle);
     pointer-events: none;
   }
 
   .tk-combobox-input {
     width: 100%;
-    min-height: var(--tk-control-h-lg);
     padding: 0 var(--tk-space-3) 0 calc(var(--tk-space-3) * 2 + 1em);
     border: 0;
     background: transparent;
     color: var(--tk-fg);
-    font-size: var(--tk-control-text);
+    font-size: inherit;
     outline: 0;
   }
 
   .tk-combobox-placeholder {
     position: absolute;
+    top: 50%;
     left: calc(var(--tk-space-3) * 2 + 1em);
+    translate: 0 -50%;
     color: var(--tk-fg-subtle);
-    font-size: var(--tk-control-text);
     white-space: nowrap;
     pointer-events: none;
   }
@@ -559,18 +565,14 @@
     }
   }
 
-  /* Select over its trigger ------------------------------------------------ */
+  /* Popups over their trigger --------------------------------------------- */
 
-  /* Laid over its trigger (data-side='none'): the chosen row sits on the trigger's
-     value, so the list unfolds out of the trigger's own box and folds back into
-     it. That box arrives as --tk-unfold-* (see useUnfoldFrom). */
+  /* A select laid over its trigger (data-side='none'), a combobox and a menu all
+     open out of the trigger's own box and fold back into it: the trigger's text
+     becomes part of the popup rather than being shown twice. That box arrives as
+     --tk-unfold-* (see useUnfoldFrom). */
+  .tk-unfold-popup,
   .tk-select-popup[data-side='none'] {
-    /* The popup starts left of the trigger by a row's text inset less the
-       trigger's; widen it by as much (and a hair) to cover the trigger's edge. */
-    --_shift: calc(var(--tk-space-1) + var(--tk-space-2) * 2 + 1.1rem - var(--tk-space-3));
-    min-width: max(calc(var(--anchor-width, 0px) + var(--_shift) + var(--tk-border-width)), 12rem);
-    /* Base UI's overlay lands one border-width high; set the row on the value. */
-    translate: 0 var(--tk-border-width);
     /* A clip would cut a box-shadow; the positioner casts one instead (below). */
     box-shadow: none;
     clip-path: inset(0 round var(--tk-radius-popup));
@@ -581,7 +583,7 @@
     &[data-starting-style],
     &[data-ending-style] {
       clip-path: inset(
-        var(--tk-unfold-top, 50%) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 50%)
+        var(--tk-unfold-top, 0px) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 0px)
           var(--tk-unfold-left, 0px) round var(--tk-radius-popup)
       );
       transform: none;
@@ -593,15 +595,117 @@
       transition-timing-function: var(--tk-ease-in);
     }
 
-    /* The chosen label is carried back to the trigger (a morph). The rows empty
+    /* The shared text is carried back to the trigger (a morph). The popup empties
        at once, so no copy of it, and no old value, is left for it to land on. */
-    &[data-ending-style] .tk-list-item > * {
+    &[data-ending-style] :is(.tk-list-item, .tk-combobox-search, .tk-menu-head) > *,
+    &[data-ending-style] :is(.tk-list-group-label, .tk-list-empty) {
       visibility: hidden;
     }
   }
 
   /* Cast after the clip, so the shadow unfolds with the list. */
-  .tk-positioner:has(> .tk-select-popup[data-side='none']) {
+  .tk-positioner:has(> :is(.tk-unfold-popup, .tk-select-popup[data-side='none'])) {
     filter: drop-shadow(var(--tk-shadow-popup));
+  }
+
+  .tk-select-popup[data-side='none'] {
+    /* Base UI sets the chosen row's text on the value, so the popup starts left
+       of the trigger by a row's text inset less the trigger's; widen it by as
+       much (and a hair) to cover the trigger's edge. */
+    --_shift: calc(var(--tk-space-1) + var(--tk-space-2) * 2 + 1.1rem - var(--tk-space-3));
+    min-width: max(calc(var(--anchor-width, 0px) + var(--_shift) + var(--tk-border-width)), 12rem);
+    /* Base UI's overlay lands one border-width high; set the row on the value. */
+    translate: 0 var(--tk-border-width);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      clip-path: inset(
+        var(--tk-unfold-top, 50%) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 50%)
+          var(--tk-unfold-left, 0px) round var(--tk-radius-popup)
+      );
+    }
+  }
+
+  /* Menu: the trigger's label, and the same label as the popup's first row ---- */
+
+  .tk-menu-label {
+    display: inline-flex;
+    align-items: center;
+    gap: inherit;
+  }
+
+  /* A combobox or menu covers its trigger while open; its own text would only
+     show through the popup as it fades in. (Transparent, not hidden: it still
+     names the trigger.) */
+  .tk-combobox-trigger[data-popup-open] .tk-select-value,
+  [data-popup-open] > .tk-menu-label {
+    opacity: 0;
+  }
+
+  /* Set like the button it covers: its height (less the popup's border, the
+     rule below it landing on the button's own edge), padding and type. */
+  .tk-menu-head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--tk-space-2);
+    min-height: calc(var(--_head-h) - var(--tk-border-width));
+    padding: 0 var(--_head-pad);
+    border-bottom: var(--tk-border-width) solid var(--tk-border-subtle);
+    color: var(--tk-fg);
+    font-size: var(--_head-text);
+    font-weight: var(--tk-weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+
+    & .tk-icon {
+      font-size: 1.15em;
+    }
+
+    .tk-menu-popup[data-align='end'] > & {
+      justify-content: flex-end;
+    }
+  }
+
+  .tk-menu-popup.tk-unfold-popup {
+    --_head-h: var(--tk-control-h);
+    --_head-pad: var(--tk-space-4);
+    --_head-text: var(--tk-button-text);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+
+    &[data-size='sm'] {
+      --_head-h: var(--tk-control-h-sm);
+      --_head-pad: var(--tk-space-3);
+      --_head-text: var(--tk-text-xs);
+    }
+
+    &[data-size='lg'] {
+      --_head-h: var(--tk-control-h-lg);
+      --_head-pad: var(--tk-space-6);
+      --_head-text: var(--tk-text-md);
+    }
+
+    /* Opened upward: the head stays on the trigger, at the bottom. */
+    &[data-side='top'] {
+      flex-direction: column-reverse;
+
+      & .tk-menu-head {
+        border-top: var(--tk-border-width) solid var(--tk-border-subtle);
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .tk-menu-items {
+    min-height: 0;
+    padding: var(--tk-space-1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
   }
 }

@@ -4,7 +4,7 @@ export const meta = {
   section: 'inputs',
   title: 'Combobox',
   description:
-    'A searchable select. The placeholder travels into the search field; a chosen value travels to its row.',
+    'A searchable select that opens over itself. The placeholder travels into the search field; a chosen value travels to its row.',
   order: 5,
 };
 
