@@ -21,12 +21,21 @@
     --tk-primary: #202020;
     --tk-primary-hover: #3c3c3a;
     --tk-primary-fg: #f7f7f4;
-    --tk-accent: #00685d;
-    --tk-label: #b4232c;
     --tk-highlight: #202020;
     --tk-highlight-fg: #f7f7f4;
-    --tk-danger: #b3261e;
-    --tk-warning: #8a6100;
+    --tk-accent: #00685d;
+    --tk-accent-2: #b4232c;
+    /* Printing inks: dark enough to read as text on the stock. */
+    --tk-red: #b3261e;
+    --tk-orange: #a24e10;
+    --tk-yellow: #8a6100;
+    --tk-green: #2f7434;
+    --tk-teal: #00685d;
+    --tk-blue: #2460a8;
+    --tk-purple: #73479f;
+    --tk-pink: #a73b6d;
+    --tk-code-bg: var(--tk-surface-raised);
+    --tk-code-selection: color-mix(in oklab, var(--tk-accent) 22%, transparent);
     --tk-shadow-popup: 0 0.75rem 2rem rgb(40 38 30 / 16%);
     --tk-shadow-dialog: 0 1.5rem 4rem rgb(40 38 30 / 25%);
 

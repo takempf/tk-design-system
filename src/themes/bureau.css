@@ -19,13 +19,31 @@
     --tk-primary: #efeee8;
     --tk-primary-hover: #c9c8c1;
     --tk-primary-fg: #070707;
-    --tk-accent: #efeee8;
-    --tk-label: #e8222d;
     --tk-highlight: #efeee8;
     --tk-highlight-fg: #070707;
-    --tk-danger: #ff4a52;
-    --tk-success: #8fd6a4;
+    --tk-accent: #efeee8;
+    --tk-accent-2: #e8222d;
+    /* Signal red at full strength; every other hue is paint on concrete. */
+    --tk-red: #ff4a52;
+    --tk-orange: #e89960;
+    --tk-yellow: #e4c87c;
+    --tk-green: #8fd6a4;
+    --tk-teal: #77c8c3;
+    --tk-blue: #85afd8;
+    --tk-purple: #ac9ad0;
+    --tk-pink: #d998b4;
     --tk-focus-color: #e8222d;
+
+    /* Code reads like signage: red keywords, white names, colour only for data. */
+    --tk-code-keyword-weight: var(--tk-weight-bold);
+    --tk-code-comment-style: normal;
+    --tk-code-function: var(--tk-fg-bright);
+    --tk-code-type: var(--tk-fg-bright);
+    --tk-code-tag: var(--tk-fg-bright);
+    --tk-code-attribute: var(--tk-fg-muted);
+    --tk-code-variable: var(--tk-yellow);
+    --tk-code-constant: var(--tk-fg-bright);
+    --tk-code-line-marker: var(--tk-accent-2);
 
     --tk-label-tracking: 0.16em;
     --tk-font-display: var(--tk-font-label);

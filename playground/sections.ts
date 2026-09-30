@@ -33,6 +33,12 @@ export const sections: readonly Section[] = [
     blurb: 'Panels, dialogs, popovers, tabs, disclosure and progress.',
   },
   {
+    id: 'code',
+    title: 'Code',
+    mark: 'triangle-in-circle',
+    blurb: 'Code to read and code to write, colored from the theme’s own palette.',
+  },
+  {
     id: 'motion',
     title: 'Motion',
     mark: 'circle',

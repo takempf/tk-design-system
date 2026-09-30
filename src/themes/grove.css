@@ -22,12 +22,19 @@
     --tk-primary: #d4cbf0;
     --tk-primary-hover: #b9addf;
     --tk-primary-fg: #0b1512;
-    --tk-accent: #3fae93;
-    --tk-label: #ff6440;
     --tk-highlight: #1d5546;
     --tk-highlight-fg: #f7f4fb;
-    --tk-danger: #ff7b69;
-    --tk-warning: #e9c37e;
+    --tk-accent: #3fae93;
+    --tk-accent-2: #ff6440;
+    /* Hues at dusk: a little less chroma, blues and pinks leaning to lavender. */
+    --tk-red: #ff7b69;
+    --tk-orange: #f2985f;
+    --tk-yellow: #e9c37e;
+    --tk-green: #8bd28d;
+    --tk-teal: #3fae93;
+    --tk-blue: #70b8dd;
+    --tk-purple: #baa7ed;
+    --tk-pink: #e69abb;
     --tk-focus-color: #c9bef0;
     --tk-selection-bg: #c9bef0;
     --tk-selection-fg: #0b1512;

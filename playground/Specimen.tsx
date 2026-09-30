@@ -1,6 +1,5 @@
 import type { ComponentType } from 'react';
-import { Button, Collapsible, Icon, Panel, Tooltip, toasts } from 'tk-design-system';
-import { highlight } from './highlight';
+import { CodeBlock, Collapsible, Icon, Panel, toasts } from 'tk-design-system';
 
 export interface DemoMeta {
   readonly section: string;
@@ -41,28 +40,22 @@ export const demos: Demo[] = Object.entries(modules)
   }))
   .sort((a, b) => (a.meta.order ?? 99) - (b.meta.order ?? 99));
 
-export function Code({ source }: { readonly source: string }) {
+export function Code({
+  source,
+  language = 'tsx',
+}: {
+  readonly source: string;
+  readonly language?: string;
+}) {
   return (
-    <div className="pg-code">
-      <Tooltip content="Copy">
-        <Button
-          variant="ghost"
-          size="sm"
-          square
-          className="pg-code-copy"
-          aria-label="Copy code"
-          onClick={() => {
-            navigator.clipboard?.writeText(source);
-            toasts.add({ title: 'Copied', description: 'The snippet is on your clipboard.' });
-          }}
-        >
-          <Icon name="copy" />
-        </Button>
-      </Tooltip>
-      <pre>
-        <code>{highlight(source)}</code>
-      </pre>
-    </div>
+    <CodeBlock
+      className="pg-code"
+      code={source}
+      language={language}
+      onCopyCode={() =>
+        toasts.add({ title: 'Copied', description: 'The snippet is on your clipboard.' })
+      }
+    />
   );
 }
 

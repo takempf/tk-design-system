@@ -80,6 +80,9 @@ separate fade/move/morph easings, entrance offset/scale/blur) and scenery.
 [data-tk-theme='tide'] {
   --tk-bg: #0b1622;
   --tk-primary: #f28c6a;
+  --tk-accent: #7fc8c3;        /* focus, links, tags */
+  --tk-accent-2: #f28c6a;      /* labels, keywords */
+  --tk-red: #f47a7d;           /* … orange, yellow, green, teal, blue, purple, pink */
   --tk-radius: 999px;          /* pill controls… */
   --tk-radius-popup: 20px;     /* …but menus stay soft squares */
   --tk-scenery-scene: 'aurora';
@@ -91,19 +94,72 @@ Then `<Theme name="tide">` (a subtree) or `<Theme scope="document" name="tide">`
 Scoped themes keep a matching empty container on `<body>` for popups, so a menu opened
 inside a Paper panel is Paper even on a Grove page.
 
+### Color
+
+A theme's color comes in four groups, and everything else is derived from them:
+
+- **Surfaces and ink:** `--tk-bg`, `--tk-surface…`, `--tk-fg…`, `--tk-border…`,
+  `--tk-primary…`, `--tk-highlight…`.
+- **Two accents:** `--tk-accent` for focus and interactive color, and `--tk-accent-2`
+  for wayfinding. `--tk-label` (eyebrows, tab indicators) defaults to the second.
+- **Eight standard hues:** `--tk-red`, `-orange`, `-yellow`, `-green`, `-teal`,
+  `-blue`, `-purple`, `-pink`. Each theme tunes them to one lightness, so all of them
+  read as text on `--tk-surface`: pastel on the dark themes, printing inks on Paper.
+- **Status:** `--tk-success`, `--tk-info`, `--tk-warning` and `--tk-danger` default to
+  green, blue, yellow and red. Each has a `-soft` fill (`--tk-accent-soft` and
+  `--tk-accent-2-soft` too).
+
+Syntax colors are drawn from these (see Code), so a theme that retunes its hues
+retunes its code too.
+
 ## Components
 
 `Button` · `Toggle`/`ToggleGroup` · `Menu` · `Tooltip` · `Popover` · `Dialog` ·
 `AlertDialog` · `Field`/`Fieldset` · `Input` · `Textarea` · `Checkbox` · `Switch` ·
 `Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
-`Badge` · `Kbd` · `Separator` · `Stack` · `Icon` (utility icons plus geometric marks —
+`Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
+`Icon` (utility icons plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
 and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;
 also shipped as a file at `tk-design-system/logo.svg`).
 
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
+
+## Code
+
+```tsx
+<Code>tokenize(code)</Code>                                   {/* inline */}
+
+<CodeBlock code={source} language="tsx" title="Lantern.tsx"
+  lineNumbers highlightLines="6-8" />                          {/* read */}
+
+<Field.Root>
+  <Field.Label>Script</Field.Label>
+  <CodeEditor value={code} onValueChange={setCode} language="python" maxLines={20} />
+</Field.Root>                                                 {/* write */}
+```
+
+- `CodeBlock` has a copy button (`copyable`, `onCopyCode`), `lineNumbers` with a
+  `startLine`, `highlightLines` (`"2,5-7"` or an array) and `wrap` for soft-wrapping.
+  Line numbers are generated content, so selecting the code never copies them.
+- `CodeEditor` is a plain textarea laid exactly over its own highlight, so typing,
+  selection, undo and IME all stay native (spellcheck and autocorrect are off). Tab
+  indents and Shift+Tab outdents; Escape then Tab moves focus on. Enter keeps the indent
+  and opens a line inside a bracket pair. It grows from `minLines` to `maxLines`, then
+  scrolls. Inside a `Field.Root` it is the field's control.
+- Highlighting is built in and synchronous, with no dependencies: JS/TS/JSX, CSS, HTML
+  and XML, JSON, shell, Python and diff. `tokenize(code, language)` returns lines of
+  `{ kind, text }` tokens. `registerLanguage(names, grammar)` adds a language: a grammar
+  is an ordered list of `[kind, RegExp, inside?]` rules, compiled into one pass.
+- Token kinds (`comment`, `keyword`, `string`, `number`, `constant`, `function`, `type`,
+  `tag`, `attribute`, `property`, `variable`, `regex`, `operator`, `punctuation`, `meta`,
+  `inserted`, `deleted`) are styled by `--tk-code-<kind>` tokens. Any element with
+  `data-token="<kind>"` picks them up, so another highlighter's output can use the
+  theme's colors too. Frame tokens: `--tk-code-bg`, `-fg`, `-border`, `-gutter`,
+  `-caret`, `-selection`, `-line-bg`, `-line-marker`, `-font`, `-text`, `-leading`,
+  `-tab-size`.
 
 ## Motion
 

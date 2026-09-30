@@ -11,7 +11,7 @@ export function Eyebrow({
   return <Tag {...props} className={cx('tk-eyebrow', className)} />;
 }
 
-export type BadgeTone = 'neutral' | 'accent' | 'label' | 'danger' | 'warning';
+export type BadgeTone = 'neutral' | 'accent' | 'label' | 'success' | 'info' | 'warning' | 'danger';
 
 export function Badge({
   tone = 'neutral',

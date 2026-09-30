@@ -48,8 +48,21 @@
       color: var(--tk-danger);
     }
 
+    &[data-tone='success'] {
+      border-color: color-mix(in oklab, var(--tk-success) 50%, transparent);
+      background: var(--tk-success-soft);
+      color: var(--tk-success);
+    }
+
+    &[data-tone='info'] {
+      border-color: color-mix(in oklab, var(--tk-info) 50%, transparent);
+      background: var(--tk-info-soft);
+      color: var(--tk-info);
+    }
+
     &[data-tone='warning'] {
       border-color: color-mix(in oklab, var(--tk-warning) 50%, transparent);
+      background: var(--tk-warning-soft);
       color: var(--tk-warning);
     }
   }

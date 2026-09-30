@@ -1,3 +1,13 @@
+export {
+  type Grammar,
+  getLanguage,
+  languageNames,
+  registerLanguage,
+  type Token,
+  type TokenKind,
+  tokenize,
+  tokenKinds,
+} from './code/tokenize';
 export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './components/Button';
 export {
   Checkbox,
@@ -9,6 +19,13 @@ export {
   Switch,
   type SwitchProps,
 } from './components/Choice';
+export {
+  Code,
+  CodeBlock,
+  type CodeBlockProps,
+  CodeEditor,
+  type CodeEditorProps,
+} from './components/Code';
 export { Combobox, type ComboboxProps } from './components/Combobox';
 export { AlertDialog, Dialog } from './components/Dialog';
 export { Accordion, Collapsible, Tabs } from './components/Disclosure';

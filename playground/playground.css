@@ -317,50 +317,10 @@
 }
 
 .pg-code {
-  position: relative;
+  --tk-code-text: 0.78rem;
+  --tk-code-block-max-height: 30rem;
+
   margin-top: var(--tk-space-3);
-  border: var(--tk-border-width) solid var(--tk-border-subtle);
-  border-radius: min(var(--tk-radius), var(--tk-radius-lg));
-  corner-shape: var(--tk-corner-shape);
-  background: var(--tk-surface);
-
-  & pre {
-    max-height: 30rem;
-    margin: 0;
-    padding: var(--tk-space-4);
-    overflow: auto;
-    font-size: 0.78rem;
-    line-height: 1.65;
-  }
-
-  & code {
-    font-size: inherit;
-  }
-
-  & [data-kind='comment'] {
-    color: var(--tk-fg-subtle);
-    font-style: italic;
-  }
-
-  & [data-kind='string'],
-  & [data-kind='number'] {
-    color: var(--tk-warning);
-  }
-
-  & [data-kind='tag'],
-  & [data-kind='token'] {
-    color: var(--tk-accent);
-  }
-
-  & [data-kind='keyword'] {
-    color: var(--tk-label);
-  }
-}
-
-.pg-code-copy {
-  position: absolute;
-  top: var(--tk-space-2);
-  right: var(--tk-space-2);
 }
 
 /* Hall ------------------------------------------------------------------- */
@@ -413,11 +373,27 @@
   gap: var(--tk-space-6);
 }
 
+/* A second label in a Hall panel starts its own section. */
+.pg-hall-grid .tk-eyebrow:not(:first-child) {
+  margin-top: var(--tk-space-6);
+}
+
+.pg-palette-group {
+  margin-top: var(--tk-space-5);
+
+  & h3 {
+    margin: 0;
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-text-xs);
+    font-weight: var(--tk-weight-medium);
+  }
+}
+
 .pg-swatches {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: var(--tk-space-3);
-  margin: var(--tk-space-4) 0 0;
+  margin: var(--tk-space-3) 0 0;
   padding: 0;
   list-style: none;
 
@@ -788,8 +764,16 @@
   --tk-primary-hover: #e57553;
   --tk-primary-fg: #0b1622;
   --tk-accent: #7fc8c3;
-  --tk-label: #f28c6a;
+  --tk-accent-2: #f28c6a;
   --tk-highlight: #1d3a52;
+  --tk-red: #f47a7d;
+  --tk-orange: #f28c6a;
+  --tk-yellow: #e9ca80;
+  --tk-green: #84d2a5;
+  --tk-teal: #7fc8c3;
+  --tk-blue: #79bae4;
+  --tk-purple: #afa2e8;
+  --tk-pink: #eea0be;
   --tk-highlight-fg: #efe6d8;
   --tk-radius: 999px;
   --tk-radius-sm: 999px;
@@ -1137,5 +1121,35 @@
   .app-almanac-settings {
     border-left: 0;
     border-top: var(--tk-border-width) solid var(--tk-border-subtle);
+  }
+}
+
+/* Code ------------------------------------------------------------------- */
+
+.pg-syntax {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--tk-space-2) var(--tk-space-4);
+  margin: 0;
+  padding: var(--tk-space-4);
+  border: var(--tk-border-width) solid var(--tk-code-border);
+  border-radius: min(var(--tk-radius), var(--tk-radius-lg));
+  corner-shape: var(--tk-corner-shape);
+  background: var(--tk-code-bg);
+  list-style: none;
+  font-family: var(--tk-code-font);
+
+  & li {
+    display: flex;
+    flex-direction: column;
+  }
+
+  & span {
+    font-size: var(--tk-text-md);
+  }
+
+  & code {
+    color: var(--tk-fg-subtle);
+    font-size: 0.7rem;
   }
 }

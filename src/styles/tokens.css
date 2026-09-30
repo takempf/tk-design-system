@@ -9,6 +9,9 @@
 
   The defaults are the "base" theme: tk-ai's neutral dark surfaces, off-white
   primary fills, teal focus, and red condensed section labels.
+
+  A theme's color comes in four groups: surfaces and ink, two accents, eight
+  standard hues, and the status colors (drawn from the hues by default).
 */
 @layer tk.tokens {
   :root,
@@ -31,20 +34,81 @@
     --tk-primary: #e5e5e2;
     --tk-primary-hover: #a3a3a0;
     --tk-primary-fg: #171717;
-    --tk-accent: #00c8b4;
-    --tk-label: #ff353f;
     --tk-highlight: #e5e5e2;
     --tk-highlight-fg: #171717;
-    --tk-danger: #ff535c;
-    --tk-success: var(--tk-accent);
-    --tk-warning: #e3bf74;
+
+    /* Accents: two per theme. The first marks focus and interactive color; the
+       second is the wayfinding color section labels are set in. */
+    --tk-accent: #00c8b4;
+    --tk-accent-2: #ff353f;
+    --tk-label: var(--tk-accent-2);
+
+    /* Standard hues, tuned per theme to sit at one weight on its surfaces:
+       every one reads as text on --tk-surface. Status and syntax colors are
+       drawn from these, so a theme that retunes a hue retunes both. */
+    --tk-red: #ff535c;
+    --tk-orange: #f89a56;
+    --tk-yellow: #e3bf74;
+    --tk-green: #70d482;
+    --tk-teal: #00c8b4;
+    --tk-blue: #6ab1f3;
+    --tk-purple: #b891f1;
+    --tk-pink: #f48aba;
+
+    /* Status. */
+    --tk-danger: var(--tk-red);
+    --tk-warning: var(--tk-yellow);
+    --tk-success: var(--tk-green);
+    --tk-info: var(--tk-blue);
 
     /* Derived colors. */
     --tk-accent-soft: color-mix(in oklab, var(--tk-accent) 18%, transparent);
+    --tk-accent-2-soft: color-mix(in oklab, var(--tk-accent-2) 18%, transparent);
     --tk-danger-soft: color-mix(in oklab, var(--tk-danger) 14%, var(--tk-surface));
+    --tk-warning-soft: color-mix(in oklab, var(--tk-warning) 14%, var(--tk-surface));
+    --tk-success-soft: color-mix(in oklab, var(--tk-success) 14%, var(--tk-surface));
+    --tk-info-soft: color-mix(in oklab, var(--tk-info) 14%, var(--tk-surface));
     --tk-overlay: color-mix(in oklab, var(--tk-bg) 70%, transparent);
     --tk-selection-bg: var(--tk-highlight);
     --tk-selection-fg: var(--tk-highlight-fg);
+
+    /* Code. Surfaces come from the palette above; syntax colors map token kinds
+       (see tokenize()) onto the accents and standard hues, so every theme gets
+       a matching scheme for free and only restates what it wants different. */
+    --tk-code-font: var(--tk-font-mono);
+    --tk-code-text: var(--tk-text-sm);
+    --tk-code-leading: 1.65;
+    --tk-code-tab-size: 2;
+    --tk-code-bg: var(--tk-surface);
+    --tk-code-fg: var(--tk-fg);
+    --tk-code-border: var(--tk-border-subtle);
+    --tk-code-gutter: var(--tk-fg-subtle);
+    --tk-code-caret: var(--tk-focus-color);
+    --tk-code-selection: color-mix(in oklab, var(--tk-selection-bg) 32%, transparent);
+    --tk-code-line-bg: color-mix(in oklab, var(--tk-accent) 12%, transparent);
+    --tk-code-line-marker: var(--tk-accent);
+    --tk-code-active-line: color-mix(in oklab, var(--tk-fg) 5%, transparent);
+    --tk-code-inline-bg: color-mix(in oklab, var(--tk-fg) 9%, transparent);
+    --tk-code-inline-fg: var(--tk-fg-bright);
+    --tk-code-comment: var(--tk-fg-subtle);
+    --tk-code-comment-style: italic;
+    --tk-code-keyword: var(--tk-accent-2);
+    --tk-code-keyword-weight: inherit;
+    --tk-code-string: var(--tk-green);
+    --tk-code-number: var(--tk-orange);
+    --tk-code-constant: var(--tk-orange);
+    --tk-code-function: var(--tk-blue);
+    --tk-code-type: var(--tk-yellow);
+    --tk-code-tag: var(--tk-accent);
+    --tk-code-attribute: var(--tk-purple);
+    --tk-code-property: var(--tk-fg);
+    --tk-code-variable: var(--tk-accent);
+    --tk-code-regex: var(--tk-pink);
+    --tk-code-operator: var(--tk-fg-muted);
+    --tk-code-punctuation: var(--tk-fg-muted);
+    --tk-code-meta: var(--tk-info);
+    --tk-code-inserted: var(--tk-success);
+    --tk-code-deleted: var(--tk-danger);
 
     /* Type. Generous sizes; weight 500 keeps the letterforms full. Every face is
        a Fontsource variable font (see fonts.css); stacks end in the shared

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Badge,
   Button,
+  CodeBlock,
   Eyebrow,
   Field,
   Icon,
@@ -15,6 +16,10 @@ import {
   themes,
 } from 'tk-design-system';
 import { Code } from '../Specimen';
+
+const sample = `// the lantern stays lit
+const lit = trail.filter((stone) => stone.glow > 0.4);
+return <Lantern lit={lit.length} />;`;
 
 const lanterns = [
   { value: 'oil', label: 'Oil lantern' },
@@ -44,6 +49,7 @@ function Sample({ name, title }: { name: ThemeName; title: string }) {
           <Badge tone="label">Night</Badge>
           <Badge tone="accent">Clear</Badge>
         </div>
+        <CodeBlock code={sample} language="tsx" copyable={false} wrap />
         <div className="pg-compare-row">
           <Button variant="primary">Set out</Button>
           <Button variant="ghost" square aria-label="Map">
@@ -63,9 +69,13 @@ const custom = `/* Your own theme: a block of tokens. Anything unset falls back 
   --tk-fg: #efe6d8;
   --tk-primary: #f28c6a;        /* coral */
   --tk-primary-fg: #0b1622;
-  --tk-accent: #7fc8c3;
-  --tk-label: #f28c6a;
   --tk-highlight: #1d3a52;
+  --tk-accent: #7fc8c3;         /* sea-glass: focus, links */
+  --tk-accent-2: #f28c6a;       /* coral: labels, keywords */
+  --tk-red: #f47a7d;            /* hues: status and syntax come from these */
+  --tk-yellow: #e9ca80;
+  --tk-green: #84d2a5;
+  --tk-blue: #79bae4;           /* … orange, teal, purple, pink */
   --tk-radius: 999px;           /* pebbles, not stones */
   --tk-radius-lg: 20px;
   --tk-radius-popup: 20px;      /* menus: soft squares, not pills */
@@ -79,9 +89,7 @@ const custom = `/* Your own theme: a block of tokens. Anything unset falls back 
   --tk-scenery-ink-3: oklch(0.25 0.042 230);
   --tk-scenery-ink-4: oklch(0.29 0.05 226);
   --tk-scenery-ember: oklch(0.285 0.065 35);
-}
-
-<Theme name="tide">…</Theme>   // or <Theme scope="document" name="tide" />`;
+}`;
 
 export function ThemeCompare() {
   return (
@@ -96,9 +104,10 @@ export function ThemeCompare() {
       <p className="pg-lede">
         A theme is a block of custom properties on <code>[data-tk-theme]</code>. The fifth card
         above is defined in the playground's own stylesheet, not the library — exactly what an app
-        would do. Themes can also restyle beyond tokens: Bureau swaps the page wipe for a scanline.
+        would do. Apply it with <code>{'<Theme name="tide">'}</code>. Themes can also restyle beyond
+        tokens: Bureau swaps the page wipe for a scanline.
       </p>
-      <Code source={custom} />
+      <Code source={custom} language="css" />
     </div>
   );
 }

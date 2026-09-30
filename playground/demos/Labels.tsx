@@ -15,6 +15,8 @@ export default function Labels() {
         <Badge>Neutral</Badge>
         <Badge tone="accent">Accent</Badge>
         <Badge tone="label">Label</Badge>
+        <Badge tone="success">Success</Badge>
+        <Badge tone="info">Info</Badge>
         <Badge tone="warning">Warning</Badge>
         <Badge tone="danger">Danger</Badge>
       </Stack>

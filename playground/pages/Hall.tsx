@@ -1,20 +1,50 @@
-import { Badge, Eyebrow, Panel, SceneryWindow, useTheme } from 'tk-design-system';
-import { Code } from '../Specimen';
+import { Badge, Code, Eyebrow, Panel, SceneryWindow, useTheme } from 'tk-design-system';
+import { Code as Snippet } from '../Specimen';
 import { playgroundThemes } from '../themes';
 
-const swatches = [
-  ['bg', 'Page'],
-  ['surface', 'Surface'],
-  ['surface-raised', 'Raised'],
-  ['border', 'Border'],
-  ['fg', 'Ink'],
-  ['fg-muted', 'Muted'],
-  ['primary', 'Primary'],
-  ['accent', 'Accent'],
-  ['label', 'Label'],
-  ['highlight', 'Highlight'],
-  ['danger', 'Danger'],
-  ['warning', 'Warning'],
+const palette = [
+  {
+    group: 'Surface & ink',
+    swatches: [
+      ['bg', 'Page'],
+      ['surface', 'Surface'],
+      ['surface-raised', 'Raised'],
+      ['border', 'Border'],
+      ['fg', 'Ink'],
+      ['fg-muted', 'Muted'],
+      ['primary', 'Primary'],
+      ['highlight', 'Highlight'],
+    ],
+  },
+  {
+    group: 'Accents',
+    swatches: [
+      ['accent', 'Accent'],
+      ['accent-2', 'Accent 2 · labels'],
+    ],
+  },
+  {
+    group: 'Status',
+    swatches: [
+      ['success', 'Success'],
+      ['info', 'Info'],
+      ['warning', 'Warning'],
+      ['danger', 'Danger'],
+    ],
+  },
+  {
+    group: 'Standard hues',
+    swatches: [
+      ['red', 'Red'],
+      ['orange', 'Orange'],
+      ['yellow', 'Yellow'],
+      ['green', 'Green'],
+      ['teal', 'Teal'],
+      ['blue', 'Blue'],
+      ['purple', 'Purple'],
+      ['pink', 'Pink'],
+    ],
+  },
 ] as const;
 
 const inks = ['ink-0', 'ink-1', 'ink-2', 'ink-3', 'ink-4', 'ember'] as const;
@@ -50,15 +80,20 @@ export function Hall() {
       <div className="pg-hall-grid">
         <Panel variant="outline">
           <Eyebrow>Palette</Eyebrow>
-          <ul className="pg-swatches">
-            {swatches.map(([token, label]) => (
-              <li key={token}>
-                <span className="pg-swatch" style={{ background: `var(--tk-${token})` }} />
-                <span>{label}</span>
-                <code>--tk-{token}</code>
-              </li>
-            ))}
-          </ul>
+          {palette.map(({ group, swatches }) => (
+            <section key={group} className="pg-palette-group">
+              <h3>{group}</h3>
+              <ul className="pg-swatches">
+                {swatches.map(([token, label]) => (
+                  <li key={token}>
+                    <span className="pg-swatch" style={{ background: `var(--tk-${token})` }} />
+                    <span>{label}</span>
+                    <code>--tk-{token}</code>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </Panel>
 
         <Panel variant="outline">
@@ -94,14 +129,16 @@ export function Hall() {
             <p className="pg-muted">
               Body text is generous — the letterforms have room to be read slowly.
             </p>
-            <code>const path = trail.follow(moonlight);</code>
+            <p>
+              Inline, <Code>trail.follow(moonlight)</Code> sits in the line.
+            </p>
           </div>
         </Panel>
       </div>
 
       <Panel variant="outline">
         <Eyebrow>Use it</Eyebrow>
-        <Code source={setup} />
+        <Snippet source={setup} />
       </Panel>
     </div>
   );

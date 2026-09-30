@@ -1,0 +1,367 @@
+@layer tk.components {
+  /* Syntax ------------------------------------------------------------------
+     Any element with a data-token attribute takes its theme color, so output
+     from another highlighter only needs to use the same kind names. */
+
+  :where([data-token='comment']) {
+    color: var(--tk-code-comment);
+    font-style: var(--tk-code-comment-style);
+  }
+
+  :where([data-token='keyword']) {
+    color: var(--tk-code-keyword);
+    font-weight: var(--tk-code-keyword-weight);
+  }
+
+  :where([data-token='string']) {
+    color: var(--tk-code-string);
+  }
+
+  :where([data-token='number']) {
+    color: var(--tk-code-number);
+  }
+
+  :where([data-token='constant']) {
+    color: var(--tk-code-constant);
+  }
+
+  :where([data-token='function']) {
+    color: var(--tk-code-function);
+  }
+
+  :where([data-token='type']) {
+    color: var(--tk-code-type);
+  }
+
+  :where([data-token='tag']) {
+    color: var(--tk-code-tag);
+  }
+
+  :where([data-token='attribute']) {
+    color: var(--tk-code-attribute);
+  }
+
+  :where([data-token='property']) {
+    color: var(--tk-code-property);
+  }
+
+  :where([data-token='variable']) {
+    color: var(--tk-code-variable);
+  }
+
+  :where([data-token='regex']) {
+    color: var(--tk-code-regex);
+  }
+
+  :where([data-token='operator']) {
+    color: var(--tk-code-operator);
+  }
+
+  :where([data-token='punctuation']) {
+    color: var(--tk-code-punctuation);
+  }
+
+  :where([data-token='meta']) {
+    color: var(--tk-code-meta);
+  }
+
+  :where([data-token='inserted']) {
+    color: var(--tk-code-inserted);
+  }
+
+  :where([data-token='deleted']) {
+    color: var(--tk-code-deleted);
+  }
+
+  /* Inline ------------------------------------------------------------------ */
+
+  .tk-code {
+    padding: 0.1em 0.35em;
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-code-inline-bg);
+    color: var(--tk-code-inline-fg);
+    font-family: var(--tk-code-font);
+    font-size: 0.9em;
+    letter-spacing: 0;
+    box-decoration-break: clone;
+  }
+
+  /* Shared frame ------------------------------------------------------------
+     Blocks and editors share metrics exactly: the editor lays a textarea over
+     its highlight, and any difference in font, spacing or padding would show
+     as text drifting off its colors. */
+
+  .tk-code-block,
+  .tk-code-editor {
+    --tk-code-pad-x: var(--tk-space-4);
+    --tk-code-pad-y: var(--tk-space-3);
+    --tk-code-line: calc(var(--tk-code-leading) * 1em);
+    --tk-code-gutter-w: calc(var(--tk-code-digits, 2) * 1ch);
+
+    position: relative;
+    min-width: 0;
+    border: var(--tk-border-width) solid var(--tk-code-border);
+    /* It grows, so never rounder than a surface. */
+    border-radius: min(var(--tk-radius), var(--tk-radius-lg));
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-code-bg);
+    color: var(--tk-code-fg);
+    font-family: var(--tk-code-font);
+    font-size: var(--tk-code-text);
+    font-weight: var(--tk-weight-regular);
+    line-height: var(--tk-code-leading);
+    letter-spacing: 0;
+    tab-size: var(--tk-code-tab-size);
+
+    & pre,
+    & code {
+      margin: 0;
+      font: inherit;
+    }
+  }
+
+  .tk-code-line {
+    display: block;
+    min-height: var(--tk-code-line);
+    padding-inline: var(--tk-code-pad-x);
+  }
+
+  /* Block ------------------------------------------------------------------- */
+
+  .tk-code-block-header {
+    display: flex;
+    align-items: center;
+    gap: var(--tk-space-3);
+    min-height: var(--tk-control-h);
+    padding: 0 var(--tk-space-1) 0 var(--tk-code-pad-x);
+    border-bottom: var(--tk-border-width) solid var(--tk-code-border);
+    color: var(--tk-fg-muted);
+    font-size: var(--tk-text-xs);
+  }
+
+  .tk-code-block-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tk-code-block-language {
+    color: var(--tk-fg-subtle);
+    font-family: var(--tk-label-font);
+    font-weight: var(--tk-label-weight);
+    font-stretch: var(--tk-label-stretch);
+    letter-spacing: var(--tk-label-tracking);
+    text-transform: var(--tk-label-transform);
+  }
+
+  .tk-code-block-float {
+    position: absolute;
+    top: var(--tk-space-1);
+    right: var(--tk-space-1);
+    z-index: 2;
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-code-bg);
+  }
+
+  .tk-code-copy[data-copied] {
+    color: var(--tk-success);
+  }
+
+  .tk-code-block-pre {
+    max-height: var(--tk-code-block-max-height, none);
+    padding-block: var(--tk-code-pad-y);
+    overflow: auto;
+    border-radius: inherit;
+    corner-shape: inherit;
+  }
+
+  .tk-code-block-code {
+    display: block;
+    /* Every line as wide as the longest, so highlights run edge to edge. */
+    width: max-content;
+    min-width: 100%;
+    white-space: pre;
+
+    .tk-code-block[data-wrap] & {
+      width: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .tk-code-line-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tk-code-block .tk-code-line {
+    &[data-highlighted] {
+      background: var(--tk-code-line-bg);
+      box-shadow: inset 2px 0 var(--tk-code-line-marker);
+    }
+
+    .tk-code-block[data-line-numbers] & {
+      display: flex;
+      padding-left: 0;
+
+      /* Numbers are generated content: never selected, never copied. */
+      &::before {
+        content: attr(data-line);
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        flex: none;
+        box-sizing: content-box;
+        width: var(--tk-code-gutter-w);
+        margin-right: var(--tk-code-pad-x);
+        padding-inline: var(--tk-code-pad-x) var(--tk-space-3);
+        border-right: var(--tk-border-width) solid var(--tk-code-border);
+        background: var(--tk-code-bg);
+        color: var(--tk-code-gutter);
+        text-align: right;
+        user-select: none;
+      }
+
+      &[data-highlighted]::before {
+        background: linear-gradient(var(--tk-code-line-bg), var(--tk-code-line-bg))
+          var(--tk-code-bg);
+        box-shadow: inset 2px 0 var(--tk-code-line-marker);
+        color: var(--tk-code-line-marker);
+      }
+    }
+  }
+
+  /* Editor ------------------------------------------------------------------ */
+
+  .tk-code-editor {
+    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:hover:not([data-disabled]) {
+      border-color: var(--tk-border);
+    }
+
+    &:has(.tk-code-editor-input:focus) {
+      border-color: var(--tk-focus-color);
+    }
+
+    &:has(.tk-code-editor-input:focus-visible) {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: 2px;
+    }
+
+    &:has(.tk-code-editor-input[data-invalid]) {
+      border-color: var(--tk-danger);
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .tk-code-editor-scroller {
+    display: grid;
+    /* The code column fills the frame, or grows past it and scrolls. */
+    grid-template-columns: auto 1fr;
+    max-height: calc(var(--tk-code-max-lines) * var(--tk-code-line) + 2 * var(--tk-code-pad-y));
+    overflow: auto;
+    border-radius: inherit;
+    corner-shape: inherit;
+
+    .tk-code-editor:not([data-line-numbers]) & {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .tk-code-editor-gutter {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    padding-block: var(--tk-code-pad-y);
+    border-right: var(--tk-border-width) solid var(--tk-code-border);
+    background: var(--tk-code-bg);
+    color: var(--tk-code-gutter);
+    text-align: right;
+    user-select: none;
+
+    & .tk-code-line {
+      box-sizing: content-box;
+      width: var(--tk-code-gutter-w);
+      padding-inline: var(--tk-code-pad-x) var(--tk-space-3);
+
+      &[data-active] {
+        color: var(--tk-fg-muted);
+      }
+    }
+  }
+
+  .tk-code-editor-stack {
+    position: relative;
+    display: grid;
+    min-width: 0;
+  }
+
+  /* Parked at the caret after each edit, then scrolled into view. */
+  .tk-code-editor-reveal {
+    position: absolute;
+    width: 1px;
+    scroll-margin-block: var(--tk-code-pad-y);
+    scroll-margin-right: var(--tk-code-pad-x);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .tk-code-editor-highlight,
+  .tk-code-editor-input {
+    grid-area: 1 / 1;
+    min-height: calc(var(--tk-code-min-lines, 3) * var(--tk-code-line) + 2 * var(--tk-code-pad-y));
+    margin: 0;
+    padding: var(--tk-code-pad-y) 0;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  .tk-code-editor-highlight {
+    pointer-events: none;
+
+    & .tk-code-line[data-active] {
+      background: var(--tk-code-active-line);
+    }
+  }
+
+  .tk-code-editor-input {
+    z-index: 1;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    padding-inline: var(--tk-code-pad-x);
+    border: 0;
+    outline: 0;
+    background: transparent;
+    /* The text is drawn by the highlight underneath; this layer is caret and selection. */
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: var(--tk-code-caret);
+    overflow: hidden;
+    overflow-wrap: normal;
+    resize: none;
+
+    &::selection {
+      background: var(--tk-code-selection);
+    }
+
+    &::placeholder {
+      color: var(--tk-fg-subtle);
+      -webkit-text-fill-color: var(--tk-fg-subtle);
+      opacity: 1;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
