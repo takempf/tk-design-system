@@ -27,7 +27,8 @@
         }
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "noDescendingSpecificity": "off"
       },
       "complexity": {
         "noImportantStyles": "warn"
