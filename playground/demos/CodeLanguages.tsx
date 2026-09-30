@@ -13,11 +13,11 @@ export const meta = {
 const samples: Record<string, { title: string; code: string }> = {
   css: {
     title: 'lantern.css',
-    code: `/* Lanterns glow in the theme's second accent. */
+    code: `/* Lanterns burn in the theme's second accent. */
 .lantern {
   --glow: var(--tk-accent-2);
   padding: calc(var(--tk-space-2) * 1.5) 0.75rem;
-  box-shadow: 0 0 1.5rem color-mix(in oklab, var(--glow) 40%, transparent);
+  border: 1px solid color-mix(in oklab, var(--glow) 40%, transparent);
 
   &:hover:not([data-dim]) {
     translate: 0 -2px;

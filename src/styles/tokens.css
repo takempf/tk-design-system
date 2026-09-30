@@ -182,8 +182,6 @@
     --tk-focus-width: 2px;
     --tk-focus-offset: 3px;
     --tk-focus-color: var(--tk-accent);
-    --tk-shadow-popup: none;
-    --tk-shadow-dialog: 0 1.5rem 4rem rgb(0 0 0 / 50%);
     --tk-z-popup: 100;
 
     /* Motion. Durations scale together; fades and moves ease separately, so a

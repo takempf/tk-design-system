@@ -14,7 +14,6 @@
     corner-shape: var(--tk-corner-shape);
     background: var(--tk-surface-raised);
     color: var(--tk-fg);
-    box-shadow: var(--tk-shadow-popup);
     outline: 0;
     transform-origin: var(--transform-origin);
     transition:
@@ -382,7 +381,6 @@
     corner-shape: var(--tk-corner-shape);
     background: var(--tk-surface-raised);
     color: var(--tk-fg);
-    box-shadow: var(--tk-shadow-dialog);
     outline: 0;
     transition:
       opacity var(--tk-duration-2) var(--tk-ease-fade),
@@ -452,7 +450,6 @@
     corner-shape: var(--tk-corner-shape);
     background: var(--tk-surface-raised);
     color: var(--tk-fg);
-    box-shadow: var(--tk-shadow-popup);
     transform-origin: bottom center;
     transform: translateX(var(--toast-swipe-movement-x))
       translateY(
@@ -573,8 +570,6 @@
      --tk-unfold-* (see useUnfoldFrom). */
   .tk-unfold-popup,
   .tk-select-popup[data-side='none'] {
-    /* A clip would cut a box-shadow; the positioner casts one instead (below). */
-    box-shadow: none;
     clip-path: inset(0 round var(--tk-radius-popup));
     transition:
       clip-path var(--tk-duration-morph) var(--tk-ease-morph),
@@ -601,11 +596,6 @@
     &[data-ending-style] :is(.tk-list-group-label, .tk-list-empty) {
       visibility: hidden;
     }
-  }
-
-  /* Cast after the clip, so the shadow unfolds with the list. */
-  .tk-positioner:has(> :is(.tk-unfold-popup, .tk-select-popup[data-side='none'])) {
-    filter: drop-shadow(var(--tk-shadow-popup));
   }
 
   .tk-select-popup[data-side='none'] {

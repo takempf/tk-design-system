@@ -36,8 +36,6 @@
     --tk-pink: #a73b6d;
     --tk-code-bg: var(--tk-surface-raised);
     --tk-code-selection: color-mix(in oklab, var(--tk-accent) 22%, transparent);
-    --tk-shadow-popup: 0 0.75rem 2rem rgb(40 38 30 / 16%);
-    --tk-shadow-dialog: 0 1.5rem 4rem rgb(40 38 30 / 25%);
 
     --tk-font-display: 'Newsreader Variable', var(--tk-font-fallback), serif;
     --tk-font-label: var(--tk-font-mono);
