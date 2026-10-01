@@ -305,7 +305,7 @@
     scale: var(--tk-radio-scale);
 
     &[data-checked] {
-      border-color: var(--tk-primary);
+      border-color: var(--tk-radio-color);
     }
   }
 
@@ -313,7 +313,7 @@
     width: 0.55rem;
     height: 0.55rem;
     border-radius: var(--tk-radio-radius);
-    background: var(--tk-primary);
+    background: var(--tk-radio-color);
     transition: scale var(--tk-duration-2) var(--tk-ease-out);
 
     &[data-starting-style],

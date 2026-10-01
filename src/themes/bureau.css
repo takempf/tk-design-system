@@ -33,6 +33,7 @@
     --tk-purple: #ac9ad0;
     --tk-pink: #d998b4;
     --tk-focus-color: #e8222d;
+    --tk-radio-color: var(--tk-primary);
 
     /* Code reads like signage: red keywords, white names, colour only for data. */
     --tk-code-keyword-weight: var(--tk-weight-bold);

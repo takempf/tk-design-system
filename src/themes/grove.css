@@ -57,6 +57,7 @@
     --tk-knob-rotate: 45deg;
     --tk-radio-radius: 1px;
     --tk-radio-scale: 0.86;
+    --tk-radio-color: var(--tk-primary);
     --tk-knob-scale: 0.74;
     --tk-icon-stroke: 1.4;
 

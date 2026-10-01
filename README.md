@@ -69,7 +69,7 @@ separate fade/move/morph easings, entrance offset/scale/blur) and scenery.
 
 | Theme    | Feel                                                                       |
 | -------- | -------------------------------------------------------------------------- |
-| `base`   | tk-ai: neutral dark surfaces, off-white fills, teal focus, red labels      |
+| `base`   | tk-ai: neutral dark surfaces, off-white fills, teal focus, red labels and radios |
 | `grove`  | dark cozy forest: phthalo, orange-red ember, pale lavender; runic bevels, misty slow motion |
 | `bureau` | brutalist concrete and red wayfinding; fades flicker like a fluorescent tube |
 | `paper`  | light: warm stock, serif display, typewriter labels; scenery prints as a negative |
@@ -179,6 +179,9 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   follows `forward`/`back` types.
 - `scope` keeps a local change local: names only exist for the morph that asks for them,
   so opening a popup never captures (or covers) the rest of the page.
+- A part nested in another stays on top of it while both travel, as the page paints them.
+  The browser on its own stacks the old state's parts first, so a box that only the new
+  state has would cover text arriving into it.
 - `Select`, `Combobox` and `Menu` open over their trigger, unfolding out of its own box,
   so the trigger's text becomes part of the popup and never appears twice. Closing folds
   the popup back into the trigger while the shared text is carried home.

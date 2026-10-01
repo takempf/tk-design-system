@@ -175,6 +175,8 @@
     --tk-radio-radius: 50%;
     /* A rotated square needs shrinking to sit in the same box. */
     --tk-radio-scale: 1;
+    /* The checked ring and dot. Checkboxes and switches stay on --tk-primary. */
+    --tk-radio-color: var(--tk-label);
     --tk-knob-scale: 1;
     --tk-icon-stroke: 1.5;
     --tk-icon-cap: square;

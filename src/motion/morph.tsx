@@ -28,10 +28,15 @@ export interface MorphOptions {
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/** Narrows a part's selector to the parts of one scope. */
+function inScope(scope: string | undefined): string {
+  return scope ? `[data-tk-scope="${CSS.escape(scope)}"]` : ':not([data-tk-scope])';
+}
+
 // Names exist only for the lifetime of the morph that uses them, as rules in a
 // constructable stylesheet: idle names never leak into another transition.
 function nameRules(scope: string | undefined): string {
-  const within = scope ? `[data-tk-scope="${CSS.escape(scope)}"]` : ':not([data-tk-scope])';
+  const within = inScope(scope);
   return `
     [data-tk-morph]${within} { view-transition-name: var(--tk-morph-name); view-transition-class: tk-morph; }
     [data-tk-morph="text"]${within} { view-transition-class: tk-morph-text; }
@@ -41,24 +46,76 @@ function nameRules(scope: string | undefined): string {
 }
 
 /**
+ * How deeply each named part sits inside the other parts of the morph: the
+ * number of named elements around it. Deepest wins for a name whose two ends
+ * nest differently.
+ */
+function measureNesting(scope: string | undefined, depths: Map<string, number>): void {
+  const within = inScope(scope);
+  const parts = `[data-tk-morph]${within}, [data-tk-reveal]${within}`;
+  for (const element of document.querySelectorAll<HTMLElement>(parts)) {
+    const name =
+      element.style.getPropertyValue('--tk-morph-name') ||
+      element.style.getPropertyValue('--tk-reveal-name');
+    if (!name) continue;
+    let depth = 0;
+    let around = element.parentElement?.closest(parts);
+    while (around) {
+      depth++;
+      around = around.parentElement?.closest(parts);
+    }
+    depths.set(name, Math.max(depths.get(name) ?? 0, depth));
+  }
+}
+
+/**
+ * Stacks each moving part over the parts it is nested in, the way the page
+ * paints them. Left to itself the browser stacks them by when it first saw
+ * them, the old state's first, so a box that only the new state has (a tab
+ * being opened) would cover a part arriving in it from the old one (the title
+ * it takes from a list row).
+ */
+function nestingRules(depths: Map<string, number>): string {
+  return [...depths]
+    .filter(([, depth]) => depth > 0)
+    .map(([name, depth]) => `::view-transition-group(${CSS.escape(name)}) { z-index: ${depth}; }`)
+    .join('\n');
+}
+
+/**
  * Apply a state change inside a view transition. <Morph>s that trade a name glide
  * from the old box to the new; <Reveal>s that mount rise in, those that unmount
  * sink away, and those that merely move slide to their new place.
  *
  * The update runs synchronously (flushSync) inside the transition, so it works
  * with any state — React, an external store, or a Base UI popup's open state.
+ *
+ * Returns the transition, for work that should wait on it, or `null` when the
+ * update was applied on the spot (no view transitions, or reduced motion).
  */
-export function morph(update: () => void, options: MorphType | MorphOptions = {}): void {
+export function morph(
+  update: () => void,
+  options: MorphType | MorphOptions = {},
+): ViewTransition | null {
   const { type, scope } =
     typeof options === 'string' ? { type: options, scope: undefined } : options;
   if (!document.startViewTransition || reducedMotion()) {
     update();
-    return;
+    return null;
   }
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(nameRules(scope));
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
-  const run = () => flushSync(update);
+  // The old state is captured by the time the update runs, and the moving
+  // parts are only built once it has: the nesting of both ends is known then,
+  // and in time to stack them by it.
+  const run = () => {
+    const depths = new Map<string, number>();
+    measureNesting(scope, depths);
+    flushSync(update);
+    measureNesting(scope, depths);
+    sheet.replaceSync(`${nameRules(scope)}\n${nestingRules(depths)}`);
+  };
   let transition: ViewTransition;
   try {
     transition = document.startViewTransition({ update: run, types: type ? [type] : [] });
@@ -69,6 +126,7 @@ export function morph(update: () => void, options: MorphType | MorphOptions = {}
   transition.finished.finally(() => {
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((each) => each !== sheet);
   });
+  return transition;
 }
 
 /** `useState`, except every set goes through `morph`. */
@@ -77,7 +135,12 @@ export function useMorphState<T>(
   options?: (next: T) => MorphType | MorphOptions,
 ) {
   const [value, setValue] = useState(initial);
-  const set = useCallback((next: T) => morph(() => setValue(next), options?.(next)), [options]);
+  const set = useCallback(
+    (next: T) => {
+      morph(() => setValue(next), options?.(next));
+    },
+    [options],
+  );
   return [value, set] as const;
 }
 

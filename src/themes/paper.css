@@ -51,6 +51,7 @@
     --tk-radius-sm: 2px;
     --tk-radius-lg: 6px;
     --tk-knob-radius: 50%;
+    --tk-radio-color: var(--tk-primary);
     --tk-icon-stroke: 1.3;
     --tk-icon-cap: round;
     --tk-icon-join: round;
