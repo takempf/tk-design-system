@@ -27,6 +27,11 @@ export interface ComboboxProps<V> {
 
 const interactions = ['input', 'keydown', 'pointerdown', 'wheel', 'touchstart'] as const;
 
+// Kept outside the component: Base UI memoizes on these and syncs them into its
+// store whenever they change, so new ones each render would redo that per keystroke.
+const labelOf = (option: Option<unknown>) => option.label;
+const sameOption = (a: Option<unknown>, b: Option<unknown>) => Object.is(a.value, b.value);
+
 /**
  * For the list's ref: as the popup opens, scrolls the chosen row to the edge of
  * the list beside the search field, so the value travels the shortest way from
@@ -119,8 +124,8 @@ export function Combobox<V>({
         setOpen(next);
         if (!next) setQuery('');
       }}
-      itemToStringLabel={(option: Option<V>) => option.label}
-      isItemEqualToValue={(a: Option<V>, b: Option<V>) => Object.is(a.value, b.value)}
+      itemToStringLabel={labelOf}
+      isItemEqualToValue={sameOption}
       disabled={disabled}
       name={name}
       id={id}

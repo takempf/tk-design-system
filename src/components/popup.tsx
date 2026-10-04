@@ -47,10 +47,11 @@ const inMorph = () => {
  * Without a `trigger`, it is the element whose `aria-controls` names the popup.
  * `whenMorphing: false` leaves a popup opened inside a `morph()` to that morph.
  *
- * Base UI places the popup after it mounts and resizes it as the list scrolls,
- * so every style change on the popup or its positioner re-measures — before
- * paint, as a mutation record — and opening and closing read the trigger's
- * look again.
+ * Base UI places the popup after it mounts, so while the popup is opening or
+ * closing every style change on it or its positioner re-measures — before
+ * paint, as a mutation record — and each turn reads the trigger's look again.
+ * Settled open, the measurements go unused, so scrolling and resizing don't
+ * measure.
  */
 export function useGrowFrom(
   trigger?: RefObject<HTMLElement | null>,
@@ -96,7 +97,9 @@ export function useGrowFrom(
       place();
       // A select stays mounted between openings, so each opening looks again too.
       const turns = ['data-starting-style', 'data-ending-style'];
+      const turning = () => turns.some((turn) => popup.hasAttribute(turn));
       const watch = new MutationObserver((records) => {
+        if (!turning()) return;
         if (records.some((record) => turns.includes(record.attributeName!))) look();
         place();
       });

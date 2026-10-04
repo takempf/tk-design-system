@@ -3,6 +3,7 @@ import {
   type ComponentProps,
   type CSSProperties,
   type KeyboardEvent,
+  memo,
   type ReactNode,
   type Ref,
   useEffect,
@@ -29,6 +30,69 @@ function Tokens({ tokens }: { readonly tokens: readonly Token[] }) {
     ),
   );
 }
+
+const sameTokens = (a: readonly Token[], b: readonly Token[]) =>
+  a.length === b.length &&
+  a.every((token, i) => token.kind === b[i]!.kind && token.text === b[i]!.text);
+
+interface EditorLine {
+  readonly id: number;
+  readonly tokens: readonly Token[];
+}
+
+let lineIds = 0;
+
+/**
+ * The editor's lines, tokenized on every edit. A line that comes out the same
+ * keeps its identity (its id and tokens), matched from the top down to the edit
+ * and from the bottom up to it, so a keystroke re-renders only the lines it
+ * changed and Enter inserts one line rather than renumbering every line below.
+ */
+function useEditorLines(value: string, language: string | Grammar | undefined) {
+  const previous = useRef<readonly EditorLine[]>([]);
+  return useMemo(() => {
+    const before = previous.current;
+    const after = tokenize(value, language);
+    let top = 0;
+    while (
+      top < after.length &&
+      top < before.length &&
+      sameTokens(before[top]!.tokens, after[top]!)
+    ) {
+      top++;
+    }
+    let bottom = 0;
+    const room = Math.min(after.length, before.length) - top;
+    while (
+      bottom < room &&
+      sameTokens(before[before.length - 1 - bottom]!.tokens, after[after.length - 1 - bottom]!)
+    ) {
+      bottom++;
+    }
+    const shift = before.length - after.length;
+    const lines = after.map((tokens, i): EditorLine => {
+      if (i < top) return before[i]!;
+      if (i >= after.length - bottom) return before[i + shift]!;
+      return { id: lineIds++, tokens };
+    });
+    previous.current = lines;
+    return lines;
+  }, [value, language]);
+}
+
+const EditorLineView = memo(function EditorLineView({
+  tokens,
+  active,
+}: {
+  readonly tokens: readonly Token[];
+  readonly active: boolean;
+}) {
+  return (
+    <span className="tk-code-line" data-active={active || undefined}>
+      <Tokens tokens={tokens} />
+    </span>
+  );
+});
 
 /** "1,4-6" or [1, 4, 5, 6] → a set of line numbers. */
 function lineSet(spec: readonly number[] | string | undefined): ReadonlySet<number> {
@@ -246,7 +310,7 @@ export function CodeEditor({
   const gutter = useRef<HTMLDivElement>(null);
   const reveal = useRef<HTMLSpanElement>(null);
 
-  const lines = useMemo(() => tokenize(value, language), [value, language]);
+  const lines = useEditorLines(value, language);
   const digits = String(lines.length).length;
   const unit = ' '.repeat(tabSize);
 
@@ -395,11 +459,8 @@ export function CodeEditor({
         <div className="tk-code-editor-stack">
           <span ref={reveal} className="tk-code-editor-reveal" aria-hidden />
           <pre ref={highlight} className="tk-code-editor-highlight" aria-hidden>
-            {lines.map((tokens, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: a line's identity is its number
-              <span key={i} className="tk-code-line" data-active={i === activeLine || undefined}>
-                <Tokens tokens={tokens} />
-              </span>
+            {lines.map((line, i) => (
+              <EditorLineView key={line.id} tokens={line.tokens} active={i === activeLine} />
             ))}
           </pre>
           <BaseField.Control

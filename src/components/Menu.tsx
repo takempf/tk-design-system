@@ -46,14 +46,17 @@ function Root({
   const trigger = useRef<HTMLElement>(null);
   const ownActions = useRef<BaseMenu.Root.Actions>(null);
   const actions = actionsRef ?? ownActions;
-  const opener: Opener = {
-    name,
-    open: isOpen,
-    trigger,
-    label,
-    setLabel,
-    close: () => actions.current?.close(),
-  };
+  const opener = useMemo<Opener>(
+    () => ({
+      name,
+      open: isOpen,
+      trigger,
+      label,
+      setLabel,
+      close: () => actions.current?.close(),
+    }),
+    [name, isOpen, label, actions],
+  );
   return (
     <OpenerContext.Provider value={opener}>
       <BaseMenu.Root {...props} open={isOpen} onOpenChange={setOpen} actionsRef={actions} />
@@ -73,6 +76,8 @@ function Trigger({ children, ref, ...props }: ComponentProps<typeof BaseMenu.Tri
   const opener = useContext(OpenerContext);
   const setLabel = opener?.setLabel;
   useLayoutEffect(() => setLabel?.(children), [setLabel, children]);
+  const triggerRef = opener?.trigger;
+  const refs = useMemo(() => mergeRefs(ref, triggerRef), [ref, triggerRef]);
   if (!opener) {
     return (
       <BaseMenu.Trigger {...props} ref={ref}>
@@ -81,7 +86,7 @@ function Trigger({ children, ref, ...props }: ComponentProps<typeof BaseMenu.Tri
     );
   }
   return (
-    <BaseMenu.Trigger {...props} ref={mergeRefs(ref, opener.trigger)}>
+    <BaseMenu.Trigger {...props} ref={refs}>
       <Morph name={opener.name} active={!opener.open} fit="text" scope={opener.name}>
         <span className="tk-menu-label">{children}</span>
       </Morph>

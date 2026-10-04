@@ -43,6 +43,8 @@ interface Surface {
   look: Look | null;
   /** The finished frame this surface copies from, set during render. */
   frame: Frame | null;
+  /** What the canvas holds now (render and crop), so an unchanged one isn't copied again. */
+  shown: string;
 }
 
 interface Frame {
@@ -206,6 +208,8 @@ class SceneryRenderer {
   private lastTime = 0;
   private lastRender = 0;
   private frame = 0;
+  /** Counts renders: a surface showing an older one copies again. */
+  private rendered = 0;
   private presentFrame = 0;
   private requestFrame = 0;
   /** Something changed that the next frame must render, whatever the frame rate. */
@@ -536,6 +540,7 @@ class SceneryRenderer {
     for (const [key, frame] of this.frames) {
       if (!frame.used) this.frames.delete(key);
     }
+    this.rendered++;
     this.present();
   }
 
@@ -548,6 +553,13 @@ class SceneryRenderer {
       const local = look.attachment === 'local';
       const area = local ? { left: 0, top: 0, right: rect.width, bottom: rect.height } : rect;
       const piece = crop(area, frame.width, frame.height, frame.canvas.width, frame.canvas.height);
+      // The loop presents every display frame but renders a few times a second;
+      // between renders, only a box that moved needs copying again.
+      const shown = piece
+        ? `${this.rendered} ${piece.x} ${piece.y} ${piece.width} ${piece.height} ${piece.left} ${piece.top}`
+        : 'none';
+      if (shown === surface.shown) continue;
+      surface.shown = shown;
       if (!piece) {
         context.clearRect(0, 0, canvas.width, canvas.height);
         continue;
@@ -780,7 +792,15 @@ export function attachScenery(canvas: HTMLCanvasElement, bounds: HTMLElement): (
     bounds.dataset.fallback = '';
     return () => {};
   }
-  const surface: Surface = { canvas, bounds, context, visible: false, look: null, frame: null };
+  const surface: Surface = {
+    canvas,
+    bounds,
+    context,
+    visible: false,
+    look: null,
+    frame: null,
+    shown: '',
+  };
   active.add(surface);
   // Both observers report once on observing. Those first reports repeat what the
   // mount below already knows, so only real changes render.
@@ -798,6 +818,7 @@ export function attachScenery(canvas: HTMLCanvasElement, bounds: HTMLElement): (
     if (!visible) {
       canvas.width = 1;
       canvas.height = 1;
+      surface.shown = '';
     }
     active.request();
   });

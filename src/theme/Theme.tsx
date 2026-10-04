@@ -4,6 +4,7 @@ import {
   type ReactNode,
   use,
   useLayoutEffect,
+  useMemo,
   useState,
 } from 'react';
 import { cx } from '../utils';
@@ -66,7 +67,11 @@ export function Theme(props: ThemeProps) {
     if (portal) portal.dataset.tkTheme = name;
   }, [portal, name]);
 
-  const value = { name, portal: documentScope ? undefined : portal };
+  // Every popup reads this context, so it changes only when the theme or portal does.
+  const value = useMemo(
+    () => ({ name, portal: documentScope ? undefined : portal }),
+    [name, documentScope, portal],
+  );
 
   if (props.scope === 'document') {
     return <ThemeContext value={value}>{children}</ThemeContext>;

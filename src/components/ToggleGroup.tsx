@@ -1,7 +1,7 @@
 import { Toggle as BaseToggle } from '@base-ui/react/toggle';
 import { ToggleGroup as BaseToggleGroup } from '@base-ui/react/toggle-group';
-import { type ComponentProps, createContext, use, useCallback, useRef } from 'react';
-import { cx, withBase } from '../utils';
+import { type ComponentProps, createContext, use, useCallback, useMemo } from 'react';
+import { cx, mergeRefs, withBase } from '../utils';
 
 export type ToggleGroupProps = ComponentProps<typeof BaseToggleGroup> & {
   readonly size?: 'sm' | 'md';
@@ -20,11 +20,8 @@ const marker = ['x', 'y', 'w', 'h'] as const;
   marker and the clip both transition from there.
 */
 function useSlidingMarker(enabled: boolean) {
-  const stop = useRef<(() => void) | null>(null);
   return useCallback(
     (group: HTMLElement | null) => {
-      stop.current?.();
-      stop.current = null;
       if (!group || !enabled) return;
       const place = () => {
         const pressed = group.querySelector<HTMLElement>(':scope > .tk-toggle[data-pressed]');
@@ -49,15 +46,10 @@ function useSlidingMarker(enabled: boolean) {
       press.observe(group, { subtree: true, attributes: true, attributeFilter: ['data-pressed'] });
       // Transitions switch on a frame later, so the marker starts in place.
       const frame = requestAnimationFrame(() => group.setAttribute('data-placed', ''));
-      const disconnect = () => {
+      return () => {
         resize.disconnect();
         press.disconnect();
         cancelAnimationFrame(frame);
-      };
-      stop.current = disconnect;
-      return () => {
-        disconnect();
-        stop.current = null;
       };
     },
     [enabled],
@@ -79,11 +71,8 @@ const readTime = (style: CSSStyleDeclaration, name: string): number => {
   of the toggle on the way. Keyboard presses grow from the centre.
 */
 function useBloomingFill(enabled: boolean) {
-  const stop = useRef<(() => void) | null>(null);
   return useCallback(
     (group: HTMLElement | null) => {
-      stop.current?.();
-      stop.current = null;
       if (!group || !enabled) return;
       const origins = new WeakMap<Element, readonly [number, number]>();
       const running = new WeakMap<Element, Animation>();
@@ -137,15 +126,10 @@ function useBloomingFill(enabled: boolean) {
       group.addEventListener('pointerdown', aim);
       group.addEventListener('keydown', forget);
       press.observe(group, { subtree: true, attributes: true, attributeFilter: ['data-pressed'] });
-      const disconnect = () => {
+      return () => {
         group.removeEventListener('pointerdown', aim);
         group.removeEventListener('keydown', forget);
         press.disconnect();
-      };
-      stop.current = disconnect;
-      return () => {
-        disconnect();
-        stop.current = null;
       };
     },
     [enabled],
@@ -164,19 +148,7 @@ export function ToggleGroup({
   const sliding = !multiple;
   const slide = useSlidingMarker(sliding);
   const bloom = useBloomingFill(!sliding);
-  const ref = useCallback(
-    (group: HTMLDivElement | null) => {
-      if (typeof forwarded === 'function') forwarded(group);
-      else if (forwarded) forwarded.current = group;
-      const unslide = slide(group);
-      const unbloom = bloom(group);
-      return () => {
-        unslide?.();
-        unbloom?.();
-      };
-    },
-    [forwarded, slide, bloom],
-  );
+  const ref = useMemo(() => mergeRefs(forwarded, slide, bloom), [forwarded, slide, bloom]);
   return (
     <BaseToggleGroup
       {...props}
