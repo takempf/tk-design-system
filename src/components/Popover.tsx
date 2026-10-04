@@ -1,8 +1,9 @@
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import { type ComponentProps, type ReactElement, type ReactNode, useMemo } from 'react';
 import { usePortalContainer } from '../theme/Theme';
-import { part, withBase } from '../utils';
+import { mergeRefs, part, withBase } from '../utils';
+import { useGrowFrom } from './popup';
 
 type PositionerProps = Pick<
   ComponentProps<typeof BasePopover.Positioner>,
@@ -15,9 +16,12 @@ function PopoverPopup({
   sideOffset = 8,
   alignOffset,
   className,
+  ref,
   ...props
 }: ComponentProps<typeof BasePopover.Popup> & PositionerProps) {
   const container = usePortalContainer();
+  const grow = useGrowFrom();
+  const refs = useMemo(() => mergeRefs(ref, grow), [ref, grow]);
   return (
     <BasePopover.Portal container={container}>
       <BasePopover.Positioner
@@ -27,13 +31,17 @@ function PopoverPopup({
         sideOffset={sideOffset}
         alignOffset={alignOffset}
       >
-        <BasePopover.Popup {...props} className={withBase('tk-popup tk-popover', className)} />
+        <BasePopover.Popup
+          {...props}
+          ref={refs}
+          className={withBase('tk-popup tk-popover', className)}
+        />
       </BasePopover.Positioner>
     </BasePopover.Portal>
   );
 }
 
-/** Rich, interactive content anchored to a trigger. */
+/** Rich, interactive content anchored to a trigger, whose frame it grows out of. */
 export const Popover = {
   Root: BasePopover.Root,
   Trigger: BasePopover.Trigger,

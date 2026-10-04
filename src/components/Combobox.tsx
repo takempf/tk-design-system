@@ -4,7 +4,7 @@ import { Icon } from '../icons/Icon';
 import { Morph, useMorphName } from '../motion/morph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx } from '../utils';
-import { overTrigger, useControllable, useMorphingOpen, useUnfoldFrom } from './popup';
+import { overTrigger, useControllable, useGrowFrom, useMorphingOpen } from './popup';
 import type { Option } from './Select';
 
 export interface ComboboxProps<V> {
@@ -70,9 +70,9 @@ function useChosenRowBesideSearch() {
 /**
  * A searchable select: a quiet trigger that opens into a filterable list.
  *
- * It opens over itself: the search field lands on the trigger and the list
- * unfolds out of the trigger's box (below it, or above when there is no room),
- * so the trigger's text is never shown twice. That text travels between the two
+ * It opens over itself: the search field lands on the trigger and the trigger's
+ * frame grows into the popup's around the list (below it, or above when there is
+ * no room), so the trigger's text is never shown twice. That text travels between the two
  * states. With nothing chosen, the placeholder slides from the trigger into the
  * search field; with a value, the value slides onto its row in the list, and the
  * chosen row slides back as the list folds away.
@@ -100,7 +100,7 @@ export function Combobox<V>({
   const selected = items.find((item) => Object.is(item.value, current)) ?? null;
   const container = usePortalContainer();
   const trigger = useRef<HTMLButtonElement>(null);
-  const unfold = useUnfoldFrom(trigger);
+  const grow = useGrowFrom(trigger);
   const alignChosen = useChosenRowBesideSearch();
 
   return (
@@ -143,8 +143,8 @@ export function Combobox<V>({
       <BaseCombobox.Portal container={container}>
         <BaseCombobox.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
           <BaseCombobox.Popup
-            ref={unfold}
-            className="tk-popup tk-list-popup tk-unfold-popup tk-combobox-popup"
+            ref={grow}
+            className="tk-popup tk-list-popup tk-over-trigger tk-combobox-popup"
             data-size={size}
           >
             <div className="tk-combobox-search">

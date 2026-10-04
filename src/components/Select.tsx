@@ -4,7 +4,7 @@ import { Icon } from '../icons/Icon';
 import { Morph, useMorphName } from '../motion/morph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx } from '../utils';
-import { useControllable, useMorphingOpen, useUnfoldFrom } from './popup';
+import { useControllable, useGrowFrom, useMorphingOpen } from './popup';
 
 export interface Option<V> {
   readonly value: V;
@@ -30,9 +30,10 @@ export interface SelectProps<V> {
 
 /**
  * A single-choice list. It opens over its trigger with the chosen row exactly on
- * the trigger's value, unfolding out of the trigger's box; choosing another row
- * carries that label back into the trigger as the list folds away. Where there
- * is no room to overlay (or on touch) it drops below instead.
+ * the trigger's value, the trigger's frame growing into the list's; choosing
+ * another row carries that label back into the trigger as the frame shrinks
+ * home. Where there is no room to overlay (or on touch) it drops below instead,
+ * the frame moving down from the trigger.
  */
 export function Select<V>({
   items,
@@ -56,7 +57,7 @@ export function Select<V>({
   const selected = items.find((item) => Object.is(item.value, current));
   const container = usePortalContainer();
   const trigger = useRef<HTMLButtonElement>(null);
-  const unfold = useUnfoldFrom(trigger);
+  const grow = useGrowFrom(trigger);
 
   return (
     <BaseSelect.Root
@@ -96,7 +97,7 @@ export function Select<V>({
       <BaseSelect.Portal container={container}>
         <BaseSelect.Positioner className="tk-positioner" sideOffset={6} align="start">
           <BaseSelect.Popup
-            ref={unfold}
+            ref={grow}
             className="tk-popup tk-list-popup tk-select-popup"
             data-size={size}
           >

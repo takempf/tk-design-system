@@ -263,7 +263,6 @@
     flex-direction: column;
     min-width: max(var(--anchor-width, 0px), 16rem);
     padding: 0;
-    overflow: hidden;
 
     /* Opened upward: the search field stays on the trigger, at the bottom. */
     &[data-side='top'] {
@@ -372,11 +371,8 @@
     isolation: isolate;
     display: flex;
     flex-direction: column;
-    gap: var(--tk-space-4);
     width: min(100%, 32rem);
     max-height: 100%;
-    overflow: auto;
-    padding: var(--tk-space-6);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius-lg);
     corner-shape: var(--tk-corner-shape);
@@ -406,6 +402,16 @@
     &[data-ending-style] {
       transition-duration: var(--tk-duration-1);
     }
+  }
+
+  /* The body scrolls, not the dialog, so the dialog's frame stays put. */
+  .tk-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-4);
+    min-height: 0;
+    padding: var(--tk-space-6);
+    overflow: auto;
   }
 
   .tk-dialog-title {
@@ -563,58 +569,28 @@
     }
   }
 
-  /* Popups over their trigger --------------------------------------------- */
+  /* The list scrolls, not the popup, so the popup's frame stays put. */
+  .tk-select-popup {
+    display: flex;
+    flex-direction: column;
 
-  /* A select laid over its trigger (data-side='none'), a combobox and a menu all
-     open out of the trigger's own box and fold back into it: the trigger's text
-     becomes part of the popup rather than being shown twice. That box arrives as
-     --tk-unfold-* (see useUnfoldFrom). */
-  .tk-unfold-popup,
-  .tk-select-popup[data-side='none'] {
-    clip-path: inset(0 round var(--tk-radius-popup));
-    transition:
-      clip-path var(--tk-duration-morph) var(--tk-ease-morph),
-      opacity var(--tk-duration-1) var(--tk-ease-fade);
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      clip-path: inset(
-        var(--tk-unfold-top, 0px) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 0px)
-          var(--tk-unfold-left, 0px) round var(--tk-radius-popup)
-      );
-      transform: none;
-      filter: none;
-    }
-
-    &[data-ending-style] {
-      transition-duration: var(--tk-duration-2);
-      transition-timing-function: var(--tk-ease-in);
-    }
-
-    /* The shared text is carried back to the trigger (a morph). The popup empties
-       at once, so no copy of it, and no old value, is left for it to land on. */
-    &[data-ending-style] :is(.tk-list-item, .tk-combobox-search, .tk-menu-head) > *,
-    &[data-ending-style] :is(.tk-list-group-label, .tk-list-empty) {
-      visibility: hidden;
+    & .tk-list {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
     }
   }
 
+  /* A select laid over its trigger (data-side='none'): Base UI sets the chosen
+     row's text on the value, so the popup starts left of the trigger by a row's
+     text inset less the trigger's; widen it by as much (and a hair) to cover the
+     trigger's edge. */
   .tk-select-popup[data-side='none'] {
-    /* Base UI sets the chosen row's text on the value, so the popup starts left
-       of the trigger by a row's text inset less the trigger's; widen it by as
-       much (and a hair) to cover the trigger's edge. */
     --_shift: calc(var(--tk-space-1) + var(--tk-space-2) * 2 + 1.1rem - var(--tk-space-3));
     min-width: max(calc(var(--anchor-width, 0px) + var(--_shift) + var(--tk-border-width)), 12rem);
     /* Base UI's overlay lands one border-width high; set the row on the value. */
     translate: 0 var(--tk-border-width);
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      clip-path: inset(
-        var(--tk-unfold-top, 50%) var(--tk-unfold-right, 0px) var(--tk-unfold-bottom, 50%)
-          var(--tk-unfold-left, 0px) round var(--tk-radius-popup)
-      );
-    }
   }
 
   /* Menu: the trigger's label, and the same label as the popup's first row ---- */
@@ -660,14 +636,13 @@
     }
   }
 
-  .tk-menu-popup.tk-unfold-popup {
+  .tk-menu-popup.tk-over-trigger {
     --_head-h: var(--tk-control-h);
     --_head-pad: var(--tk-space-4);
     --_head-text: var(--tk-button-text);
     display: flex;
     flex-direction: column;
     padding: 0;
-    overflow: hidden;
 
     &[data-size='sm'] {
       --_head-h: var(--tk-control-h-sm);
@@ -698,5 +673,87 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
+  }
+
+  /* Popups that grow out of their trigger --------------------------------- */
+
+  /* The trigger and its popup are one frame (see useGrowFrom). Opening, the frame
+     leaves the trigger's box for the popup's: it moves and resizes, its fill and
+     edge turn from the trigger's to the popup's, and the content is cut to it as
+     it goes. Closing, it goes home the same way. Laid over its trigger, the frame
+     starts as the trigger itself; set apart from it, the popup fades in as it
+     leaves and out as it lands (--tk-from-opacity). */
+  :is(.tk-popup, .tk-dialog)[data-tk-grow] {
+    --_grow: var(--tk-duration-morph);
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+    border-color: transparent;
+    background: transparent;
+    clip-path: inset(0);
+    transition:
+      clip-path var(--_grow) var(--tk-ease-morph),
+      opacity var(--tk-duration-2) var(--tk-ease-fade);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: calc(var(--tk-border-width) * -1);
+      left: calc(var(--tk-border-width) * -1);
+      z-index: -1;
+      width: calc(100% + 2 * var(--tk-border-width));
+      height: calc(100% + 2 * var(--tk-border-width));
+      border: var(--tk-border-width) solid var(--tk-border);
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--tk-surface-raised);
+      transition-property: translate, width, height, border-radius, border-color, background-color;
+      transition-duration: var(--_grow);
+      transition-timing-function: var(--tk-ease-morph);
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: var(--tk-from-opacity);
+      transform: none;
+      filter: none;
+      clip-path: inset(
+        var(--tk-from-y) calc(100% - var(--tk-from-x) - var(--tk-from-w))
+          calc(100% - var(--tk-from-y) - var(--tk-from-h)) var(--tk-from-x) round
+          var(--tk-from-radius)
+      );
+
+      &::before {
+        translate: var(--tk-from-x) var(--tk-from-y);
+        width: var(--tk-from-w);
+        height: var(--tk-from-h);
+        border-color: var(--tk-from-border);
+        border-radius: var(--tk-from-radius);
+        background: var(--tk-from-bg);
+      }
+    }
+
+    /* Set on the trigger before anything moves: Base UI places the popup (and it
+       is measured) while it is starting. */
+    &[data-starting-style],
+    &[data-starting-style]::before {
+      transition: none;
+    }
+
+    /* Closing lands a beat before the text carried home does, so the frame is
+       gone before the trigger shows that text again. */
+    &[data-ending-style] {
+      --_grow: calc(var(--tk-duration-morph) * 0.9);
+      transition:
+        clip-path var(--_grow) var(--tk-ease-morph),
+        opacity var(--_grow) var(--tk-ease-in);
+    }
+  }
+
+  /* Laid over the trigger, the popup empties at once as it closes: the shared
+     text is carried back to the trigger (a morph), and no copy of it, no old
+     value and no highlighted row is left in the frame for it to land on. */
+  :is(.tk-over-trigger, .tk-select-popup[data-side='none'])[data-ending-style] > * {
+    visibility: hidden;
   }
 }

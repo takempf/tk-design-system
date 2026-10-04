@@ -6,6 +6,7 @@ import {
   type RefObject,
   useContext,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -13,11 +14,11 @@ import { Icon, type IconName } from '../icons/Icon';
 import { Morph, useMorphName } from '../motion/morph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx, mergeRefs, part, withBase } from '../utils';
-import { overTrigger, useMorphingOpen, useUnfoldFrom } from './popup';
+import { overTrigger, useGrowFrom, useMorphingOpen } from './popup';
 
 /**
- * What a root menu's popup needs from its trigger to open over it: the trigger's
- * box to unfold from, and its label to show in its place. Submenus open beside
+ * What a root menu's popup needs from its trigger to open over it: the trigger
+ * to grow out of, and its label to show in its place. Submenus open beside
  * their row instead, so they clear it.
  */
 interface Opener {
@@ -99,8 +100,6 @@ type PopupProps = ComponentProps<typeof BaseMenu.Popup> &
     readonly size?: 'sm' | 'md' | 'lg';
   };
 
-const noTrigger: RefObject<HTMLElement | null> = { current: null };
-
 function Popup({
   side,
   align = 'start',
@@ -114,7 +113,9 @@ function Popup({
 }: PopupProps) {
   const container = usePortalContainer();
   const opener = useContext(OpenerContext);
-  const unfold = useUnfoldFrom(opener?.trigger ?? noTrigger);
+  const grow = useGrowFrom(opener?.trigger);
+  const isRoot = opener !== null;
+  const refs = useMemo(() => (isRoot ? mergeRefs(ref, grow) : ref), [isRoot, ref, grow]);
   return (
     <BaseMenu.Portal container={container}>
       <BaseMenu.Positioner
@@ -126,9 +127,9 @@ function Popup({
       >
         <BaseMenu.Popup
           {...props}
-          ref={opener ? mergeRefs(ref, unfold) : ref}
+          ref={refs}
           className={withBase(
-            cx('tk-popup tk-list-popup tk-menu-popup', opener && 'tk-unfold-popup'),
+            cx('tk-popup tk-list-popup tk-menu-popup', opener && 'tk-over-trigger'),
             className,
           )}
           data-size={size}
@@ -227,9 +228,9 @@ function SubmenuTrigger({
  * the trigger button's `size`; items take an optional `icon` and
  * `data-tone="danger"`.
  *
- * A menu opens out of its trigger: the popup lands over the button, its first
- * row is the button's own label (press it to close), and the items unfold below
- * (or above, when there is no room). The label travels between the two, so it is
+ * A menu opens out of its trigger: the button's frame grows into the popup's,
+ * its first row is the button's own label (press it to close), and the items
+ * open below (or above, when there is no room). The label travels between the two, so it is
  * never shown twice. Submenus open beside their row, at `sideOffset`.
  *
  *   <Menu.Root>

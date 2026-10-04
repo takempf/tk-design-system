@@ -182,9 +182,14 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
 - A part nested in another stays on top of it while both travel, as the page paints them.
   The browser on its own stacks the old state's parts first, so a box that only the new
   state has would cover text arriving into it.
-- `Select`, `Combobox` and `Menu` open over their trigger, unfolding out of its own box,
-  so the trigger's text becomes part of the popup and never appears twice. Closing folds
-  the popup back into the trigger while the shared text is carried home.
+- A popup and its trigger are one frame. Opening, the frame moves and resizes from the
+  trigger's box to the popup's, its fill and edge turning from the trigger's to the
+  popup's, with the content cut to it; closing takes it home the same way. `Popover` and
+  `Dialog` fly out of their trigger and fade in as they leave it (a dialog opened inside a
+  `morph()` is left to that morph). Tooltips and submenus don't.
+- `Select`, `Combobox` and `Menu` open over their trigger, so the frame starts as the
+  trigger itself and the trigger's text becomes part of the popup, never appearing twice.
+  Closing shrinks the frame back into the trigger while the shared text is carried home.
   - `Select` lays the chosen row exactly on the value, so nothing moves.
   - `Combobox` lands its search field on the trigger. The placeholder slides into the field,
     or the value slides onto its row in the list.
