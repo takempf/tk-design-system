@@ -76,6 +76,21 @@
     color: inherit;
   }
 
+  /* Anything clickable says so, with or without a component's class. */
+  :where(
+    button,
+    select,
+    summary,
+    [role='button'],
+    input:is([type='button'], [type='submit'], [type='reset'], [type='checkbox'], [type='radio'])
+  ) {
+    cursor: pointer;
+  }
+
+  :where(button:disabled, select:disabled, input:disabled, [aria-disabled='true']) {
+    cursor: not-allowed;
+  }
+
   :where(a) {
     color: var(--tk-accent);
     text-underline-offset: 0.25em;

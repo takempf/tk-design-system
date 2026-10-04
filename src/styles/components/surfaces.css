@@ -206,6 +206,11 @@
       color: var(--tk-fg);
     }
 
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     &:focus-visible {
       outline-offset: -2px;
     }
@@ -261,6 +266,11 @@
     font-weight: var(--tk-weight-medium);
     text-align: start;
     cursor: pointer;
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
 
     &:focus-visible {
       outline-offset: -2px;

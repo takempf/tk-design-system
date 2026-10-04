@@ -103,7 +103,7 @@
     color: var(--tk-fg);
     font-size: var(--_item-text, var(--tk-control-text));
     line-height: var(--tk-leading-tight);
-    cursor: default;
+    cursor: pointer;
     outline: 0;
     user-select: none;
     scroll-margin: var(--tk-space-1);
@@ -124,6 +124,7 @@
 
     &[data-disabled] {
       opacity: 0.4;
+      cursor: not-allowed;
     }
 
     &[data-popup-open]:not([data-highlighted]) {
