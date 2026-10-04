@@ -23,6 +23,8 @@ export function wipe(
   root.style.setProperty('--tk-wipe-r', `${radius}px`);
   root.dataset.tkWipe = '';
   const transition = document.startViewTransition(() => flushSync(update));
+  // Another transition starting skips this one; that is expected, not an error.
+  transition.ready.catch(() => {});
   holdScenery(transition.finished);
   transition.finished.finally(() => {
     delete root.dataset.tkWipe;

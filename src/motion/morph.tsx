@@ -122,6 +122,9 @@ export function morph(
   } catch {
     transition = document.startViewTransition(run);
   }
+  // A morph that starts before this one is done skips it (closing a popup while
+  // it opens); that is expected, not an error to report.
+  transition.ready.catch(() => {});
   holdScenery(transition.finished);
   transition.finished.finally(() => {
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter((each) => each !== sheet);
