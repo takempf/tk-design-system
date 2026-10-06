@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Combobox, Field, Stack } from 'tk-design-system';
 
 export const meta = {
@@ -36,6 +37,8 @@ const trees = [
 ].map((label) => ({ value: label.toLowerCase(), label }));
 
 export default function ComboboxDemo() {
+  const [chosen, setChosen] = useState<(typeof trees)[number][]>([]);
+  const [query, setQuery] = useState('');
   return (
     <Stack gap={5}>
       <Field.Root>
@@ -45,6 +48,27 @@ export default function ComboboxDemo() {
       <Field.Root>
         <Field.Label>Favourite (already chosen)</Field.Label>
         <Combobox items={trees} defaultValue="rowan" placeholder="Choose a tree…" />
+      </Field.Root>
+      <Field.Root>
+        <Field.Label>Trees (type to add several)</Field.Label>
+        <Combobox
+          variant="input"
+          groups={[{ id: 'trees', label: 'Trees', items: trees }]}
+          value={chosen}
+          inputValue={query}
+          onInputValueChange={setQuery}
+          onValueChange={setChosen}
+          itemToStringLabel={(item) => item.label}
+          itemToStringValue={(item) => item.value}
+          isItemEqualToValue={(a, b) => a.value === b.value}
+          filter={(item, query) =>
+            !chosen.some((selected) => selected.value === item.value) &&
+            item.label.toLowerCase().includes(query.toLowerCase())
+          }
+          aria-label="Find trees"
+          placeholder="Type a tree name…"
+          selectedPlaceholder="Add another tree…"
+        />
       </Field.Root>
     </Stack>
   );

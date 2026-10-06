@@ -26,7 +26,7 @@ export {
   CodeEditor,
   type CodeEditorProps,
 } from './components/Code';
-export { Combobox, type ComboboxProps } from './components/Combobox';
+export { Combobox, type ComboboxProps, type SelectComboboxProps } from './components/Combobox';
 export { AlertDialog, Dialog } from './components/Dialog';
 export { Accordion, Collapsible, Tabs } from './components/Disclosure';
 export {
@@ -37,6 +37,7 @@ export {
   Textarea,
   type TextareaProps,
 } from './components/Field';
+export type { ComboboxGroup, InputComboboxProps } from './components/InputCombobox';
 export { Menu } from './components/Menu';
 export { Popover, Tooltip, type TooltipProps, TooltipProvider } from './components/Popover';
 export {

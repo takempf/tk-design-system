@@ -127,6 +127,15 @@ also shipped as a file at `tk-design-system/logo.svg`).
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
 
+`Combobox` also has an editable multiselect mode (`variant="input"`). It accepts grouped
+suggestions, a controlled `inputValue`, and selected values rendered as removable chips.
+Suggestions require one non-whitespace character by default (`minQueryLength`); focusing
+an empty field or selecting a chip leaves the list closed. `renderItem` and `renderChip`
+allow rich content while the component owns field styling, list positioning, keyboard
+navigation, dismissal, and removal. Cancel `onValueChange`'s event details to use a result
+as an action (such as opening a tab) instead of selecting a chip. The searchable-select
+mode remains the default. The playground's Combobox demo shows both modes.
+
 ## Code
 
 ```tsx

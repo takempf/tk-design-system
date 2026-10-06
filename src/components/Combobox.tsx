@@ -4,10 +4,12 @@ import { Icon } from '../icons/Icon';
 import { Morph, useMorphName } from '../motion/morph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx } from '../utils';
+import { InputCombobox, type InputComboboxProps } from './InputCombobox';
 import { overTrigger, useControllable, useGrowFrom, useMorphingOpen } from './popup';
 import type { Option } from './Select';
 
-export interface ComboboxProps<V> {
+export interface SelectComboboxProps<V> {
+  readonly variant?: 'select';
   readonly items: readonly Option<V>[];
   readonly value?: V | null;
   readonly defaultValue?: V | null;
@@ -82,7 +84,7 @@ function useChosenRowBesideSearch() {
  * search field; with a value, the value slides onto its row in the list, and the
  * chosen row slides back as the list folds away.
  */
-export function Combobox<V>({
+function SelectCombobox<V>({
   items,
   value,
   defaultValue = null,
@@ -97,7 +99,7 @@ export function Combobox<V>({
   id,
   className,
   'aria-label': ariaLabel,
-}: ComboboxProps<V>) {
+}: SelectComboboxProps<V>) {
   const morphName = useMorphName('combobox');
   const [isOpen, setOpen] = useMorphingOpen(open, onOpenChange, morphName);
   const [current, setCurrent] = useControllable(value, defaultValue);
@@ -194,4 +196,11 @@ export function Combobox<V>({
       </BaseCombobox.Portal>
     </BaseCombobox.Root>
   );
+}
+
+export type ComboboxProps<V> = SelectComboboxProps<V> | InputComboboxProps<V>;
+
+/** Searchable select by default, or an editable multiselect with `variant="input"`. */
+export function Combobox<V>(props: ComboboxProps<V>) {
+  return props.variant === 'input' ? <InputCombobox {...props} /> : <SelectCombobox {...props} />;
 }
