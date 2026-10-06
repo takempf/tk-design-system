@@ -204,6 +204,17 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
     or the value slides onto its row in the list.
   - `Menu` makes the button's own label the popup's first row (pressing it closes), with the
     items below, or above when there is no room. Submenus open beside their row as usual.
+- `Dialog.Root transition="shared"` gives the actual trigger and popup containers
+  the same scoped `Morph` name. Opening captures the trigger, then the popup;
+  closing captures them in reverse. Everything inside the container travels
+  with its snapshot. Pair `Dialog.SharedElement name="…" side="trigger"` with
+  `side="popup"` to carry an icon separately above the container. `Dialog.Content`
+  is a layout group, not a separate animation. Both directions use
+  `--tk-duration-shared` and `--tk-ease-shared`; reduced motion and browsers without
+  view transitions change state immediately. Shared dialogs capture a stationary
+  background and clip the moving snapshots, so WebKit carries the popup contents
+  inside the container too. Use the trigger or `actionsRef.close()`
+  for programmatic changes so they pass through the same transition.
 - `<Decipher>` resolves changed text through the theme's glyphs (`--tk-decipher-glyphs`):
   geometric shapes in Grove, digits in Bureau.
 - `wipe(update, origin)` swaps the theme behind a circular reveal (Bureau scans instead).

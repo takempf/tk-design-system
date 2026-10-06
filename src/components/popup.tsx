@@ -50,8 +50,6 @@ const inMorph = () => {
  * Base UI places the popup after it mounts, so while the popup is opening or
  * closing every style change on it or its positioner re-measures — before
  * paint, as a mutation record — and each turn reads the trigger's look again.
- * Settled open, the measurements go unused, so scrolling and resizing don't
- * measure.
  */
 export function useGrowFrom(
   trigger?: RefObject<HTMLElement | null>,
@@ -73,7 +71,11 @@ export function useGrowFrom(
         const x = from.left - box.left;
         const y = from.top - box.top;
         // Laid over the trigger when the popup's box holds the trigger's (to a pixel).
-        const over = x > -1 && y > -1 && from.right < box.right + 1 && from.bottom < box.bottom + 1;
+        const over =
+          from.left > box.left - 1 &&
+          from.top > box.top - 1 &&
+          from.right < box.right + 1 &&
+          from.bottom < box.bottom + 1;
         const values = [x, y, from.width, from.height].map((n) => `${n}px`);
         // Our own writes are style changes too; stop once nothing moves.
         const key = `${values.join()} ${over}`;

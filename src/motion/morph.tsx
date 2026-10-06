@@ -18,6 +18,8 @@ export type MorphType = 'forward' | 'back' | 'open' | 'close' | (string & {});
 
 export interface MorphOptions {
   readonly type?: MorphType;
+  /** Capture a stationary backdrop behind shared containers, including portals. */
+  readonly captureBackground?: boolean;
   /**
    * Only <Morph>s and <Reveal>s declared with the same `scope` take part. Scope a
    * morph when the change is local — opening a popup should animate the popup's
@@ -33,16 +35,60 @@ function inScope(scope: string | undefined): string {
   return scope ? `[data-tk-scope="${CSS.escape(scope)}"]` : ':not([data-tk-scope])';
 }
 
-// Names exist only for the lifetime of the morph that uses them, as rules in a
-// constructable stylesheet: idle names never leak into another transition.
-function nameRules(scope: string | undefined): string {
+/** The parts of one scope's morph: the elements its names go on. */
+function partsOf(scope: string | undefined): string {
   const within = inScope(scope);
-  return `
-    [data-tk-morph]${within} { view-transition-name: var(--tk-morph-name); view-transition-class: tk-morph; }
-    [data-tk-morph="text"]${within} { view-transition-class: tk-morph-text; }
-    [data-tk-reveal]${within} { view-transition-name: var(--tk-reveal-name); view-transition-class: tk-reveal; }
-    [data-tk-reveal="directional"]${within} { view-transition-class: tk-reveal tk-directional; }
-  `;
+  return `[data-tk-morph]${within}, [data-tk-reveal]${within}`;
+}
+
+/** A part's name, from the custom property its <Morph> or <Reveal> sets. */
+function nameOf(element: HTMLElement): string {
+  return (
+    element.style.getPropertyValue('--tk-morph-name') ||
+    element.style.getPropertyValue('--tk-reveal-name')
+  );
+}
+
+/** Which morph last named an element, so an earlier one never unnames it. */
+const namedBy = new WeakMap<HTMLElement, object>();
+
+/**
+ * Names exist only for the lifetime of the morph that uses them: idle names
+ * never leak into another transition. They go on each part inline (the
+ * classes are always set, in motion.css, and do nothing without a name). A
+ * stylesheet of names, adopted for the morph and dropped after it, would do
+ * the same, but WebKit restyles the whole document for each change to it:
+ * 60–90ms a time on a page of a few thousand elements, at both ends of every
+ * popup opening.
+ */
+function nameParts(
+  scope: string | undefined,
+  owner: object,
+  captureBackground = false,
+): Set<HTMLElement> {
+  const named = new Set<HTMLElement>();
+  if (captureBackground) {
+    const root = document.documentElement;
+    root.style.setProperty('view-transition-name', 'tk-background');
+    namedBy.set(root, owner);
+    named.add(root);
+  }
+  for (const element of document.querySelectorAll<HTMLElement>(partsOf(scope))) {
+    const name = nameOf(element);
+    if (!name) continue;
+    element.style.setProperty('view-transition-name', name);
+    namedBy.set(element, owner);
+    named.add(element);
+  }
+  return named;
+}
+
+function unnameParts(named: Iterable<HTMLElement>, owner: object): void {
+  for (const element of named) {
+    if (namedBy.get(element) !== owner) continue;
+    element.style.removeProperty('view-transition-name');
+    namedBy.delete(element);
+  }
 }
 
 /**
@@ -51,12 +97,9 @@ function nameRules(scope: string | undefined): string {
  * nest differently.
  */
 function measureNesting(scope: string | undefined, depths: Map<string, number>): void {
-  const within = inScope(scope);
-  const parts = `[data-tk-morph]${within}, [data-tk-reveal]${within}`;
+  const parts = partsOf(scope);
   for (const element of document.querySelectorAll<HTMLElement>(parts)) {
-    const name =
-      element.style.getPropertyValue('--tk-morph-name') ||
-      element.style.getPropertyValue('--tk-reveal-name');
+    const name = nameOf(element);
     if (!name) continue;
     let depth = 0;
     let around = element.parentElement?.closest(parts);
@@ -97,15 +140,18 @@ export function morph(
   update: () => void,
   options: MorphType | MorphOptions = {},
 ): ViewTransition | null {
-  const { type, scope } =
+  const { type, scope, captureBackground } =
     typeof options === 'string' ? { type: options, scope: undefined } : options;
   if (!document.startViewTransition || reducedMotion()) {
     update();
     return null;
   }
-  const sheet = new CSSStyleSheet();
-  sheet.replaceSync(nameRules(scope));
-  document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+  const owner = {};
+  // Named now, so the old state is captured with them.
+  let named = nameParts(scope, owner, captureBackground);
+  // Only parts nested in other parts need a stylesheet, and only then is one
+  // adopted (a screen change, say; never a popup's label).
+  let sheet: CSSStyleSheet | null = null;
   // The old state is captured by the time the update runs, and the moving
   // parts are only built once it has: the nesting of both ends is known then,
   // and in time to stack them by it.
@@ -113,8 +159,17 @@ export function morph(
     const depths = new Map<string, number>();
     measureNesting(scope, depths);
     flushSync(update);
+    // A part may have left the morph while staying on the page (a trigger's
+    // label, once its popup holds the name); only the new state's are named.
+    unnameParts(named, owner);
+    named = nameParts(scope, owner, captureBackground);
     measureNesting(scope, depths);
-    sheet.replaceSync(`${nameRules(scope)}\n${nestingRules(depths)}`);
+    const rules = nestingRules(depths);
+    if (rules) {
+      sheet = new CSSStyleSheet();
+      sheet.replaceSync(rules);
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, sheet];
+    }
   };
   let transition: ViewTransition;
   try {
@@ -127,7 +182,10 @@ export function morph(
   transition.ready.catch(() => {});
   holdScenery(transition.finished);
   transition.finished.finally(() => {
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter((each) => each !== sheet);
+    unnameParts(named, owner);
+    if (sheet) {
+      document.adoptedStyleSheets = document.adoptedStyleSheets.filter((each) => each !== sheet);
+    }
   });
   return transition;
 }

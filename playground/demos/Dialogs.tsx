@@ -1,4 +1,4 @@
-import { AlertDialog, Button, Dialog, Field, Input, Stack } from 'tk-design-system';
+import { AlertDialog, Button, Dialog, Field, Icon, Input, Stack } from 'tk-design-system';
 
 export const meta = {
   section: 'surfaces',
@@ -23,6 +23,29 @@ export default function Dialogs() {
             <Dialog.Close render={<Button variant="ghost" />}>Cancel</Dialog.Close>
             <Dialog.Close render={<Button variant="primary" />}>Save</Dialog.Close>
           </Stack>
+        </Dialog.Popup>
+      </Dialog.Root>
+
+      <Dialog.Root transition="shared">
+        <Dialog.Trigger render={<Button />} aria-label="Search the clearing">
+          <Dialog.SharedElement name="search" side="trigger">
+            <Icon name="search" />
+          </Dialog.SharedElement>
+          Search
+        </Dialog.Trigger>
+        <Dialog.Popup aria-label="Search the clearing">
+          <Stack direction="row" align="center" gap={3}>
+            <Dialog.SharedElement name="search" side="popup">
+              <Icon name="search" size="1.5em" />
+            </Dialog.SharedElement>
+            <Dialog.Content style={{ flex: 1 }}>
+              <Input aria-label="Search text" placeholder="Find a clearing…" />
+            </Dialog.Content>
+          </Stack>
+          <Dialog.Content>
+            <Dialog.Description>Search by name, or follow the paths on the map.</Dialog.Description>
+            <Dialog.Close render={<Button variant="ghost" />}>Close</Dialog.Close>
+          </Dialog.Content>
         </Dialog.Popup>
       </Dialog.Root>
 

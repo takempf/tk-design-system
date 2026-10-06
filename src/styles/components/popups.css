@@ -362,6 +362,7 @@
     position: fixed;
     inset: 0;
     display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
     place-items: center;
     padding: var(--tk-space-4);
   }
@@ -747,6 +748,63 @@
       transition:
         clip-path var(--_grow) var(--tk-ease-morph),
         opacity var(--_grow) var(--tk-ease-in);
+    }
+
+    /* The frame keeps the popup's fill and edge most of the way home, taking
+       the trigger's as it lands. Turning as early as it does on the way out,
+       it would all but vanish before it had moved, onto a trigger with no
+       fill of its own. (In `::before`'s transition-property order.) */
+    &[data-ending-style]::before {
+      transition-timing-function:
+        var(--tk-ease-morph), var(--tk-ease-morph), var(--tk-ease-morph), var(--tk-ease-morph),
+        var(--tk-ease-in), var(--tk-ease-in);
+    }
+  }
+
+  /* Only one live container participates in each end of the morph. */
+  .tk-shared-backdrop {
+    transition: none;
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 1;
+    }
+  }
+
+  .tk-shared-trigger {
+    transition: none;
+  }
+
+  .tk-shared-trigger[data-tk-expanded] {
+    opacity: 0;
+  }
+
+  .tk-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-4);
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* View transitions capture the real popup and everything inside it. Base UI's
+     enter/exit styles must not alter that capture or animate a second frame. */
+  .tk-dialog[data-tk-shared] {
+    transition: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+
+    &[data-starting-style] {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+
+    &[data-ending-style] {
+      opacity: 0;
+      transform: none;
+      filter: none;
     }
   }
 

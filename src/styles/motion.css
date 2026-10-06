@@ -3,7 +3,8 @@
   motion tokens, so Grove morphs slowly with a settle and Bureau snaps.
 
   The root is not captured: only elements that opt in with <Morph>/<Reveal>
-  animate, and everything else updates in place, instantly.
+  animate, and everything else updates in place, instantly. Shared dialogs opt
+  into a stationary background capture for the handoff between portals.
 */
 @layer tk.base {
   :root {
@@ -15,7 +16,23 @@
   }
 
   /* Names are switched on by morph() itself, per scope (see motion/morph.tsx);
-     this sheet only says how named things move. */
+     this sheet only says how named things move. A part's class is always set,
+     and does nothing until it has a name. */
+  [data-tk-morph] {
+    view-transition-class: tk-morph;
+  }
+
+  [data-tk-morph='text'] {
+    view-transition-class: tk-morph-text;
+  }
+
+  [data-tk-reveal] {
+    view-transition-class: tk-reveal;
+  }
+
+  [data-tk-reveal='directional'] {
+    view-transition-class: tk-reveal tk-directional;
+  }
 
   /* Shared elements: the box glides, the old and new renderings crossfade. */
   ::view-transition-group(.tk-morph),
@@ -35,12 +52,81 @@
     mix-blend-mode: normal;
   }
 
-  /* Text keeps its true size and rides the left edge of the moving box. */
+  /* Dialog triggers and popups share the actual container snapshot. Its
+     contents scale with the box; named parts ride above it at their own size. */
+  [data-tk-morph].tk-shared-container,
+  [data-tk-morph].tk-shared-part {
+    view-transition-class: tk-shared;
+  }
+
+  ::view-transition-group(.tk-shared) {
+    animation-duration: var(--tk-duration-shared);
+    animation-timing-function: var(--tk-ease-shared);
+  }
+
+  ::view-transition-old(.tk-shared),
+  ::view-transition-new(.tk-shared) {
+    width: 100%;
+    height: 100%;
+    animation-duration: calc(var(--tk-duration-shared) * 0.25);
+    animation-fill-mode: both;
+    animation-timing-function: var(--tk-ease-shared);
+    object-fit: fill;
+    overflow: clip;
+    mix-blend-mode: plus-lighter;
+  }
+
+  :root:active-view-transition-type(shared-close) {
+    &::view-transition-old(.tk-shared),
+    &::view-transition-new(.tk-shared) {
+      animation-delay: calc(var(--tk-duration-shared) * 0.75);
+    }
+  }
+
+  /* Clipping makes WebKit paint the new snapshot instead of reusing its live
+     destination layers. The stationary root excludes the named containers. */
+  ::view-transition-group(tk-background) {
+    animation: none;
+    z-index: -2;
+  }
+
+  ::view-transition-old(tk-background),
+  ::view-transition-new(tk-background) {
+    animation: none;
+    overflow: clip;
+  }
+
+  ::view-transition-new(tk-background) {
+    display: none;
+  }
+
+  [data-tk-morph].tk-shared-backdrop {
+    view-transition-class: tk-shared-backdrop;
+  }
+
+  ::view-transition-group(.tk-shared-backdrop) {
+    animation: none;
+    z-index: -1;
+  }
+
+  ::view-transition-old(.tk-shared-backdrop),
+  ::view-transition-new(.tk-shared-backdrop) {
+    width: 100%;
+    height: 100%;
+    overflow: clip;
+    animation-duration: var(--tk-duration-2);
+    animation-timing-function: var(--tk-ease-fade);
+  }
+
+  /* Text keeps its true size and rides the left edge of the moving box. Its
+     two ends are added rather than layered: they are the same words, and
+     layered, a crossfade in place dims them to three quarters midway. */
   ::view-transition-old(.tk-morph-text),
   ::view-transition-new(.tk-morph-text) {
     width: auto;
     object-fit: none;
     object-position: left center;
+    mix-blend-mode: plus-lighter;
   }
 
   @keyframes tk-vt-rise-in {
