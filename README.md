@@ -127,14 +127,30 @@ also shipped as a file at `tk-design-system/logo.svg`).
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
 
-`Combobox` also has an editable multiselect mode (`variant="input"`). It accepts grouped
-suggestions, a controlled `inputValue`, and selected values rendered as removable chips.
-Suggestions require one non-whitespace character by default (`minQueryLength`); focusing
-an empty field or selecting a chip leaves the list closed. `renderItem` and `renderChip`
-allow rich content while the component owns field styling, list positioning, keyboard
-navigation, dismissal, and removal. Cancel `onValueChange`'s event details to use a result
-as an action (such as opening a tab) instead of selecting a chip. The searchable-select
-mode remains the default. The playground's Combobox demo shows both modes.
+`Combobox` comes in two variants. Both take `items`, or `groups` to show items under
+headings, and accept `clearable` (a button that clears the value), `virtualized` (render
+only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and `name`.
+
+- **Searchable select** (the default). A trigger that opens over itself into a search field
+  and a list. `multiple` checks off several options; the list stays open and the trigger
+  lists them.
+- **Editable field** (`variant="input"`). The user types straight into the field.
+  `multiple={false}` picks one value, and the field shows its label. Otherwise the selected
+  values are removable chips: Backspace removes the last one, and Left arrow moves into
+  them. Plain strings and `{ value, label }` objects need no converters; other shapes take
+  `itemToStringLabel`/`itemToStringValue`. Suggestions open once `minQueryLength`
+  non-whitespace characters are typed (one by default; `0` opens them on click). `browsable`
+  adds a chevron that opens every suggestion, as does the down arrow. `filter={null}` takes
+  `items` as already filtered, for results searched remotely; pair it with `loading` (the
+  field's icon spins) and `status` (announced above the list). `onCreate` adds a row that
+  offers to create the query when nothing is called exactly that. `onSubmit` handles Enter
+  when no suggestion is highlighted. `renderItem` and `renderChip` take rich content; the
+  component still owns styling, positioning, keyboard navigation, dismissal and removal.
+  Cancel `onValueChange`'s event details to use a result as an action (such as opening a
+  tab) instead of selecting it.
+
+The playground has a demo for each: grouped multiselect, single field, chips, remote search,
+creatable (with a dialog), ten thousand virtualized rows, and a form with validation.
 
 ## Code
 

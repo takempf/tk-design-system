@@ -146,6 +146,23 @@
     white-space: nowrap;
   }
 
+  /* Rich row content (two lines, an avatar…) in the text's column. */
+  .tk-list-content {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  /* A virtualized list: as tall as every row, holding only those in view. */
+  .tk-list-spacer {
+    position: relative;
+
+    & > .tk-list-item {
+      position: absolute;
+      right: 0;
+      left: 0;
+    }
+  }
+
   .tk-list-trailing {
     grid-column: 3;
     color: var(--tk-fg-subtle);
@@ -212,6 +229,14 @@
     &[data-disabled] {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+
+    &[data-invalid] {
+      border-color: var(--tk-danger);
+    }
+
+    &[data-readonly] {
+      border-style: dashed;
     }
 
     &[data-size='sm'] {
@@ -309,6 +334,34 @@
     color: var(--tk-fg-subtle);
     white-space: nowrap;
     pointer-events: none;
+  }
+
+  /* The trigger and its clear button, set at the trigger's type size. */
+  .tk-combobox-control {
+    position: relative;
+    display: flex;
+    width: 100%;
+    font-size: var(--tk-control-text);
+
+    &[data-size='sm'] {
+      font-size: var(--tk-text-sm);
+    }
+
+    &[data-size='lg'] {
+      font-size: var(--tk-text-lg);
+    }
+  }
+
+  /* Room for the clear button between the value and the chevron. */
+  .tk-combobox-trigger[data-clearable] .tk-select-value {
+    padding-inline-end: 1.75em;
+  }
+
+  .tk-combobox-clear {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--tk-space-2) + 1em + var(--tk-space-1));
+    translate: 0 -50%;
   }
 
   /* Popover & tooltip ----------------------------------------------------- */
@@ -920,6 +973,10 @@
   .tk-combobox-suggestions-list {
     min-height: 0;
     overflow-y: auto;
+
+    &:empty {
+      padding: 0;
+    }
   }
 
   .tk-combobox-group + .tk-combobox-group {
@@ -935,7 +992,127 @@
     --_field-h: var(--tk-control-h-lg);
     --_field-text: var(--tk-text-lg);
   }
-  .tk-combobox-suggestion {
+
+  .tk-combobox-field {
+    &[data-invalid] {
+      border-color: var(--tk-danger);
+    }
+
+    &[data-disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+
+      & * {
+        cursor: inherit;
+      }
+    }
+
+    /* Read-only: the chips stay, but can't be removed. */
+    &[data-readonly] {
+      border-style: dashed;
+
+      & .tk-combobox-chip {
+        padding-right: var(--tk-space-2);
+      }
+
+      & .tk-combobox-chip-remove {
+        display: none;
+      }
+    }
+  }
+
+  /* Clear and show-all, at the field's end (the clear also sits in a select's trigger). */
+  .tk-combobox-actions {
     display: flex;
+    flex: none;
+    gap: var(--tk-space-1);
+    align-items: center;
+    align-self: stretch;
+    margin-right: calc(var(--tk-space-2) * -1);
+  }
+
+  .tk-combobox-action {
+    display: grid;
+    place-items: center;
+    width: 1.75em;
+    height: 1.75em;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+    background: transparent;
+    color: var(--tk-fg-subtle);
+    font-size: var(--_field-text, inherit);
+    cursor: pointer;
+    transition:
+      opacity var(--tk-duration-1) var(--tk-ease-out),
+      background-color var(--tk-duration-1) var(--tk-ease-out),
+      color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:hover:not([data-disabled]) {
+      background: var(--tk-surface-hover);
+      color: var(--tk-fg);
+    }
+
+    &:focus-visible {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: 1px;
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+    }
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+
+    & .tk-icon {
+      font-size: 0.9em;
+    }
+
+    &[data-popup-open] .tk-icon {
+      rotate: 180deg;
+    }
+  }
+
+  /* Announced as it changes; takes no room while it has nothing to say. */
+  .tk-combobox-status {
+    display: flex;
+    flex: none;
+    gap: var(--tk-space-2);
+    align-items: center;
+    padding: var(--tk-space-3);
+    border-bottom: var(--tk-border-width) solid var(--tk-border-subtle);
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-text-sm);
+
+    &:empty {
+      padding: 0;
+      border: 0;
+    }
+
+    /* Alone in the popup (an error, say), it needs no rule beneath it. */
+    .tk-combobox-suggestions:not(:has([role='option'], .tk-list-empty:not(:empty))) > & {
+      border-bottom: 0;
+    }
+  }
+
+  .tk-spinner {
+    display: inline-block;
+    flex: none;
+    width: 1em;
+    height: 1em;
+    border: max(1.5px, var(--tk-border-width)) solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: tk-spin 0.7s linear infinite;
+  }
+
+  @keyframes tk-spin {
+    to {
+      rotate: 1turn;
+    }
   }
 }

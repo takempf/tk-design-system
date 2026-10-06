@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import { Combobox, Field, Stack } from 'tk-design-system';
 
 export const meta = {
   section: 'inputs',
   title: 'Combobox',
   description:
-    'A searchable select that opens over itself. The placeholder travels into the search field; a chosen value travels to its row.',
+    'A searchable select that opens over itself. The placeholder travels into the search field; a chosen value travels to its row. It can be cleared, and some options can be disabled.',
   order: 5,
 };
 
@@ -34,41 +33,20 @@ const trees = [
   'Sycamore',
   'Willow',
   'Yew',
-].map((label) => ({ value: label.toLowerCase(), label }));
+].map((label) => ({ value: label.toLowerCase(), label, disabled: label === 'Elm' }));
 
 export default function ComboboxDemo() {
-  const [chosen, setChosen] = useState<(typeof trees)[number][]>([]);
-  const [query, setQuery] = useState('');
   return (
     <Stack gap={5}>
       <Field.Root>
         <Field.Label>Tree</Field.Label>
         <Combobox items={trees} placeholder="Choose a tree…" />
+        <Field.Description>Elm is disabled: there are none left.</Field.Description>
       </Field.Root>
       <Field.Root>
-        <Field.Label>Favourite (already chosen)</Field.Label>
-        <Combobox items={trees} defaultValue="rowan" placeholder="Choose a tree…" />
-      </Field.Root>
-      <Field.Root>
-        <Field.Label>Trees (type to add several)</Field.Label>
-        <Combobox
-          variant="input"
-          groups={[{ id: 'trees', label: 'Trees', items: trees }]}
-          value={chosen}
-          inputValue={query}
-          onInputValueChange={setQuery}
-          onValueChange={setChosen}
-          itemToStringLabel={(item) => item.label}
-          itemToStringValue={(item) => item.value}
-          isItemEqualToValue={(a, b) => a.value === b.value}
-          filter={(item, query) =>
-            !chosen.some((selected) => selected.value === item.value) &&
-            item.label.toLowerCase().includes(query.toLowerCase())
-          }
-          aria-label="Find trees"
-          placeholder="Type a tree name…"
-          selectedPlaceholder="Add another tree…"
-        />
+        <Field.Label>Favourite</Field.Label>
+        <Combobox items={trees} defaultValue="rowan" placeholder="Choose a tree…" clearable />
+        <Field.Description>Already chosen, with a button to clear it.</Field.Description>
       </Field.Root>
     </Stack>
   );
