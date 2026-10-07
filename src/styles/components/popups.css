@@ -788,8 +788,11 @@
       border-color: var(--tk-border-strong);
     }
 
-    &:focus-within {
-      border-color: var(--tk-focus-color);
+    /* Ringed while typing or open; the chips and actions inside ring themselves. */
+    &:has(.tk-combobox-field-input:focus-visible),
+    &[data-popup-open] {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: var(--tk-focus-offset);
     }
   }
 
@@ -819,11 +822,6 @@
     border-radius: var(--tk-radius);
     font-size: var(--tk-text-xs);
     line-height: 1.5;
-
-    &:focus-visible {
-      outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: 1px;
-    }
   }
 
   .tk-combobox-chip-remove {
@@ -861,8 +859,13 @@
   }
 
   /* Open, the field and its suggestions are one container: the list carries
-     on from the field's edge, the corners between them square, and the whole
-     is outlined while the field has focus. */
+     on from the field's edge, the corners between them square, and one ring
+     goes round the whole (each half's is cut where they meet). */
+  .tk-combobox-field,
+  .tk-combobox-suggestions {
+    --_ring: calc((var(--tk-focus-width) + var(--tk-focus-offset)) * -1);
+  }
+
   .tk-combobox-suggestions {
     --_corner: min(var(--tk-radius), var(--tk-radius-popup));
     display: flex;
@@ -871,26 +874,31 @@
     max-width: var(--available-width);
     max-height: min(24rem, var(--available-height));
     margin-top: calc(var(--tk-border-width) * -1);
-    border-color: var(--tk-focus-color);
     border-radius: 0 0 var(--_corner) var(--_corner);
+    outline: var(--tk-focus-width) solid var(--tk-focus-color);
+    outline-offset: var(--tk-focus-offset);
+    clip-path: inset(0 var(--_ring) var(--_ring));
     font-size: var(--tk-text-sm);
 
     .tk-positioner[data-side='top'] > & {
       margin-top: 0;
       margin-bottom: calc(var(--tk-border-width) * -1);
       border-radius: var(--_corner) var(--_corner) 0 0;
+      clip-path: inset(var(--_ring) var(--_ring) 0);
     }
   }
 
   .tk-combobox-field[data-popup-open] {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
+    clip-path: inset(var(--_ring) var(--_ring) 0);
 
     &[data-side='top'] {
       border-start-start-radius: 0;
       border-start-end-radius: 0;
       border-end-start-radius: var(--tk-radius);
       border-end-end-radius: var(--tk-radius);
+      clip-path: inset(0 var(--_ring) var(--_ring));
     }
   }
 
@@ -901,7 +909,7 @@
     right: calc(var(--tk-border-width) * -1);
     bottom: calc(var(--tk-border-width) * -1);
     left: calc(var(--tk-border-width) * -1);
-    border-top: var(--tk-border-width) solid var(--tk-focus-color);
+    border-top: var(--tk-border-width) solid var(--tk-border);
     background: var(--tk-surface-raised);
     opacity: 0;
     pointer-events: none;
@@ -910,6 +918,32 @@
       top: calc(var(--tk-border-width) * -1);
       bottom: auto;
     }
+  }
+
+  /* Morphing, the moving frame wears the ring, cut where it meets the field. */
+  .tk-combobox-seam,
+  .tk-combobox-suggestions {
+    &[data-tk-morph='container'] {
+      view-transition-class: tk-container tk-field-ring;
+    }
+  }
+
+  .tk-combobox-field[data-side='top'] > .tk-combobox-seam,
+  .tk-positioner[data-side='top'] > .tk-combobox-suggestions {
+    &[data-tk-morph='container'] {
+      view-transition-class: tk-container tk-field-ring tk-field-ring-up;
+    }
+  }
+
+  ::view-transition-group(.tk-field-ring) {
+    --_ring: calc((var(--tk-focus-width) + var(--tk-focus-offset)) * -1);
+    outline: var(--tk-focus-width) solid var(--tk-focus-color);
+    outline-offset: var(--tk-focus-offset);
+    clip-path: inset(0 var(--_ring) var(--_ring));
+  }
+
+  ::view-transition-group(.tk-field-ring-up) {
+    clip-path: inset(var(--_ring) var(--_ring) 0);
   }
 
   .tk-combobox-suggestions-list {
@@ -994,11 +1028,6 @@
     &:hover:not([data-disabled]) {
       background: var(--tk-surface-hover);
       color: var(--tk-fg);
-    }
-
-    &:focus-visible {
-      outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: 1px;
     }
 
     &[data-starting-style],

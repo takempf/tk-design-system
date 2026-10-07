@@ -210,10 +210,6 @@
       opacity: 0.4;
       cursor: not-allowed;
     }
-
-    &:focus-visible {
-      outline-offset: -2px;
-    }
   }
 
   .tk-tabs-indicator {
@@ -270,10 +266,6 @@
     &[data-disabled] {
       opacity: 0.4;
       cursor: not-allowed;
-    }
-
-    &:focus-visible {
-      outline-offset: -2px;
     }
   }
 

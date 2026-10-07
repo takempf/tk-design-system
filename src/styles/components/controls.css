@@ -196,16 +196,6 @@
       border-color: var(--tk-border-strong);
     }
 
-    &:focus {
-      border-color: var(--tk-focus-color);
-      outline: 0;
-    }
-
-    &:focus-visible {
-      outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: 2px;
-    }
-
     &[data-invalid] {
       border-color: var(--tk-danger);
     }
@@ -443,7 +433,7 @@
 
     &:has(:focus-visible) {
       outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: 2px;
+      outline-offset: var(--tk-focus-offset);
     }
   }
 

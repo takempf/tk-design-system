@@ -181,8 +181,8 @@
     --tk-icon-stroke: 1.5;
     --tk-icon-cap: square;
     --tk-icon-join: miter;
-    --tk-focus-width: 2px;
-    --tk-focus-offset: 3px;
+    --tk-focus-width: 1px;
+    --tk-focus-offset: 1px;
     --tk-focus-color: var(--tk-accent);
     --tk-z-popup: 100;
 

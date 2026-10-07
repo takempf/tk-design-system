@@ -244,13 +244,9 @@
       border-color: var(--tk-border);
     }
 
-    &:has(.tk-code-editor-input:focus) {
-      border-color: var(--tk-focus-color);
-    }
-
     &:has(.tk-code-editor-input:focus-visible) {
       outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: 2px;
+      outline-offset: var(--tk-focus-offset);
     }
 
     &:has(.tk-code-editor-input[data-invalid]) {
