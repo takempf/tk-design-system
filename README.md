@@ -207,30 +207,48 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
 - A part nested in another stays on top of it while both travel, as the page paints them.
   The browser on its own stacks the old state's parts first, so a box that only the new
   state has would cover text arriving into it.
-- A popup and its trigger are one frame. Opening, the frame moves and resizes from the
-  trigger's box to the popup's, its fill and edge turning from the trigger's to the
-  popup's, with the content cut to it; closing takes it home the same way. `Popover` and
-  `Dialog` fly out of their trigger and fade in as they leave it (a dialog opened inside a
-  `morph()` is left to that morph). Tooltips and submenus don't.
-- `Select`, `Combobox` and `Menu` open over their trigger, so the frame starts as the
-  trigger itself and the trigger's text becomes part of the popup, never appearing twice.
-  Closing shrinks the frame back into the trigger while the shared text is carried home.
+- A popup is its trigger's container in another place. The trigger's container and the
+  popup's share one view-transition name (`fit="container"`), and opening and closing are
+  morphs between the two: the frame (fill, edge, corners) moves and resizes from the
+  trigger's box to the popup's, its look turning as it travels, and nothing inside it
+  stretches. The content holds still on the page; the frame uncovers the popup's and covers
+  the trigger's. While open, the trigger is hidden, because it is the popup.
+- Whatever shows on both sides shares a second name and travels between its two places
+  above the frame: a select's value and its row, a combobox's placeholder and its search
+  field, a menu button's label and the menu's first row.
+- `Select`, `Combobox` and `Menu` open over their trigger, so the frame grows out of the
+  trigger around the list and the trigger's text is never shown twice.
   - `Select` lays the chosen row exactly on the value, so nothing moves.
   - `Combobox` lands its search field on the trigger. The placeholder slides into the field,
     or the value slides onto its row in the list.
   - `Menu` makes the button's own label the popup's first row (pressing it closes), with the
     items below, or above when there is no room. Submenus open beside their row as usual.
-- `Dialog.Root transition="shared"` gives the actual trigger and popup containers
-  the same scoped `Morph` name. Opening captures the trigger, then the popup;
-  closing captures them in reverse. Everything inside the container travels
-  with its snapshot. Pair `Dialog.SharedElement name="…" side="trigger"` with
-  `side="popup"` to carry an icon separately above the container. `Dialog.Content`
-  is a layout group, not a separate animation. Both directions use
-  `--tk-duration-shared` and `--tk-ease-shared`; reduced motion and browsers without
-  view transitions change state immediately. Shared dialogs capture a stationary
-  background and clip the moving snapshots, so WebKit carries the popup contents
-  inside the container too. Use the trigger or `actionsRef.close()`
-  for programmatic changes so they pass through the same transition.
+  - The editable `Combobox` keeps its field in use, so the field's edge is the container:
+    the suggestions grow out of it as the rest of the field, joined to it, and fold back in.
+- `Popover`, `Dialog` and `AlertDialog` grow out of their trigger wherever they open.
+  `Origin` makes a larger element the container (a card holding the trigger), and
+  `SharedElement name="…" side="trigger" | "popup"` carries an icon, picture or title
+  across above it (it scales; `fit="text"` keeps letters at their size). A popup with no
+  trigger on the page, opened from elsewhere, rises in on its own. Tooltips and submenus
+  don't morph.
+- Changes made through Base UI (the trigger, Escape, an outside press, `actionsRef`) morph;
+  a controlled `open` that the parent changes on its own applies at once.
+- `usePopupMorph` and `PopupMorph` build the same for any popup:
+
+  ```tsx
+  const popup = usePopupMorph({ open, onOpenChange });
+  <PopupMorph.Provider value={popup.state}>
+    <Base.Root open={popup.open} onOpenChange={popup.setOpen}
+      onOpenChangeComplete={popup.onOpenChangeComplete}>
+      <PopupMorph.Trigger><Base.Trigger>
+        <PopupMorph.Part side="trigger"><span>{label}</span></PopupMorph.Part>
+      </Base.Trigger></PopupMorph.Trigger>
+      <PopupMorph.Popup><Base.Popup>
+        <PopupMorph.Part side="popup" when={isChosen}><span>{label}</span></PopupMorph.Part>
+      </Base.Popup></PopupMorph.Popup>
+  ```
+
+  Everything moves on `--tk-duration-morph` and `--tk-ease-morph`.
 - `<Decipher>` resolves changed text through the theme's glyphs (`--tk-decipher-glyphs`):
   geometric shapes in Grove, digits in Bureau.
 - `wipe(update, origin)` swaps the theme behind a circular reveal (Bureau scans instead).
@@ -265,8 +283,10 @@ live in a zustand store (`setScenerySettings`, `useScenerySettings`).
 
 ## Browser notes
 
-WebGL2, view transitions with types, `:active-view-transition-type()`, constructable
-stylesheets and CSS nesting are needed for the full effect (current Chrome, Edge,
-Safari). `corner-shape: bevel` is Chromium-only for now; elsewhere corners are simply
+WebGL2, view transitions with types, `:active-view-transition-type()`, Web Animations
+on view-transition pseudo-elements and CSS nesting are needed for the full effect (current Chrome, Edge,
+Safari). WebKit paints a view transition's destination in place as well as in its
+snapshot, so a morphing container's destination is cut to the moving frame and the two
+coincide. `corner-shape: bevel` is Chromium-only for now; elsewhere corners are simply
 rounded. Without WebGL2, windows fall back to a flat ink; without view transitions,
 changes apply instantly.

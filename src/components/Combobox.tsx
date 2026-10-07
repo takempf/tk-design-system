@@ -1,12 +1,12 @@
 import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
 import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { Icon } from '../icons/Icon';
-import { Morph, useMorphName } from '../motion/morph';
+import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx } from '../utils';
 import { type ComboboxGroup, type Reveal, Rows } from './comboboxList';
 import { InputCombobox, type InputComboboxProps } from './InputCombobox';
-import { overTrigger, useControllable, useGrowFrom, useMorphingOpen } from './popup';
+import { overTrigger, useControllable } from './popup';
 import type { Option } from './Select';
 
 interface SelectComboboxBase<V> {
@@ -104,13 +104,13 @@ function useChosenRowBesideSearch() {
 /**
  * A searchable select: a quiet trigger that opens into a filterable list.
  *
- * It opens over itself: the search field lands on the trigger and the trigger's
- * frame grows into the popup's around the list (below it, or above when there is
- * no room), so the trigger's text is never shown twice. That text travels between the two
- * states. With nothing chosen, the placeholder slides from the trigger into the
- * search field; with a value, the value slides onto its row in the list, and the
- * chosen row slides back as the list folds away. A multiselect's trigger lists
- * its choices, which stay where they are.
+ * The trigger is the popup's container, closed. It opens over itself: the
+ * search field lands on the trigger and the frame grows around the list (below
+ * it, or above when there is no room). The trigger's text travels between the
+ * two states. With nothing chosen, the placeholder slides from the trigger into
+ * the search field; with a value, the value slides onto its row in the list,
+ * and the chosen row slides back as the list folds away. A multiselect's
+ * trigger lists its choices, which stay where they are.
  */
 function SelectCombobox<V>(props: SelectComboboxProps<V>) {
   const {
@@ -133,8 +133,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
     'aria-label': ariaLabel,
   } = props;
   const multiple = props.multiple === true;
-  const morphName = useMorphName('combobox');
-  const [isOpen, setOpen] = useMorphingOpen(open, onOpenChange, morphName);
+  const popup = usePopupMorph({ open, onOpenChange, prefix: 'combobox' });
   const [current, setCurrent] = useControllable<V | null | V[]>(
     props.value,
     props.defaultValue ?? (multiple ? [] : null),
@@ -150,130 +149,129 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
   // A single value travels to its row and back; several stay in the trigger.
   const carried = !multiple || chosen.length === 0;
   const container = usePortalContainer();
-  const trigger = useRef<HTMLButtonElement>(null);
-  const grow = useGrowFrom(trigger);
   const alignChosen = useChosenRowBesideSearch();
   const reveal = useRef<Reveal>(null);
 
   return (
-    <BaseCombobox.Root<Option<V>, boolean>
-      multiple={multiple}
-      items={(groups ?? items ?? []) as Option<V>[]}
-      value={multiple ? chosen : selected}
-      onValueChange={(next) => {
-        if (multiple) {
-          const values = (next as Option<V>[]).map((option) => option.value);
-          setCurrent(values);
-          (props as MultipleSelectComboboxProps<V>).onValueChange?.(values);
-        } else {
-          const value = (next as Option<V> | null)?.value ?? null;
-          setCurrent(value);
-          (props as SingleSelectComboboxProps<V>).onValueChange?.(value);
-        }
-      }}
-      inputValue={query}
-      onInputValueChange={setQuery}
-      open={isOpen}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) setQuery('');
-      }}
-      onItemHighlighted={(item, details) => {
-        if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
-      }}
-      itemToStringLabel={labelOf}
-      isItemEqualToValue={sameOption}
-      virtualized={virtualized}
-      limit={limit}
-      disabled={disabled}
-      readOnly={readOnly}
-      required={required}
-      name={name}
-      id={id}
-    >
-      <span className="tk-combobox-control" data-size={size}>
-        <BaseCombobox.Trigger
-          ref={trigger}
-          className={cx('tk-select-trigger tk-combobox-trigger', className)}
-          data-size={size}
-          data-clearable={clearable || undefined}
-          aria-label={ariaLabel}
-        >
-          <span className="tk-select-value" data-placeholder={chosen.length ? undefined : ''}>
-            <Morph name={morphName} active={!isOpen && carried} fit="text" scope={morphName}>
-              <span>{shown || placeholder}</span>
-            </Morph>
-          </span>
-          <BaseCombobox.Icon className="tk-select-icon">
-            <Icon name="chevron-updown" />
-          </BaseCombobox.Icon>
-        </BaseCombobox.Trigger>
-        {clearable && (
-          <BaseCombobox.Clear className="tk-combobox-action tk-combobox-clear" aria-label="Clear">
-            <Icon name="close" />
-          </BaseCombobox.Clear>
-        )}
-      </span>
-      <BaseCombobox.Portal container={container}>
-        <BaseCombobox.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
-          <BaseCombobox.Popup
-            ref={grow}
-            className="tk-popup tk-list-popup tk-over-trigger tk-combobox-popup"
-            data-size={size}
-          >
-            <div className="tk-combobox-search">
-              <Icon name="search" className="tk-combobox-search-icon" />
-              <BaseCombobox.Input
-                className="tk-combobox-input"
-                aria-label={ariaLabel ?? placeholder}
-              />
-              {query === '' && (
-                <Morph
-                  name={morphName}
-                  active={isOpen && chosen.length === 0}
-                  fit="text"
-                  scope={morphName}
-                >
-                  <span className="tk-combobox-placeholder" aria-hidden="true">
-                    {placeholder}
-                  </span>
-                </Morph>
-              )}
-            </div>
-            <BaseCombobox.Empty className="tk-list-empty">{emptyMessage}</BaseCombobox.Empty>
-            <BaseCombobox.List ref={multiple ? undefined : alignChosen} className="tk-list">
-              <Rows<Option<V>>
-                grouped={groups !== undefined}
-                virtualized={virtualized}
-                reveal={reveal}
-                initialIndex={chosen[0] ? options.indexOf(chosen[0]) : 0}
-                keyOf={(option) => String(option.value)}
-                disabledOf={(option) => option.disabled}
-                className="tk-list-item"
+    <PopupMorph.Provider value={popup.state}>
+      <BaseCombobox.Root<Option<V>, boolean>
+        multiple={multiple}
+        items={(groups ?? items ?? []) as Option<V>[]}
+        value={multiple ? chosen : selected}
+        onValueChange={(next) => {
+          if (multiple) {
+            const values = (next as Option<V>[]).map((option) => option.value);
+            setCurrent(values);
+            (props as MultipleSelectComboboxProps<V>).onValueChange?.(values);
+          } else {
+            const value = (next as Option<V> | null)?.value ?? null;
+            setCurrent(value);
+            (props as SingleSelectComboboxProps<V>).onValueChange?.(value);
+          }
+        }}
+        inputValue={query}
+        onInputValueChange={setQuery}
+        open={popup.open}
+        onOpenChange={(next) => {
+          popup.setOpen(next);
+          if (!next) setQuery('');
+        }}
+        onOpenChangeComplete={popup.onOpenChangeComplete}
+        onItemHighlighted={(item, details) => {
+          if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
+        }}
+        itemToStringLabel={labelOf}
+        isItemEqualToValue={sameOption}
+        virtualized={virtualized}
+        limit={limit}
+        disabled={disabled}
+        readOnly={readOnly}
+        required={required}
+        name={name}
+        id={id}
+      >
+        {/* The container is the trigger and its clear button; the trigger has the look. */}
+        <PopupMorph.Trigger>
+          <span className="tk-combobox-control" data-size={size}>
+            <BaseCombobox.Trigger
+              className={cx('tk-select-trigger tk-combobox-trigger', className)}
+              data-size={size}
+              data-clearable={clearable || undefined}
+              data-tk-frame=""
+              aria-label={ariaLabel}
+            >
+              <span className="tk-select-value" data-placeholder={chosen.length ? undefined : ''}>
+                <PopupMorph.Part side="trigger" when={carried}>
+                  <span>{shown || placeholder}</span>
+                </PopupMorph.Part>
+              </span>
+              <BaseCombobox.Icon className="tk-select-icon">
+                <Icon name="chevron-updown" />
+              </BaseCombobox.Icon>
+            </BaseCombobox.Trigger>
+            {clearable && (
+              <BaseCombobox.Clear
+                className="tk-combobox-action tk-combobox-clear"
+                aria-label="Clear"
               >
-                {(option) => (
-                  <>
-                    <BaseCombobox.ItemIndicator className="tk-list-indicator">
-                      <Icon name="check" />
-                    </BaseCombobox.ItemIndicator>
-                    <Morph
-                      name={morphName}
-                      active={
-                        isOpen && selected !== null && Object.is(option.value, selected.value)
-                      }
-                      fit="text"
-                      scope={morphName}
-                    >
-                      <span className="tk-list-text">{option.label}</span>
-                    </Morph>
-                  </>
-                )}
-              </Rows>
-            </BaseCombobox.List>
-          </BaseCombobox.Popup>
-        </BaseCombobox.Positioner>
-      </BaseCombobox.Portal>
-    </BaseCombobox.Root>
+                <Icon name="close" />
+              </BaseCombobox.Clear>
+            )}
+          </span>
+        </PopupMorph.Trigger>
+        <BaseCombobox.Portal container={container}>
+          <BaseCombobox.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
+            <PopupMorph.Popup>
+              <BaseCombobox.Popup
+                className="tk-popup tk-list-popup tk-combobox-popup"
+                data-size={size}
+              >
+                <div className="tk-combobox-search">
+                  <Icon name="search" className="tk-combobox-search-icon" />
+                  <BaseCombobox.Input
+                    className="tk-combobox-input"
+                    aria-label={ariaLabel ?? placeholder}
+                  />
+                  {query === '' && (
+                    <PopupMorph.Part side="popup" when={chosen.length === 0}>
+                      <span className="tk-combobox-placeholder" aria-hidden="true">
+                        {placeholder}
+                      </span>
+                    </PopupMorph.Part>
+                  )}
+                </div>
+                <BaseCombobox.Empty className="tk-list-empty">{emptyMessage}</BaseCombobox.Empty>
+                <BaseCombobox.List ref={multiple ? undefined : alignChosen} className="tk-list">
+                  <Rows<Option<V>>
+                    grouped={groups !== undefined}
+                    virtualized={virtualized}
+                    reveal={reveal}
+                    initialIndex={chosen[0] ? options.indexOf(chosen[0]) : 0}
+                    keyOf={(option) => String(option.value)}
+                    disabledOf={(option) => option.disabled}
+                    className="tk-list-item"
+                  >
+                    {(option) => (
+                      <>
+                        <BaseCombobox.ItemIndicator className="tk-list-indicator">
+                          <Icon name="check" />
+                        </BaseCombobox.ItemIndicator>
+                        <PopupMorph.Part
+                          side="popup"
+                          when={selected !== null && Object.is(option.value, selected.value)}
+                        >
+                          <span className="tk-list-text">{option.label}</span>
+                        </PopupMorph.Part>
+                      </>
+                    )}
+                  </Rows>
+                </BaseCombobox.List>
+              </BaseCombobox.Popup>
+            </PopupMorph.Popup>
+          </BaseCombobox.Positioner>
+        </BaseCombobox.Portal>
+      </BaseCombobox.Root>
+    </PopupMorph.Provider>
   );
 }
 

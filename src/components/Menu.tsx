@@ -3,7 +3,6 @@ import {
   type ComponentProps,
   createContext,
   type ReactNode,
-  type RefObject,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -11,20 +10,17 @@ import {
   useState,
 } from 'react';
 import { Icon, type IconName } from '../icons/Icon';
-import { Morph, useMorphName } from '../motion/morph';
+import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
-import { cx, mergeRefs, part, withBase } from '../utils';
-import { overTrigger, useGrowFrom, useMorphingOpen } from './popup';
+import { cx, part, withBase } from '../utils';
+import { overTrigger } from './popup';
 
 /**
- * What a root menu's popup needs from its trigger to open over it: the trigger
- * to grow out of, and its label to show in its place. Submenus open beside
- * their row instead, so they clear it.
+ * What a root menu's popup needs to open over its trigger: the trigger's label,
+ * to show in its place as the first row. Submenus open beside their row
+ * instead, so they clear it.
  */
 interface Opener {
-  readonly name: string;
-  readonly open: boolean;
-  readonly trigger: RefObject<HTMLElement | null>;
   readonly label: ReactNode;
   readonly setLabel: (label: ReactNode) => void;
   readonly close: () => void;
@@ -36,61 +32,62 @@ function Root({
   open,
   defaultOpen = false,
   onOpenChange,
+  onOpenChangeComplete,
   actionsRef,
   ...props
 }: ComponentProps<typeof BaseMenu.Root>) {
-  const name = useMorphName('menu');
-  // The label is carried from the trigger into the popup and back.
-  const [isOpen, setOpen] = useMorphingOpen(open, onOpenChange, name, { initial: defaultOpen });
+  const popup = usePopupMorph({
+    open,
+    defaultOpen,
+    onOpenChange,
+    onOpenChangeComplete,
+    prefix: 'menu',
+  });
   const [label, setLabel] = useState<ReactNode>(null);
-  const trigger = useRef<HTMLElement>(null);
   const ownActions = useRef<BaseMenu.Root.Actions>(null);
   const actions = actionsRef ?? ownActions;
   const opener = useMemo<Opener>(
-    () => ({
-      name,
-      open: isOpen,
-      trigger,
-      label,
-      setLabel,
-      close: () => actions.current?.close(),
-    }),
-    [name, isOpen, label, actions],
+    () => ({ label, setLabel, close: () => actions.current?.close() }),
+    [label, actions],
   );
   return (
-    <OpenerContext.Provider value={opener}>
-      <BaseMenu.Root {...props} open={isOpen} onOpenChange={setOpen} actionsRef={actions} />
-    </OpenerContext.Provider>
+    <PopupMorph.Provider value={popup.state}>
+      <OpenerContext.Provider value={opener}>
+        <BaseMenu.Root
+          {...props}
+          open={popup.open}
+          onOpenChange={popup.setOpen}
+          onOpenChangeComplete={popup.onOpenChangeComplete}
+          actionsRef={actions}
+        />
+      </OpenerContext.Provider>
+    </PopupMorph.Provider>
   );
 }
 
 function SubmenuRoot(props: ComponentProps<typeof BaseMenu.SubmenuRoot>) {
   return (
-    <OpenerContext.Provider value={null}>
-      <BaseMenu.SubmenuRoot {...props} />
-    </OpenerContext.Provider>
+    <PopupMorph.Detach>
+      <OpenerContext.Provider value={null}>
+        <BaseMenu.SubmenuRoot {...props} />
+      </OpenerContext.Provider>
+    </PopupMorph.Detach>
   );
 }
 
-function Trigger({ children, ref, ...props }: ComponentProps<typeof BaseMenu.Trigger>) {
+function Trigger({ children, ...props }: ComponentProps<typeof BaseMenu.Trigger>) {
   const opener = useContext(OpenerContext);
   const setLabel = opener?.setLabel;
   useLayoutEffect(() => setLabel?.(children), [setLabel, children]);
-  const triggerRef = opener?.trigger;
-  const refs = useMemo(() => mergeRefs(ref, triggerRef), [ref, triggerRef]);
-  if (!opener) {
-    return (
-      <BaseMenu.Trigger {...props} ref={ref}>
-        {children}
-      </BaseMenu.Trigger>
-    );
-  }
+  if (!opener) return <BaseMenu.Trigger {...props}>{children}</BaseMenu.Trigger>;
   return (
-    <BaseMenu.Trigger {...props} ref={refs}>
-      <Morph name={opener.name} active={!opener.open} fit="text" scope={opener.name}>
-        <span className="tk-menu-label">{children}</span>
-      </Morph>
-    </BaseMenu.Trigger>
+    <PopupMorph.Trigger>
+      <BaseMenu.Trigger {...props}>
+        <PopupMorph.Part name="label" side="trigger">
+          <span className="tk-menu-label">{children}</span>
+        </PopupMorph.Part>
+      </BaseMenu.Trigger>
+    </PopupMorph.Trigger>
   );
 }
 
@@ -118,9 +115,31 @@ function Popup({
 }: PopupProps) {
   const container = usePortalContainer();
   const opener = useContext(OpenerContext);
-  const grow = useGrowFrom(opener?.trigger);
-  const isRoot = opener !== null;
-  const refs = useMemo(() => (isRoot ? mergeRefs(ref, grow) : ref), [isRoot, ref, grow]);
+  const menu = (
+    <BaseMenu.Popup
+      {...props}
+      ref={ref}
+      className={withBase(
+        cx('tk-popup tk-list-popup tk-menu-popup', opener && 'tk-over-trigger'),
+        className,
+      )}
+      data-size={size}
+    >
+      {opener ? (
+        <>
+          {/* The trigger, as the popup's own first row: pressing it closes. */}
+          <div className="tk-menu-head" aria-hidden="true" onClick={opener.close}>
+            <PopupMorph.Part name="label" side="popup">
+              <span className="tk-menu-label">{opener.label}</span>
+            </PopupMorph.Part>
+          </div>
+          <div className="tk-menu-items">{children}</div>
+        </>
+      ) : (
+        children
+      )}
+    </BaseMenu.Popup>
+  );
   return (
     <BaseMenu.Portal container={container}>
       <BaseMenu.Positioner
@@ -130,29 +149,7 @@ function Popup({
         sideOffset={opener ? overTrigger : sideOffset}
         alignOffset={alignOffset}
       >
-        <BaseMenu.Popup
-          {...props}
-          ref={refs}
-          className={withBase(
-            cx('tk-popup tk-list-popup tk-menu-popup', opener && 'tk-over-trigger'),
-            className,
-          )}
-          data-size={size}
-        >
-          {opener ? (
-            <>
-              {/* The trigger, as the popup's own first row: pressing it closes. */}
-              <div className="tk-menu-head" aria-hidden="true" onClick={opener.close}>
-                <Morph name={opener.name} active={opener.open} fit="text" scope={opener.name}>
-                  <span className="tk-menu-label">{opener.label}</span>
-                </Morph>
-              </div>
-              <div className="tk-menu-items">{children}</div>
-            </>
-          ) : (
-            children
-          )}
-        </BaseMenu.Popup>
+        {opener ? <PopupMorph.Popup>{menu}</PopupMorph.Popup> : menu}
       </BaseMenu.Positioner>
     </BaseMenu.Portal>
   );
@@ -233,10 +230,11 @@ function SubmenuTrigger({
  * the trigger button's `size`; items take an optional `icon` and
  * `data-tone="danger"`.
  *
- * A menu opens out of its trigger: the button's frame grows into the popup's,
- * its first row is the button's own label (press it to close), and the items
- * open below (or above, when there is no room). The label travels between the two, so it is
- * never shown twice. Submenus open beside their row, at `sideOffset`.
+ * The button is the menu's container, closed: opening, its frame grows into
+ * the popup's over it, its own label becomes the first row (press it to
+ * close), and the items open below (or above, when there is no room). The
+ * label travels between the two, so it is never shown twice. Submenus open
+ * beside their row, at `sideOffset`.
  *
  *   <Menu.Root>
  *     <Menu.Trigger render={<Button />}>Options</Menu.Trigger>

@@ -3,7 +3,8 @@ import { AlertDialog, Button, Dialog, Field, Icon, Input, Stack } from 'tk-desig
 export const meta = {
   section: 'surfaces',
   title: 'Dialog & alert dialog',
-  description: 'Modal surfaces; the alert version must be answered.',
+  description:
+    'Modal surfaces that grow out of their trigger; the alert version must be answered. The search icon flies to its place in the dialog.',
   order: 2,
 };
 
@@ -26,7 +27,7 @@ export default function Dialogs() {
         </Dialog.Popup>
       </Dialog.Root>
 
-      <Dialog.Root transition="shared">
+      <Dialog.Root>
         <Dialog.Trigger render={<Button />} aria-label="Search the clearing">
           <Dialog.SharedElement name="search" side="trigger">
             <Icon name="search" />

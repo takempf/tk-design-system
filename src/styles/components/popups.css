@@ -655,14 +655,6 @@
     gap: inherit;
   }
 
-  /* A combobox or menu covers its trigger while open; its own text would only
-     show through the popup as it fades in. (Transparent, not hidden: it still
-     names the trigger.) */
-  .tk-combobox-trigger[data-popup-open] .tk-select-value,
-  [data-popup-open] > .tk-menu-label {
-    opacity: 0;
-  }
-
   /* Set like the button it covers: its height (less the popup's border, the
      rule below it landing on the button's own edge), padding and type. */
   .tk-menu-head {
@@ -729,107 +721,41 @@
     scrollbar-width: thin;
   }
 
-  /* Popups that grow out of their trigger --------------------------------- */
+  /* Popups that are their trigger's container ------------------------------ */
 
-  /* The trigger and its popup are one frame (see useGrowFrom). Opening, the frame
-     leaves the trigger's box for the popup's: it moves and resizes, its fill and
-     edge turn from the trigger's to the popup's, and the content is cut to it as
-     it goes. Closing, it goes home the same way. Laid over its trigger, the frame
-     starts as the trigger itself; set apart from it, the popup fades in as it
-     leaves and out as it lands (--tk-from-opacity). */
-  :is(.tk-popup, .tk-dialog)[data-tk-grow] {
-    --_grow: var(--tk-duration-morph);
-    position: relative;
-    isolation: isolate;
-    overflow: visible;
-    border-color: transparent;
-    background: transparent;
-    clip-path: inset(0);
-    transition:
-      clip-path var(--_grow) var(--tk-ease-morph),
-      opacity var(--tk-duration-2) var(--tk-ease-fade);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: calc(var(--tk-border-width) * -1);
-      left: calc(var(--tk-border-width) * -1);
-      z-index: -1;
-      width: calc(100% + 2 * var(--tk-border-width));
-      height: calc(100% + 2 * var(--tk-border-width));
-      border: var(--tk-border-width) solid var(--tk-border);
-      border-radius: inherit;
-      corner-shape: inherit;
-      background: var(--tk-surface-raised);
-      transition-property: translate, width, height, border-radius, border-color, background-color;
-      transition-duration: var(--_grow);
-      transition-timing-function: var(--tk-ease-morph);
-    }
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      opacity: var(--tk-from-opacity);
-      transform: none;
-      filter: none;
-      clip-path: inset(
-        var(--tk-from-y) calc(100% - var(--tk-from-x) - var(--tk-from-w))
-          calc(100% - var(--tk-from-y) - var(--tk-from-h)) var(--tk-from-x) round
-          var(--tk-from-radius)
-      );
-
-      &::before {
-        translate: var(--tk-from-x) var(--tk-from-y);
-        width: var(--tk-from-w);
-        height: var(--tk-from-h);
-        border-color: var(--tk-from-border);
-        border-radius: var(--tk-from-radius);
-        background: var(--tk-from-bg);
-      }
-    }
-
-    /* Set on the trigger before anything moves: Base UI places the popup (and it
-       is measured) while it is starting. */
-    &[data-starting-style],
-    &[data-starting-style]::before {
-      transition: none;
-    }
-
-    /* Closing lands a beat before the text carried home does, so the frame is
-       gone before the trigger shows that text again. */
-    &[data-ending-style] {
-      --_grow: calc(var(--tk-duration-morph) * 0.9);
-      transition:
-        clip-path var(--_grow) var(--tk-ease-morph),
-        opacity var(--_grow) var(--tk-ease-in);
-    }
-
-    /* The frame keeps the popup's fill and edge most of the way home, taking
-       the trigger's as it lands. Turning as early as it does on the way out,
-       it would all but vanish before it had moved, onto a trigger with no
-       fill of its own. (In `::before`'s transition-property order.) */
-    &[data-ending-style]::before {
-      transition-timing-function:
-        var(--tk-ease-morph), var(--tk-ease-morph), var(--tk-ease-morph), var(--tk-ease-morph),
-        var(--tk-ease-in), var(--tk-ease-in);
-    }
-  }
-
-  /* Only one live container participates in each end of the morph. */
-  .tk-shared-backdrop {
-    transition: none;
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      opacity: 1;
-    }
-  }
-
-  .tk-shared-trigger {
-    transition: none;
-  }
-
-  .tk-shared-trigger[data-tk-expanded] {
+  /* While open, the trigger is the popup. (Transparent, not hidden: it still
+     names the popup and takes focus back.) */
+  [data-tk-container='trigger'][data-tk-open] {
     opacity: 0;
+  }
+
+  /* Carried by a morph, a popup is in place at once and leaves at once: the
+     morph moves its frame and content from the trigger and back. With no
+     trigger to grow out of, it rises in and sinks away like any other. */
+  :root:active-view-transition-type(open, close) [data-tk-container='popup'] {
+    transition: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+
+    &[data-ending-style] {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  /* Base UI unmounts a dialog, backdrop and all, once the popup's own
+     animations end; this one keeps it until the morph lands, so the backdrop
+     fades out instead of vanishing. (The morph's end cuts it short too.) */
+  :root:active-view-transition-type(close)
+  .tk-dialog[data-tk-container='popup'][data-ending-style] {
+    animation: tk-hold var(--tk-duration-morph) linear;
+  }
+
+  @keyframes tk-hold {
+    to {
+      opacity: 0;
+    }
   }
 
   .tk-dialog-content {
@@ -839,38 +765,11 @@
     min-width: 0;
     min-height: 0;
   }
-
-  /* View transitions capture the real popup and everything inside it. Base UI's
-     enter/exit styles must not alter that capture or animate a second frame. */
-  .tk-dialog[data-tk-shared] {
-    transition: none;
-    opacity: 1;
-    transform: none;
-    filter: none;
-
-    &[data-starting-style] {
-      opacity: 1;
-      transform: none;
-      filter: none;
-    }
-
-    &[data-ending-style] {
-      opacity: 0;
-      transform: none;
-      filter: none;
-    }
-  }
-
-  /* Laid over the trigger, the popup empties at once as it closes: the shared
-     text is carried back to the trigger (a morph), and no copy of it, no old
-     value and no highlighted row is left in the frame for it to land on. */
-  :is(.tk-over-trigger, .tk-select-popup[data-side='none'])[data-ending-style] > * {
-    visibility: hidden;
-  }
 }
 
 @layer tk.components {
   .tk-combobox-field {
+    position: relative;
     display: flex;
     flex: 1;
     gap: var(--tk-space-2);
@@ -961,13 +860,56 @@
     }
   }
 
+  /* Open, the field and its suggestions are one container: the list carries
+     on from the field's edge, the corners between them square, and the whole
+     is outlined while the field has focus. */
   .tk-combobox-suggestions {
+    --_corner: min(var(--tk-radius), var(--tk-radius-popup));
     display: flex;
     flex-direction: column;
     width: var(--anchor-width);
     max-width: var(--available-width);
     max-height: min(24rem, var(--available-height));
+    margin-top: calc(var(--tk-border-width) * -1);
+    border-color: var(--tk-focus-color);
+    border-radius: 0 0 var(--_corner) var(--_corner);
     font-size: var(--tk-text-sm);
+
+    .tk-positioner[data-side='top'] > & {
+      margin-top: 0;
+      margin-bottom: calc(var(--tk-border-width) * -1);
+      border-radius: var(--_corner) var(--_corner) 0 0;
+    }
+  }
+
+  .tk-combobox-field[data-popup-open] {
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+
+    &[data-side='top'] {
+      border-start-start-radius: 0;
+      border-start-end-radius: 0;
+      border-end-start-radius: var(--tk-radius);
+      border-end-end-radius: var(--tk-radius);
+    }
+  }
+
+  /* The field's edge on the side its suggestions open from: the container
+     they grow out of (see InputCombobox), with the list's look, seen edge on. */
+  .tk-combobox-seam {
+    position: absolute;
+    right: calc(var(--tk-border-width) * -1);
+    bottom: calc(var(--tk-border-width) * -1);
+    left: calc(var(--tk-border-width) * -1);
+    border-top: var(--tk-border-width) solid var(--tk-focus-color);
+    background: var(--tk-surface-raised);
+    opacity: 0;
+    pointer-events: none;
+
+    .tk-combobox-field[data-side='top'] > & {
+      top: calc(var(--tk-border-width) * -1);
+      bottom: auto;
+    }
   }
 
   .tk-combobox-suggestions-list {

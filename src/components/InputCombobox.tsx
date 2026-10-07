@@ -1,8 +1,9 @@
 import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../icons/Icon';
+import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
-import { cx } from '../utils';
+import { cx, mergeRefs } from '../utils';
 import { type ComboboxGroup, type Reveal, Rows } from './comboboxList';
 import { useControllable } from './popup';
 
@@ -150,18 +151,44 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   const typed = query.trim();
   const open = requestedOpen && !disabled && (browsing || typed.length >= minQueryLength);
   const highlighted = useRef<Row<V> | undefined>(undefined);
+  const inputGroup = useRef<HTMLDivElement>(null);
   const surface = useRef<HTMLDivElement>(null);
   const actions = useRef<BaseCombobox.Root.Actions>(null);
   const reveal = useRef<Reveal>(null);
 
+  // The suggestions follow `open` through a morph, a frame behind it, so the
+  // transition never holds up the typing that opens them.
+  const popup = usePopupMorph({ prefix: 'field' });
+  const { setOpen: setShown } = popup;
+  const wanted = useRef(false);
+  useLayoutEffect(() => {
+    if (wanted.current === open) return;
+    wanted.current = open;
+    setShown(open);
+  }, [open, setShown]);
+
   useEffect(() => {
-    if (!open) {
+    if (!popup.open) {
       highlighted.current = undefined;
       setBrowsing(false);
       // This editable variant leaves focus in the field and has no exit delay.
       actions.current?.unmount();
     }
-  }, [open]);
+  }, [popup.open]);
+
+  // The field's seam is on the side the suggestions open from; it stays there,
+  // so the next opening grows from the same side.
+  const followSide = useCallback((element: HTMLDivElement | null) => {
+    const positioner = element?.parentElement;
+    if (!positioner) return;
+    const sync = () => {
+      if (inputGroup.current) inputGroup.current.dataset.side = positioner.dataset.side ?? 'bottom';
+    };
+    sync();
+    const watch = new MutationObserver(sync);
+    watch.observe(positioner, { attributes: true, attributeFilter: ['data-side'] });
+    return () => watch.disconnect();
+  }, []);
 
   const changeQuery = (next: string, details: Details) => {
     setQuery(next);
@@ -239,166 +266,177 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   );
 
   return (
-    <BaseCombobox.Root<Row<V>, boolean>
-      multiple={multiple}
-      modal={false}
-      // Searched results arrive after the query that asked for them, so they are
-      // highlighted as they land ('always', which Base UI's Combobox types omit).
-      autoHighlight={(filter === null ? 'always' : true) as boolean}
-      virtualized={virtualized}
-      limit={limit}
-      disabled={disabled}
-      readOnly={readOnly}
-      required={required}
-      name={name}
-      id={id}
-      actionsRef={actions}
-      items={rows as Row<V>[]}
-      value={value as Row<V>[] | Row<V> | null}
-      inputValue={query}
-      open={open}
-      onOpenChange={(next, details) => {
-        setOpen(next);
-        if (!next) highlighted.current = undefined;
-        else if (browsable && ['trigger-press', 'list-navigation'].includes(details.reason)) {
-          setBrowsing(true);
-        }
-      }}
-      onItemHighlighted={(item, details) => {
-        highlighted.current = item;
-        if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
-      }}
-      onInputValueChange={(next, details) => {
-        // In a multiselect, free text is meaningful and survives dismissal.
-        if (multiple && details.reason === 'input-clear' && !details.isItemPress) {
-          details.cancel();
-          return;
-        }
-        if (details.reason === 'input-change') setBrowsing(false);
-        changeQuery(next, details);
-      }}
-      onValueChange={(next, details) => {
-        const picked = multiple ? (next as Row<V>[]).includes(create) : next === create;
-        if (picked) {
-          details.cancel();
-          close();
-          onCreate?.(typed);
-          if (multiple) changeQuery('', details);
-          return;
-        }
-        if (multiple) {
-          const values = next as V[];
-          (props as MultipleInputComboboxProps<V>).onValueChange?.(values, details);
-          if (details.isCanceled) return;
-          setValue(values);
-          if (values.length > chosen.length) changeQuery('', details);
-        } else {
-          (props as SingleInputComboboxProps<V>).onValueChange?.(next as V | null, details);
-          if (!details.isCanceled) setValue(next as V | null);
-        }
-      }}
-      itemToStringLabel={(item) => (isCreate(item) ? typed : itemToStringLabel(item))}
-      itemToStringValue={(item) => (isCreate(item) ? '' : itemToStringValue(item))}
-      isItemEqualToValue={(a, b) =>
-        isCreate(a) || isCreate(b)
-          ? a === b
-          : (isItemEqualToValue?.(a, b) ?? itemToStringValue(a) === itemToStringValue(b))
-      }
-      filter={
-        filter === null
-          ? null
-          : (item, text) =>
-              isCreate(item) || (text.trim().length >= minQueryLength && matches(item, text))
-      }
-    >
-      <BaseCombobox.InputGroup
-        className={cx('tk-combobox-field', className)}
-        data-size={size}
-        data-loading={loading || undefined}
-        onBlur={(event) => {
-          if (
-            !event.currentTarget.contains(event.relatedTarget) &&
-            !surface.current?.contains(event.relatedTarget)
-          ) {
-            close();
+    <PopupMorph.Provider value={popup.state}>
+      <BaseCombobox.Root<Row<V>, boolean>
+        multiple={multiple}
+        modal={false}
+        // Searched results arrive after the query that asked for them, so they are
+        // highlighted as they land ('always', which Base UI's Combobox types omit).
+        autoHighlight={(filter === null ? 'always' : true) as boolean}
+        virtualized={virtualized}
+        limit={limit}
+        disabled={disabled}
+        readOnly={readOnly}
+        required={required}
+        name={name}
+        id={id}
+        actionsRef={actions}
+        items={rows as Row<V>[]}
+        value={value as Row<V>[] | Row<V> | null}
+        inputValue={query}
+        open={popup.open}
+        onOpenChange={(next, details) => {
+          setOpen(next);
+          if (!next) highlighted.current = undefined;
+          else if (browsable && ['trigger-press', 'list-navigation'].includes(details.reason)) {
+            setBrowsing(true);
           }
         }}
+        onItemHighlighted={(item, details) => {
+          highlighted.current = item;
+          if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
+        }}
+        onInputValueChange={(next, details) => {
+          // In a multiselect, free text is meaningful and survives dismissal.
+          if (multiple && details.reason === 'input-clear' && !details.isItemPress) {
+            details.cancel();
+            return;
+          }
+          if (details.reason === 'input-change') setBrowsing(false);
+          changeQuery(next, details);
+        }}
+        onValueChange={(next, details) => {
+          const picked = multiple ? (next as Row<V>[]).includes(create) : next === create;
+          if (picked) {
+            details.cancel();
+            close();
+            onCreate?.(typed);
+            if (multiple) changeQuery('', details);
+            return;
+          }
+          if (multiple) {
+            const values = next as V[];
+            (props as MultipleInputComboboxProps<V>).onValueChange?.(values, details);
+            if (details.isCanceled) return;
+            setValue(values);
+            if (values.length > chosen.length) changeQuery('', details);
+          } else {
+            (props as SingleInputComboboxProps<V>).onValueChange?.(next as V | null, details);
+            if (!details.isCanceled) setValue(next as V | null);
+          }
+        }}
+        itemToStringLabel={(item) => (isCreate(item) ? typed : itemToStringLabel(item))}
+        itemToStringValue={(item) => (isCreate(item) ? '' : itemToStringValue(item))}
+        isItemEqualToValue={(a, b) =>
+          isCreate(a) || isCreate(b)
+            ? a === b
+            : (isItemEqualToValue?.(a, b) ?? itemToStringValue(a) === itemToStringValue(b))
+        }
+        filter={
+          filter === null
+            ? null
+            : (item, text) =>
+                isCreate(item) || (text.trim().length >= minQueryLength && matches(item, text))
+        }
       >
-        {loading ? (
-          <span className="tk-spinner tk-combobox-field-icon" aria-hidden="true" />
-        ) : (
-          <Icon name="search" className="tk-combobox-field-icon" />
-        )}
-        {multiple ? (
-          <BaseCombobox.Chips className="tk-combobox-chips" aria-label={chipsLabel}>
-            {chosen.map((item) => (
-              <BaseCombobox.Chip
-                key={itemToStringValue(item)}
-                className="tk-combobox-chip"
-                aria-label={chipAriaLabel(item)}
-              >
-                {renderChip(item)}
-                <BaseCombobox.ChipRemove
-                  className="tk-combobox-chip-remove"
-                  aria-label={removeAriaLabel(item)}
+        <BaseCombobox.InputGroup
+          ref={inputGroup}
+          className={cx('tk-combobox-field', className)}
+          data-size={size}
+          data-loading={loading || undefined}
+          onBlur={(event) => {
+            if (
+              !event.currentTarget.contains(event.relatedTarget) &&
+              !surface.current?.contains(event.relatedTarget)
+            ) {
+              close();
+            }
+          }}
+        >
+          {loading ? (
+            <span className="tk-spinner tk-combobox-field-icon" aria-hidden="true" />
+          ) : (
+            <Icon name="search" className="tk-combobox-field-icon" />
+          )}
+          {multiple ? (
+            <BaseCombobox.Chips className="tk-combobox-chips" aria-label={chipsLabel}>
+              {chosen.map((item) => (
+                <BaseCombobox.Chip
+                  key={itemToStringValue(item)}
+                  className="tk-combobox-chip"
+                  aria-label={chipAriaLabel(item)}
                 >
+                  {renderChip(item)}
+                  <BaseCombobox.ChipRemove
+                    className="tk-combobox-chip-remove"
+                    aria-label={removeAriaLabel(item)}
+                  >
+                    <Icon name="close" />
+                  </BaseCombobox.ChipRemove>
+                </BaseCombobox.Chip>
+              ))}
+              {input}
+            </BaseCombobox.Chips>
+          ) : (
+            input
+          )}
+          {(clearable || browsable) && (
+            <span className="tk-combobox-actions">
+              {clearable && (
+                <BaseCombobox.Clear className="tk-combobox-action" aria-label="Clear">
                   <Icon name="close" />
-                </BaseCombobox.ChipRemove>
-              </BaseCombobox.Chip>
-            ))}
-            {input}
-          </BaseCombobox.Chips>
-        ) : (
-          input
-        )}
-        {(clearable || browsable) && (
-          <span className="tk-combobox-actions">
-            {clearable && (
-              <BaseCombobox.Clear className="tk-combobox-action" aria-label="Clear">
-                <Icon name="close" />
-              </BaseCombobox.Clear>
-            )}
-            {browsable && (
-              <BaseCombobox.Trigger className="tk-combobox-action" aria-label="Show all">
-                <Icon name="chevron-down" />
-              </BaseCombobox.Trigger>
-            )}
-          </span>
-        )}
-      </BaseCombobox.InputGroup>
-      <BaseCombobox.Portal container={portal}>
-        <BaseCombobox.Positioner className="tk-positioner" sideOffset={4} align="start">
-          {/* A nonmodal surface keeps the chips accessible while the list is open;
+                </BaseCombobox.Clear>
+              )}
+              {browsable && (
+                <BaseCombobox.Trigger className="tk-combobox-action" aria-label="Show all">
+                  <Icon name="chevron-down" />
+                </BaseCombobox.Trigger>
+              )}
+            </span>
+          )}
+          {/* The field stays in use while its suggestions are open, so it isn't
+            the container: its edge is, and the suggestions grow out of it as
+            the rest of the field. */}
+          <PopupMorph.Trigger>
+            <span className="tk-combobox-seam" aria-hidden="true" />
+          </PopupMorph.Trigger>
+        </BaseCombobox.InputGroup>
+        <BaseCombobox.Portal container={portal}>
+          <BaseCombobox.Positioner className="tk-positioner" sideOffset={0} align="start">
+            {/* A nonmodal surface keeps the chips accessible while the list is open;
               Base UI's Popup focus manager hides the input's chip siblings. */}
-          <div
-            ref={surface}
-            role="presentation"
-            data-size={size}
-            className="tk-popup tk-list-popup tk-combobox-suggestions"
-          >
-            <BaseCombobox.Status className="tk-combobox-status">{status}</BaseCombobox.Status>
-            <BaseCombobox.Empty className="tk-list-empty">
-              {loading ? null : emptyMessage}
-            </BaseCombobox.Empty>
-            <BaseCombobox.List
-              className="tk-list tk-combobox-suggestions-list"
-              aria-busy={loading || undefined}
-            >
-              <Rows<Row<V>>
-                grouped={groups !== undefined}
-                virtualized={virtualized}
-                reveal={reveal}
-                keyOf={(item) => (isCreate(item) ? 'tk-create' : itemToStringValue(item))}
-                disabledOf={(item) => !isCreate(item) && isItemDisabled?.(item)}
-                ariaLabelOf={(item) => (isCreate(item) ? undefined : itemAriaLabel?.(item))}
-                className="tk-list-item tk-combobox-suggestion"
+            <PopupMorph.Popup>
+              <div
+                ref={mergeRefs(surface, followSide)}
+                role="presentation"
+                data-size={size}
+                className="tk-popup tk-list-popup tk-combobox-suggestions"
               >
-                {content}
-              </Rows>
-            </BaseCombobox.List>
-          </div>
-        </BaseCombobox.Positioner>
-      </BaseCombobox.Portal>
-    </BaseCombobox.Root>
+                <BaseCombobox.Status className="tk-combobox-status">{status}</BaseCombobox.Status>
+                <BaseCombobox.Empty className="tk-list-empty">
+                  {loading ? null : emptyMessage}
+                </BaseCombobox.Empty>
+                <BaseCombobox.List
+                  className="tk-list tk-combobox-suggestions-list"
+                  aria-busy={loading || undefined}
+                >
+                  <Rows<Row<V>>
+                    grouped={groups !== undefined}
+                    virtualized={virtualized}
+                    reveal={reveal}
+                    keyOf={(item) => (isCreate(item) ? 'tk-create' : itemToStringValue(item))}
+                    disabledOf={(item) => !isCreate(item) && isItemDisabled?.(item)}
+                    ariaLabelOf={(item) => (isCreate(item) ? undefined : itemAriaLabel?.(item))}
+                    className="tk-list-item tk-combobox-suggestion"
+                  >
+                    {content}
+                  </Rows>
+                </BaseCombobox.List>
+              </div>
+            </PopupMorph.Popup>
+          </BaseCombobox.Positioner>
+        </BaseCombobox.Portal>
+      </BaseCombobox.Root>
+    </PopupMorph.Provider>
   );
 }

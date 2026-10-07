@@ -3,7 +3,7 @@ import { Badge, Button, Icon, Popover, Stack } from 'tk-design-system';
 export const meta = {
   section: 'surfaces',
   title: 'Popover',
-  description: 'Rich content anchored to a trigger.',
+  description: 'Rich content that grows out of its trigger and folds back into it.',
   order: 3,
 };
 

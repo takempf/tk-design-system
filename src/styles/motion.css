@@ -42,90 +42,80 @@
     animation-timing-function: var(--tk-ease-morph);
   }
 
+  /* Clipped, or WebKit paints the live element in place of its snapshot. */
   ::view-transition-old(.tk-morph),
   ::view-transition-new(.tk-morph),
   ::view-transition-old(.tk-morph-text),
   ::view-transition-new(.tk-morph-text) {
     height: 100%;
+    overflow: clip;
     animation-duration: calc(var(--tk-duration-morph) * 0.6);
     animation-timing-function: var(--tk-ease-fade);
     mix-blend-mode: normal;
   }
 
-  /* Dialog triggers and popups share the actual container snapshot. Its
-     contents scale with the box; named parts ride above it at their own size. */
-  [data-tk-morph].tk-shared-container,
-  [data-tk-morph].tk-shared-part {
-    view-transition-class: tk-shared;
+  /* Containers: one frame in two places, such as a trigger and then its popup.
+     morph() paints the frame on the moving group, turning its fill, edge and
+     corners from one end's to the other's, and snapshots both ends without
+     theirs (data-tk-frameless), so nothing inside stretches. The content keeps
+     its size and its place on the page, clipped to the frame (morph() offsets
+     it as the frame moves), so the frame uncovers one end's and covers the
+     other's. */
+  [data-tk-morph='container'] {
+    view-transition-class: tk-container;
   }
 
-  ::view-transition-group(.tk-shared) {
-    animation-duration: var(--tk-duration-shared);
-    animation-timing-function: var(--tk-ease-shared);
-  }
-
-  ::view-transition-old(.tk-shared),
-  ::view-transition-new(.tk-shared) {
-    width: 100%;
-    height: 100%;
-    animation-duration: calc(var(--tk-duration-shared) * 0.25);
-    animation-fill-mode: both;
-    animation-timing-function: var(--tk-ease-shared);
-    object-fit: fill;
+  ::view-transition-group(.tk-container) {
+    box-sizing: border-box;
     overflow: clip;
-    mix-blend-mode: plus-lighter;
+    /* Until morph() paints the ends' own look, and wherever it can't. */
+    border-radius: var(--tk-radius-popup);
+    corner-shape: var(--tk-corner-shape);
+    background-color: var(--tk-surface-raised);
+    box-shadow: inset 0 0 0 var(--tk-border-width) var(--tk-border);
+    animation-duration: var(--tk-duration-morph);
+    animation-timing-function: var(--tk-ease-morph);
   }
 
-  :root:active-view-transition-type(shared-close) {
-    &::view-transition-old(.tk-shared),
-    &::view-transition-new(.tk-shared) {
-      animation-delay: calc(var(--tk-duration-shared) * 0.75);
-    }
-  }
-
-  /* Clipping makes WebKit paint the new snapshot instead of reusing its live
-     destination layers. The stationary root excludes the named containers. */
-  ::view-transition-group(tk-background) {
-    animation: none;
-    z-index: -2;
-  }
-
-  ::view-transition-old(tk-background),
-  ::view-transition-new(tk-background) {
-    animation: none;
-    overflow: clip;
-  }
-
-  ::view-transition-new(tk-background) {
-    display: none;
-  }
-
-  [data-tk-morph].tk-shared-backdrop {
-    view-transition-class: tk-shared-backdrop;
-  }
-
-  ::view-transition-group(.tk-shared-backdrop) {
-    animation: none;
-    z-index: -1;
-  }
-
-  ::view-transition-old(.tk-shared-backdrop),
-  ::view-transition-new(.tk-shared-backdrop) {
+  /* Clipped, or WebKit paints the live element in place of its snapshot. */
+  ::view-transition-old(.tk-container),
+  ::view-transition-new(.tk-container) {
     width: 100%;
     height: 100%;
     overflow: clip;
-    animation-duration: var(--tk-duration-2);
+    object-fit: none;
+    object-position: 0 0;
     animation-timing-function: var(--tk-ease-fade);
   }
 
-  /* Text keeps its true size and rides the left edge of the moving box. Its
+  /* The content trades places early: the old is gone halfway, the new is in
+     well before the frame lands. */
+  ::view-transition-old(.tk-container) {
+    animation-duration: calc(var(--tk-duration-morph) * 0.5);
+  }
+
+  ::view-transition-new(.tk-container) {
+    animation-duration: calc(var(--tk-duration-morph) * 0.6);
+  }
+
+  /* biome-ignore-start lint/complexity/noImportantStyles: a snapshot without its frame must beat every component and theme rule */
+  [data-tk-frameless] {
+    border-color: transparent !important;
+    background: transparent !important;
+  }
+  /* biome-ignore-end lint/complexity/noImportantStyles: a snapshot without its frame must beat every component and theme rule */
+
+  /* Text keeps its true size and rides the left edge of the moving box,
+     centred on it. (Its own size, not the box's height: a box shorter than
+     the text, where a heading grows, would cut it.) Its
      two ends are added rather than layered: they are the same words, and
      layered, a crossfade in place dims them to three quarters midway. */
   ::view-transition-old(.tk-morph-text),
   ::view-transition-new(.tk-morph-text) {
+    top: 50%;
     width: auto;
-    object-fit: none;
-    object-position: left center;
+    height: auto;
+    translate: 0 -50%;
     mix-blend-mode: plus-lighter;
   }
 

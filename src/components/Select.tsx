@@ -1,10 +1,9 @@
 import { Select as BaseSelect } from '@base-ui/react/select';
-import { useRef } from 'react';
 import { Icon } from '../icons/Icon';
-import { Morph, useMorphName } from '../motion/morph';
+import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx } from '../utils';
-import { useControllable, useGrowFrom, useMorphingOpen } from './popup';
+import { overTrigger, useControllable } from './popup';
 
 export interface Option<V> {
   readonly value: V;
@@ -29,11 +28,11 @@ export interface SelectProps<V> {
 }
 
 /**
- * A single-choice list. It opens over its trigger with the chosen row exactly on
- * the trigger's value, the trigger's frame growing into the list's; choosing
- * another row carries that label back into the trigger as the frame shrinks
- * home. Where there is no room to overlay (or on touch) it drops below instead,
- * the frame moving down from the trigger.
+ * A single-choice list. The trigger is the list's container, closed: it opens
+ * over itself with the chosen row exactly on the trigger's value, the frame
+ * growing around it, and choosing another row carries that label back into the
+ * trigger as the frame shrinks home. Where Base UI can't line the row up (no
+ * room, or touch) the list still opens over the trigger, its first row on it.
  */
 export function Select<V>({
   items,
@@ -50,82 +49,72 @@ export function Select<V>({
   className,
   'aria-label': ariaLabel,
 }: SelectProps<V>) {
-  const morphName = useMorphName('select');
-  // Opening moves nothing (the row lands on the value), so only closing morphs.
-  const [isOpen, setOpen] = useMorphingOpen(open, onOpenChange, morphName, { onOpen: false });
+  const popup = usePopupMorph({ open, onOpenChange, prefix: 'select' });
   const [current, setCurrent] = useControllable(value, defaultValue);
   const selected = items.find((item) => Object.is(item.value, current));
   const container = usePortalContainer();
-  const trigger = useRef<HTMLButtonElement>(null);
-  const grow = useGrowFrom(trigger);
 
   return (
-    <BaseSelect.Root
-      items={items as Option<V>[]}
-      value={current}
-      onValueChange={(next) => {
-        setCurrent(next as V | null);
-        onValueChange?.(next as V | null);
-      }}
-      open={isOpen}
-      onOpenChange={setOpen}
-      disabled={disabled}
-      name={name}
-      id={id}
-    >
-      <BaseSelect.Trigger
-        ref={trigger}
-        className={cx('tk-select-trigger', className)}
-        data-size={size}
-        aria-label={ariaLabel}
+    <PopupMorph.Provider value={popup.state}>
+      <BaseSelect.Root
+        items={items as Option<V>[]}
+        value={current}
+        onValueChange={(next) => {
+          setCurrent(next as V | null);
+          onValueChange?.(next as V | null);
+        }}
+        open={popup.open}
+        onOpenChange={popup.setOpen}
+        onOpenChangeComplete={popup.onOpenChangeComplete}
+        disabled={disabled}
+        name={name}
+        id={id}
       >
-        <span className="tk-select-value" data-placeholder={selected ? undefined : ''}>
-          <Morph
-            name={morphName}
-            active={!isOpen && Boolean(selected)}
-            fit="text"
-            scope={morphName}
-          >
-            {/* Base UI lines the chosen row's text up with this element. */}
-            <BaseSelect.Value>{selected?.label ?? placeholder}</BaseSelect.Value>
-          </Morph>
-        </span>
-        <BaseSelect.Icon className="tk-select-icon">
-          <Icon name="chevron-updown" />
-        </BaseSelect.Icon>
-      </BaseSelect.Trigger>
-      <BaseSelect.Portal container={container}>
-        <BaseSelect.Positioner className="tk-positioner" sideOffset={6} align="start">
-          <BaseSelect.Popup
-            ref={grow}
-            className="tk-popup tk-list-popup tk-select-popup"
+        <PopupMorph.Trigger>
+          <BaseSelect.Trigger
+            className={cx('tk-select-trigger', className)}
             data-size={size}
+            aria-label={ariaLabel}
           >
-            <BaseSelect.List className="tk-list">
-              {items.map((item) => (
-                <BaseSelect.Item
-                  key={String(item.value)}
-                  value={item.value}
-                  disabled={item.disabled}
-                  className="tk-list-item"
-                >
-                  <BaseSelect.ItemIndicator className="tk-list-indicator">
-                    <Icon name="check" />
-                  </BaseSelect.ItemIndicator>
-                  <Morph
-                    name={morphName}
-                    active={isOpen && Object.is(item.value, current)}
-                    fit="text"
-                    scope={morphName}
-                  >
-                    <BaseSelect.ItemText className="tk-list-text">{item.label}</BaseSelect.ItemText>
-                  </Morph>
-                </BaseSelect.Item>
-              ))}
-            </BaseSelect.List>
-          </BaseSelect.Popup>
-        </BaseSelect.Positioner>
-      </BaseSelect.Portal>
-    </BaseSelect.Root>
+            <span className="tk-select-value" data-placeholder={selected ? undefined : ''}>
+              <PopupMorph.Part side="trigger" when={Boolean(selected)}>
+                {/* Base UI lines the chosen row's text up with this element. */}
+                <BaseSelect.Value>{selected?.label ?? placeholder}</BaseSelect.Value>
+              </PopupMorph.Part>
+            </span>
+            <BaseSelect.Icon className="tk-select-icon">
+              <Icon name="chevron-updown" />
+            </BaseSelect.Icon>
+          </BaseSelect.Trigger>
+        </PopupMorph.Trigger>
+        <BaseSelect.Portal container={container}>
+          <BaseSelect.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
+            <PopupMorph.Popup>
+              <BaseSelect.Popup className="tk-popup tk-list-popup tk-select-popup" data-size={size}>
+                <BaseSelect.List className="tk-list">
+                  {items.map((item) => (
+                    <BaseSelect.Item
+                      key={String(item.value)}
+                      value={item.value}
+                      disabled={item.disabled}
+                      className="tk-list-item"
+                    >
+                      <BaseSelect.ItemIndicator className="tk-list-indicator">
+                        <Icon name="check" />
+                      </BaseSelect.ItemIndicator>
+                      <PopupMorph.Part side="popup" when={Object.is(item.value, current)}>
+                        <BaseSelect.ItemText className="tk-list-text">
+                          {item.label}
+                        </BaseSelect.ItemText>
+                      </PopupMorph.Part>
+                    </BaseSelect.Item>
+                  ))}
+                </BaseSelect.List>
+              </BaseSelect.Popup>
+            </PopupMorph.Popup>
+          </BaseSelect.Positioner>
+        </BaseSelect.Portal>
+      </BaseSelect.Root>
+    </PopupMorph.Provider>
   );
 }

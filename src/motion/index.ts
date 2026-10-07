@@ -10,4 +10,13 @@ export {
   useMorphName,
   useMorphState,
 } from './morph';
+export {
+  PopupMorph,
+  type PopupMorphOptions,
+  type PopupMorphPartProps,
+  type PopupMorphState,
+  type PopupMorphTriggerProps,
+  usePopupMorph,
+  usePopupMorphState,
+} from './popupMorph';
 export { wipe } from './wipe';

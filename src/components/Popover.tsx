@@ -1,9 +1,44 @@
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
-import { type ComponentProps, type ReactElement, type ReactNode, useMemo } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
-import { mergeRefs, part, withBase } from '../utils';
-import { useGrowFrom } from './popup';
+import { part, withBase } from '../utils';
+import { SharedElement } from './popup';
+
+function PopoverRoot<Payload>({
+  open,
+  defaultOpen,
+  onOpenChange,
+  onOpenChangeComplete,
+  ...props
+}: BasePopover.Root.Props<Payload>) {
+  const popup = usePopupMorph({
+    open,
+    defaultOpen,
+    onOpenChange,
+    onOpenChangeComplete,
+    prefix: 'popover',
+  });
+  return (
+    <PopupMorph.Provider value={popup.state}>
+      <BasePopover.Root
+        {...props}
+        open={popup.open}
+        onOpenChange={popup.setOpen}
+        onOpenChangeComplete={popup.onOpenChangeComplete}
+      />
+    </PopupMorph.Provider>
+  );
+}
+
+function PopoverTrigger(props: ComponentProps<typeof BasePopover.Trigger>) {
+  return (
+    <PopupMorph.Trigger>
+      <BasePopover.Trigger {...props} />
+    </PopupMorph.Trigger>
+  );
+}
 
 type PositionerProps = Pick<
   ComponentProps<typeof BasePopover.Positioner>,
@@ -20,8 +55,6 @@ function PopoverPopup({
   ...props
 }: ComponentProps<typeof BasePopover.Popup> & PositionerProps) {
   const container = usePortalContainer();
-  const grow = useGrowFrom();
-  const refs = useMemo(() => mergeRefs(ref, grow), [ref, grow]);
   return (
     <BasePopover.Portal container={container}>
       <BasePopover.Positioner
@@ -31,20 +64,29 @@ function PopoverPopup({
         sideOffset={sideOffset}
         alignOffset={alignOffset}
       >
-        <BasePopover.Popup
-          {...props}
-          ref={refs}
-          className={withBase('tk-popup tk-popover', className)}
-        />
+        <PopupMorph.Popup>
+          <BasePopover.Popup
+            {...props}
+            ref={ref}
+            className={withBase('tk-popup tk-popover', className)}
+          />
+        </PopupMorph.Popup>
       </BasePopover.Positioner>
     </BasePopover.Portal>
   );
 }
 
-/** Rich, interactive content anchored to a trigger, whose frame it grows out of. */
+/**
+ * Rich, interactive content anchored to a trigger. The trigger is the popup's
+ * container, closed: its frame moves and grows into the popup's, and back.
+ * `Origin` makes a larger element the container (a card holding the trigger);
+ * `SharedElement` carries one element across, above the container.
+ */
 export const Popover = {
-  Root: BasePopover.Root,
-  Trigger: BasePopover.Trigger,
+  Root: PopoverRoot,
+  Trigger: PopoverTrigger,
+  Origin: PopupMorph.Trigger,
+  SharedElement,
   Popup: PopoverPopup,
   Title: part(BasePopover.Title, 'tk-popover-title'),
   Description: part(BasePopover.Description, 'tk-popover-description'),
