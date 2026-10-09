@@ -299,9 +299,14 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
       <BaseCombobox.Root<Row<V>, boolean>
         multiple={multiple}
         modal={false}
-        // Searched results arrive after the query that asked for them, so they are
-        // highlighted as they land ('always', which Base UI's Combobox types omit).
-        autoHighlight={(filter === null ? 'always' : true) as boolean}
+        // Searched results arrive after the query that asked for them, and the
+        // suggestions a typed query opens arrive a frame after it (they follow
+        // `open` through a morph), so both are highlighted as they land
+        // ('always', which Base UI's Combobox types omit). Browsing highlights
+        // nothing until the arrows move.
+        autoHighlight={
+          (filter === null || (typed !== '' && !browsing) ? 'always' : true) as boolean
+        }
         virtualized={virtualized}
         limit={limit}
         disabled={disabled}
