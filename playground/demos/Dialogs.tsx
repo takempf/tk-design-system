@@ -4,7 +4,7 @@ export const meta = {
   section: 'surfaces',
   title: 'Dialog & alert dialog',
   description:
-    'Modal surfaces that grow out of their trigger; the alert version must be answered. The search icon flies to its place in the dialog.',
+    'Modal surfaces that grow out of their trigger; the alert version must be answered. Each trigger’s label flies up to become its dialog’s title, and the search icon to its place in the dialog.',
   order: 2,
 };
 
@@ -12,9 +12,17 @@ export default function Dialogs() {
   return (
     <Stack direction="row" gap={3} wrap>
       <Dialog.Root>
-        <Dialog.Trigger render={<Button variant="primary" />}>Name the clearing</Dialog.Trigger>
+        <Dialog.Trigger render={<Button variant="primary" />}>
+          <Dialog.SharedElement name="title" side="trigger" fit="text">
+            <span>Name the clearing</span>
+          </Dialog.SharedElement>
+        </Dialog.Trigger>
         <Dialog.Popup>
-          <Dialog.Title>Name the clearing</Dialog.Title>
+          <Dialog.Title>
+            <Dialog.SharedElement name="title" side="popup" fit="text">
+              <span>Name the clearing</span>
+            </Dialog.SharedElement>
+          </Dialog.Title>
           <Dialog.Description>It will appear on every map drawn from now on.</Dialog.Description>
           <Field.Root>
             <Field.Label>Name</Field.Label>
@@ -52,10 +60,18 @@ export default function Dialogs() {
 
       <AlertDialog.Root>
         <AlertDialog.Trigger render={<Button variant="danger" />}>
-          Fell the old oak
+          <AlertDialog.SharedElement name="title" side="trigger" fit="text">
+            <span>Fell the old oak</span>
+          </AlertDialog.SharedElement>
         </AlertDialog.Trigger>
         <AlertDialog.Popup>
-          <AlertDialog.Title>Fell the old oak?</AlertDialog.Title>
+          {/* Only the words carry over; the question mark arrives with the dialog. */}
+          <AlertDialog.Title>
+            <AlertDialog.SharedElement name="title" side="popup" fit="text">
+              <span>Fell the old oak</span>
+            </AlertDialog.SharedElement>
+            ?
+          </AlertDialog.Title>
           <AlertDialog.Description>
             It has stood for four hundred years. This cannot be undone.
           </AlertDialog.Description>
