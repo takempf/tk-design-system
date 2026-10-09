@@ -459,7 +459,6 @@
     position: fixed;
     inset: 0;
     background: var(--tk-overlay);
-    backdrop-filter: blur(3px);
     transition: opacity var(--tk-duration-2) var(--tk-ease-fade);
 
     &[data-starting-style],
@@ -822,6 +821,13 @@
     to {
       opacity: 0;
     }
+  }
+
+  /* Carried by a morph, the backdrop dims in step with the dialog's frame as
+     it grows, and clears as it goes home, instead of snapping on ahead of it. */
+  :root:active-view-transition-type(open, close) .tk-backdrop {
+    transition-duration: var(--tk-duration-morph);
+    transition-timing-function: var(--tk-ease-morph);
   }
 
   .tk-dialog-content {
