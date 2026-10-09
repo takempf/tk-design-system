@@ -1,11 +1,20 @@
 import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
-import { type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Icon } from '../icons/Icon';
+import { useLayoutMorph } from '../motion/layout';
 import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx, mergeRefs } from '../utils';
 import { type ComboboxGroup, type Reveal, Rows } from './comboboxList';
-import { useControllable } from './popup';
+import { overTrigger, useControllable } from './popup';
 
 type Details = BaseCombobox.Root.ChangeEventDetails;
 
@@ -100,6 +109,10 @@ const labelOf = (item: unknown) => field(item, 'label') ?? String(item);
 // One empty list, so Base UI isn't handed new items on every render.
 const none: never[] = [];
 
+/** Layout keys for the chips and the field after them, which glide as chips come and go. */
+const chipKey = (value: string) => `chip:${value}`;
+const inputKey = 'input';
+
 export function InputCombobox<V>(props: InputComboboxProps<V>) {
   const {
     items = none,
@@ -155,6 +168,12 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   const surface = useRef<HTMLDivElement>(null);
   const actions = useRef<BaseCombobox.Root.Actions>(null);
   const reveal = useRef<Reveal>(null);
+  // Chips make room for each other, and one picked from the list sets out from
+  // its row, above the list (in the portal, which keeps the theme). The field
+  // is their frame: it grows and shrinks smoothly as they wrap onto more lines
+  // or fewer.
+  const chips = useLayoutMorph(chosen.map((item) => itemToStringValue(item)).join('\n'), portal);
+  const fieldRef = useMemo(() => mergeRefs(inputGroup, chips.frame), [chips.frame]);
 
   // The suggestions follow `open` through a morph, a frame behind it, so the
   // transition never holds up the typing that opens them.
@@ -176,8 +195,7 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
     }
   }, [popup.open]);
 
-  // The field's seam is on the side the suggestions open from; it stays there,
-  // so the next opening grows from the same side.
+  // Open, the field squares its corners on the side its suggestions carry on from.
   const followSide = useCallback((element: HTMLDivElement | null) => {
     const positioner = element?.parentElement;
     if (!positioner) return;
@@ -194,6 +212,16 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
     setQuery(next);
     props.onInputValueChange?.(next, details);
   };
+  // A pick clears the query. When the pick also closes the suggestions, the
+  // query waits until they have folded away: cleared any sooner, the list would
+  // show every row on its way out.
+  const pendingClear = useRef<Details | null>(null);
+  useLayoutEffect(() => {
+    const details = pendingClear.current;
+    if (!details || (!open && popup.open)) return;
+    pendingClear.current = null;
+    changeQuery('', details);
+  });
   const close = () => {
     highlighted.current = undefined;
     setOpen(false);
@@ -221,21 +249,21 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   const content = (item: Row<V>) =>
     isCreate(item) ? (
       <>
+        <span className="tk-list-text">{createLabel(typed)}</span>
         <span className="tk-list-indicator">
           <Icon name="plus" />
         </span>
-        <span className="tk-list-text">{createLabel(typed)}</span>
       </>
     ) : (
       <>
-        <BaseCombobox.ItemIndicator className="tk-list-indicator">
-          <Icon name="check" />
-        </BaseCombobox.ItemIndicator>
         {renderItem ? (
           <span className="tk-list-content">{renderItem(item)}</span>
         ) : (
           <span className="tk-list-text">{itemToStringLabel(item)}</span>
         )}
+        <BaseCombobox.ItemIndicator className="tk-list-indicator">
+          <Icon name="check" />
+        </BaseCombobox.ItemIndicator>
       </>
     );
 
@@ -244,6 +272,7 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
       className="tk-combobox-field-input"
       placeholder={readOnly ? undefined : chosen.length ? selectedPlaceholder : placeholder}
       aria-label={ariaLabel}
+      data-tk-layout={multiple ? inputKey : undefined}
       onKeyDown={(event) => {
         if (event.key === 'Escape') {
           event.preventBaseUIHandler();
@@ -297,9 +326,11 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
         }}
         onInputValueChange={(next, details) => {
-          // In a multiselect, free text is meaningful and survives dismissal.
-          if (multiple && details.reason === 'input-clear' && !details.isItemPress) {
+          // In a multiselect, free text is meaningful and survives dismissal; a
+          // pick clears it once the suggestions have folded away (see pendingClear).
+          if (multiple && details.reason === 'input-clear') {
             details.cancel();
+            if (details.isItemPress) pendingClear.current = details;
             return;
           }
           if (details.reason === 'input-change') setBrowsing(false);
@@ -316,10 +347,22 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           }
           if (multiple) {
             const values = next as V[];
+            // A chip picked from the list sets out from its row's label: the row
+            // pressed, or the one highlighted when it was picked with the keyboard.
+            const target = details.event?.target;
+            const row =
+              (target instanceof Element && target.closest('[role="option"]')) ||
+              surface.current?.querySelector('[role="option"][data-highlighted]');
+            const label = row?.querySelector(':scope > :is(.tk-list-text, .tk-list-content)');
+            const had = new Set(chosen.map((item) => itemToStringValue(item)));
+            const picked = values.find((item) => !had.has(itemToStringValue(item)));
+            if (label && picked !== undefined && details.reason === 'item-press') {
+              chips.from(chipKey(itemToStringValue(picked)), label);
+            }
             (props as MultipleInputComboboxProps<V>).onValueChange?.(values, details);
             if (details.isCanceled) return;
             setValue(values);
-            if (values.length > chosen.length) changeQuery('', details);
+            if (values.length > chosen.length) pendingClear.current = details;
           } else {
             (props as SingleInputComboboxProps<V>).onValueChange?.(next as V | null, details);
             if (!details.isCanceled) setValue(next as V | null);
@@ -340,7 +383,7 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
         }
       >
         <BaseCombobox.InputGroup
-          ref={inputGroup}
+          ref={fieldRef}
           className={cx('tk-combobox-field', className)}
           data-size={size}
           data-loading={loading || undefined}
@@ -359,12 +402,17 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
             <Icon name="search" className="tk-combobox-field-icon" />
           )}
           {multiple ? (
-            <BaseCombobox.Chips className="tk-combobox-chips" aria-label={chipsLabel}>
+            <BaseCombobox.Chips
+              ref={chips.ref}
+              className="tk-combobox-chips"
+              aria-label={chipsLabel}
+            >
               {chosen.map((item) => (
                 <BaseCombobox.Chip
                   key={itemToStringValue(item)}
                   className="tk-combobox-chip"
                   aria-label={chipAriaLabel(item)}
+                  data-tk-layout={chipKey(itemToStringValue(item))}
                 >
                   {renderChip(item)}
                   <BaseCombobox.ChipRemove
@@ -394,15 +442,17 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
               )}
             </span>
           )}
-          {/* The field stays in use while its suggestions are open, so it isn't
-            the container: its edge is, and the suggestions grow out of it as
-            the rest of the field. */}
+          {/* The field stays in use while its suggestions are open, so it can't
+            be the container itself: its outline is. Open, the suggestions are
+            the field grown — laid over it, seen through, and carried on below
+            it, one edge and one ring round the whole — and closing, they shrink
+            back into its outline. */}
           <PopupMorph.Trigger>
-            <span className="tk-combobox-seam" aria-hidden="true" />
+            <span className="tk-combobox-outline" aria-hidden="true" />
           </PopupMorph.Trigger>
         </BaseCombobox.InputGroup>
         <BaseCombobox.Portal container={portal}>
-          <BaseCombobox.Positioner className="tk-positioner" sideOffset={0} align="start">
+          <BaseCombobox.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
             {/* A nonmodal surface keeps the chips accessible while the list is open;
               Base UI's Popup focus manager hides the input's chip siblings. */}
             <PopupMorph.Popup>
@@ -410,28 +460,32 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
                 ref={mergeRefs(surface, followSide)}
                 role="presentation"
                 data-size={size}
+                data-indicator="end"
                 className="tk-popup tk-list-popup tk-combobox-suggestions"
               >
-                <BaseCombobox.Status className="tk-combobox-status">{status}</BaseCombobox.Status>
-                <BaseCombobox.Empty className="tk-list-empty">
-                  {loading ? null : emptyMessage}
-                </BaseCombobox.Empty>
-                <BaseCombobox.List
-                  className="tk-list tk-combobox-suggestions-list"
-                  aria-busy={loading || undefined}
-                >
-                  <Rows<Row<V>>
-                    grouped={groups !== undefined}
-                    virtualized={virtualized}
-                    reveal={reveal}
-                    keyOf={(item) => (isCreate(item) ? 'tk-create' : itemToStringValue(item))}
-                    disabledOf={(item) => !isCreate(item) && isItemDisabled?.(item)}
-                    ariaLabelOf={(item) => (isCreate(item) ? undefined : itemAriaLabel?.(item))}
-                    className="tk-list-item tk-combobox-suggestion"
+                {/* Below the field (or above it): the rest of the field, grown. */}
+                <div className="tk-combobox-suggestions-body">
+                  <BaseCombobox.Status className="tk-combobox-status">{status}</BaseCombobox.Status>
+                  <BaseCombobox.Empty className="tk-list-empty">
+                    {loading ? null : emptyMessage}
+                  </BaseCombobox.Empty>
+                  <BaseCombobox.List
+                    className="tk-list tk-combobox-suggestions-list"
+                    aria-busy={loading || undefined}
                   >
-                    {content}
-                  </Rows>
-                </BaseCombobox.List>
+                    <Rows<Row<V>>
+                      grouped={groups !== undefined}
+                      virtualized={virtualized}
+                      reveal={reveal}
+                      keyOf={(item) => (isCreate(item) ? 'tk-create' : itemToStringValue(item))}
+                      disabledOf={(item) => !isCreate(item) && isItemDisabled?.(item)}
+                      ariaLabelOf={(item) => (isCreate(item) ? undefined : itemAriaLabel?.(item))}
+                      className="tk-list-item tk-combobox-suggestion"
+                    >
+                      {content}
+                    </Rows>
+                  </BaseCombobox.List>
+                </div>
               </div>
             </PopupMorph.Popup>
           </BaseCombobox.Positioner>

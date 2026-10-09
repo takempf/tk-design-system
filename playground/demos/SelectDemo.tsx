@@ -4,7 +4,8 @@ import { Field, Select } from 'tk-design-system';
 export const meta = {
   section: 'inputs',
   title: 'Select',
-  description: 'It opens over itself, the chosen row on the value; pick another and it flies home.',
+  description:
+    'It opens over itself, the chosen row on the value and its check on the chevron; pick another and its label and check fly home.',
   order: 4,
 };
 

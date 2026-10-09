@@ -131,8 +131,8 @@ positioner. Every part accepts Base UI's props, `render`, and state-function cla
 headings, and accept `clearable` (a button that clears the value), `virtualized` (render
 only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and `name`.
 
-- **Searchable select** (the default). A trigger that opens over itself into a search field
-  and a list. `multiple` checks off several options; the list stays open and the trigger
+- **Searchable select** (the default). A trigger that opens over itself into a list, the
+  trigger itself turning into the search field. `multiple` checks off several options; the list stays open and the trigger
   lists them.
 - **Editable field** (`variant="input"`). The user types straight into the field.
   `multiple={false}` picks one value, and the field shows its label. Otherwise the selected
@@ -188,6 +188,10 @@ creatable (with a dialog), ten thousand virtualized rows, and a form with valida
 
 ## Motion
 
+The rules every component follows — nothing appears from nothing, a popup is its trigger
+elsewhere, every trigger part has a counterpart — are in [MOTION.md](MOTION.md). This is
+the API.
+
 ```tsx
 morph(() => setOpen(true), { type: 'open', scope: 'card' });
 
@@ -199,7 +203,8 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   inside `document.startViewTransition`. It works with any state source — React state,
   an external store, or a Base UI popup's open state.
 - `<Morph>` shares a name between two states; the browser carries one into the other.
-  `fit="text"` keeps letters at true size while they travel.
+  `fit="text"` keeps letters at true size while they travel; `fit="icon"` scales and turns
+  one glyph into another without dimming between them.
 - `<Reveal>` rises in on mount, sinks on unmount, slides when siblings move; `directional`
   follows `forward`/`back` types.
 - `scope` keeps a local change local: names only exist for the morph that asks for them,
@@ -209,30 +214,60 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   state has would cover text arriving into it.
 - A popup is its trigger's container in another place. The trigger's container and the
   popup's share one view-transition name (`fit="container"`), and opening and closing are
-  morphs between the two: the frame (fill, edge, corners) moves and resizes from the
+  morphs between the two: the frame (fill, edge, focus ring, corners) moves and resizes from the
   trigger's box to the popup's, its look turning as it travels, and nothing inside it
   stretches. The content holds still on the page; the frame uncovers the popup's and covers
   the trigger's. While open, the trigger is hidden, because it is the popup.
 - Whatever shows on both sides shares a second name and travels between its two places
-  above the frame: a select's value and its row, a combobox's placeholder and its search
-  field, a menu button's label and the menu's first row.
+  above the frame: a select's value and its row, a select's chevron and its row's check, a
+  combobox's placeholder and its search field, a menu button's label and the menu's first
+  row.
 - `Select`, `Combobox` and `Menu` open over their trigger, so the frame grows out of the
-  trigger around the list and the trigger's text is never shown twice.
-  - `Select` lays the chosen row exactly on the value, so nothing moves.
-  - `Combobox` lands its search field on the trigger. The placeholder slides into the field,
-    or the value slides onto its row in the list.
+  trigger around the list and none of the trigger's parts is shown twice.
+  - `Select` lays the chosen row exactly on the trigger: its label on the value and its
+    check (value lists mark the chosen row at its end) on the chevron, which turns into it.
+    The frame only grows up and down. Choose another row and its label and check fly home,
+    the check turning back into the chevron.
+  - `Combobox` lands its search field on the trigger, laid out the same: the trigger made
+    editable, with its clear button and chevron unmoved (the chevron closes it). The
+    placeholder stays put in the field, or the value slides onto its row in the list.
   - `Menu` makes the button's own label the popup's first row (pressing it closes), with the
     items below, or above when there is no room. Submenus open beside their row as usual.
-  - The editable `Combobox` keeps its field in use, so the field's edge is the container:
-    the suggestions grow out of it as the rest of the field, joined to it, and fold back in.
+  - The editable `Combobox` keeps its field in use, so the field's outline is the
+    container. Open, the suggestions are the field grown: laid over it, seen through a
+    window as tall as it, and carried on below (or above) as the list, with one edge and
+    one ring round the whole. Closing, they shrink back into the outline; the ring stays if
+    focus does and fades if it leaves. A chip picked from the list flies out of its row into
+    the field while the other chips and the input make room, and when chips wrap onto
+    another line the field glides to its new height. A removed chip fades where it stood as
+    the rest close up.
+- `useLayoutMorph(signature, layer?)` does that for any live layout: after each change of
+  `signature`, children marked `data-tk-layout="<key>"` glide to their new places, and the
+  element given `frame` glides to its new height. A newcomer fades in, or sets out from
+  the element passed to `from(key, element)`. A leaver fades where it stood. Nothing is
+  captured, so the elements stay usable and typing never waits. `CodeEditor` uses a frame
+  alone, to grow and shrink a line at a time:
+
+  ```tsx
+  const chips = useLayoutMorph(tags.join('\n'), usePortalContainer());
+  <div ref={chips.frame} className="field">
+    <div ref={chips.ref} style={{ position: 'relative' }}>
+      {tags.map((tag) => <Tag key={tag} data-tk-layout={tag} />)}
+    </div>
+  </div>
+  // before adding a tag picked from a list:
+  chips.from(tag, rowLabel);
+  ```
 - `Popover`, `Dialog` and `AlertDialog` grow out of their trigger wherever they open.
   `Origin` makes a larger element the container (a card holding the trigger), and
   `SharedElement name="…" side="trigger" | "popup"` carries an icon, picture or title
   across above it (it scales; `fit="text"` keeps letters at their size). A popup with no
   trigger on the page, opened from elsewhere, rises in on its own. Tooltips and submenus
   don't morph.
-- Changes made through Base UI (the trigger, Escape, an outside press, `actionsRef`) morph;
-  a controlled `open` that the parent changes on its own applies at once.
+- Changes made through Base UI (the trigger, Escape, an outside press, `actionsRef`) morph.
+  A controlled `open` that the parent changes on its own can't morph, and neither can
+  anything in a browser without view transitions: there the trigger and its popup
+  crossfade where they stand. `willMorph()` says which a change made now will get.
 - `usePopupMorph` and `PopupMorph` build the same for any popup:
 
   ```tsx
@@ -288,5 +323,6 @@ on view-transition pseudo-elements and CSS nesting are needed for the full effec
 Safari). WebKit paints a view transition's destination in place as well as in its
 snapshot, so a morphing container's destination is cut to the moving frame and the two
 coincide. `corner-shape: bevel` is Chromium-only for now; elsewhere corners are simply
-rounded. Without WebGL2, windows fall back to a flat ink; without view transitions,
-changes apply instantly.
+rounded. Without WebGL2, windows fall back to a flat ink. Without view transitions,
+changes apply at once: popups and their triggers crossfade in place, and layout morphs
+(plain Web Animations) still glide.

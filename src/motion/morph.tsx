@@ -161,6 +161,8 @@ interface Look {
   readonly fill: string;
   readonly edge: string;
   readonly width: string;
+  /** The focus ring round the frame: its outline, transparent when it has none. */
+  readonly ring: { readonly color: string; readonly width: string; readonly offset: string };
   readonly corners: readonly string[];
   readonly shape: string;
 }
@@ -188,6 +190,10 @@ function lookOf(frame: HTMLElement): Look {
     fill: style.backgroundColor,
     edge: style.borderTopColor,
     width: style.borderTopWidth,
+    ring:
+      style.outlineStyle === 'none'
+        ? { color: 'transparent', width: '0px', offset: '0px' }
+        : { color: style.outlineColor, width: style.outlineWidth, offset: style.outlineOffset },
     corners: corners.map((corner) => style[corner]),
     shape: style.getPropertyValue('corner-shape'),
   };
@@ -204,14 +210,19 @@ function cornerIn(radius: string, rect: DOMRect): string {
 }
 
 /**
- * The frame the moving group paints: its fill and edge, then its corners.
- * Snapshots are taken without their own fill and edge (`data-tk-frameless`), so
- * the frame can change size without stretching, and turn from one end's look
- * to the other's.
+ * The frame the moving group paints: its fill, edge and ring, then its
+ * corners. Snapshots are taken without their own (`data-tk-frameless`), so the
+ * frame can change size without stretching, and turn from one end's look to
+ * the other's: a field's focus ring goes round the whole of it as it grows,
+ * and fades as it shrinks back if focus has gone.
  */
 const fillOf = ({ look }: End): Keyframe => ({
   backgroundColor: look.fill,
   boxShadow: `inset 0 0 0 ${look.width} ${look.edge}`,
+  outlineStyle: 'solid',
+  outlineColor: look.ring.color,
+  outlineWidth: look.ring.width,
+  outlineOffset: look.ring.offset,
 });
 
 const shapeOf = ({ look, rect }: End): Keyframe => ({
@@ -376,6 +387,16 @@ function moveFrames(before: Map<string, End>, after: Map<string, End>, animation
 let updating = 0;
 
 /**
+ * Whether a change made now is carried by a view transition: they are
+ * supported and motion isn't reduced, or a morph is applying its update (which
+ * the change joins). When it isn't, a change that would have morphed should
+ * fade where it stands instead.
+ */
+export function willMorph(): boolean {
+  return updating > 0 || (typeof document.startViewTransition === 'function' && !reducedMotion());
+}
+
+/**
  * Apply a state change inside a view transition. <Morph>s that trade a name glide
  * from the old box to the new; <Reveal>s that mount rise in, those that unmount
  * sink away, and those that merely move slide to their new place.
@@ -407,13 +428,27 @@ export function morph(
   const owner = {};
   // Named now, so the old state is captured with them.
   let named = nameParts(scope, owner);
-  const before = captureContainers(named, owner);
+  let before = captureContainers(named, owner);
   let after = new Map<string, End>();
   const depths = new Map<string, number>();
   const animations: Animation[] = [];
+  let captured = false;
+  let done = false;
+  // Named again just before the old state is captured (animation frame
+  // callbacks run first): a change made alongside this morph has landed by
+  // then. A select's new value is set as its list closes, so it's the newly
+  // chosen row, not the one chosen before, that flies home.
+  requestAnimationFrame(() => {
+    if (captured || done) return;
+    unnameParts(named, owner);
+    restoreFrames(before, owner);
+    named = nameParts(scope, owner);
+    before = captureContainers(named, owner);
+  });
   // The old state is captured by the time the update runs, and the moving
   // parts are only built once it has: the nesting of both ends is known then.
   const run = () => {
+    captured = true;
     measureNesting(scope, depths);
     updating++;
     try {
@@ -446,6 +481,7 @@ export function morph(
   );
   holdScenery(transition.finished);
   transition.finished.finally(() => {
+    done = true;
     for (const animation of animations) animation.cancel();
     unnameParts(named, owner);
     restoreFrames(before, owner);
@@ -497,13 +533,15 @@ export interface MorphProps {
    */
   readonly active?: boolean;
   /**
-   * `box` (default) stretches the snapshot as the shape changes — right for icons
-   * and pictures. `text` never scales, so letters glide at their true size.
-   * `container` moves the element's frame (fill, edge, corners) between its two
-   * shapes and looks, and never scales what is inside it: a trigger becoming its
-   * popup, a card becoming a dialog.
+   * `box` (default) stretches the snapshot as the shape changes — right for
+   * pictures. `icon` scales the same way, and its two ends add up rather than
+   * layer, so a glyph that stays (a chevron) never dims mid-way and one that
+   * changes (a chevron becoming a check) turns cleanly. `text` never scales, so
+   * letters glide at their true size. `container` moves the element's frame
+   * (fill, edge, corners) between its two shapes and looks, and never scales
+   * what is inside it: a trigger becoming its popup, a card becoming a dialog.
    */
-  readonly fit?: 'box' | 'text' | 'container';
+  readonly fit?: 'box' | 'icon' | 'text' | 'container';
   /** Take part only in morphs with this scope. */
   readonly scope?: string;
   /** One element that renders a box (and accepts `style`). */

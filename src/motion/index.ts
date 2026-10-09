@@ -1,4 +1,5 @@
 export { Decipher, type DecipherProps } from './Decipher';
+export { type LayoutMorph, useLayoutMorph } from './layout';
 export {
   Morph,
   type MorphOptions,
@@ -9,6 +10,7 @@ export {
   type RevealProps,
   useMorphName,
   useMorphState,
+  willMorph,
 } from './morph';
 export {
   PopupMorph,

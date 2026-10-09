@@ -3,7 +3,8 @@ import { Tabs } from 'tk-design-system';
 export const meta = {
   section: 'surfaces',
   title: 'Tabs',
-  description: 'The indicator slides with the theme’s morph easing.',
+  description:
+    'The indicator slides with the theme’s morph easing; each panel rises in where the last one was.',
   order: 4,
 };
 

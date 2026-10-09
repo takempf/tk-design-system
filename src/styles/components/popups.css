@@ -132,11 +132,57 @@
     }
   }
 
+  /* A check comes and goes in place: it grows in when its row is chosen and
+     shrinks away when it isn't. */
   .tk-list-indicator {
     grid-column: 1;
     display: flex;
     justify-content: center;
     font-size: 0.9em;
+    transition:
+      opacity var(--tk-duration-2) var(--tk-ease-fade),
+      scale var(--tk-duration-2) var(--tk-ease-out);
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+      scale: 0.5;
+    }
+  }
+
+  /* Inside a morph, a check is already where it will be when the view
+     transition captures it; the morph carries it from there. */
+  :root:active-view-transition .tk-list-indicator {
+    transition: none;
+
+    &[data-starting-style] {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+
+  /* Value lists (select, combobox) mark the chosen row at its end, where the
+     trigger's chevron is, and set its label where the trigger sets its value:
+     a list opened over its trigger puts the chosen row's label on the value
+     and its check on the chevron. Menus lead with their icons instead. */
+  .tk-list-popup[data-indicator='end'] {
+    & .tk-list-item {
+      grid-template-columns: minmax(0, 1fr) 1em;
+      padding-inline: var(--tk-space-2) var(--tk-space-1);
+    }
+
+    & :is(.tk-list-text, .tk-list-content) {
+      grid-column: 1;
+    }
+
+    & .tk-list-indicator {
+      grid-column: 2;
+      font-size: inherit;
+    }
+
+    & .tk-list-group-label {
+      padding-inline: var(--tk-space-2);
+    }
   }
 
   .tk-list-text {
@@ -271,16 +317,35 @@
     color: var(--tk-fg-subtle);
   }
 
-  /* Lands on the trigger: its height less the popup's border, so the rule below
-     it falls on the trigger's own bottom edge, and its type size. */
+  /* The trigger, made editable. It lands on the trigger: its height less the
+     popup's border, so the rule below it falls on the trigger's own bottom
+     edge, and the trigger's type size and insets, so the text, clear button
+     and chevron each sit where the trigger's do. */
   .tk-combobox-search {
     position: relative;
     display: flex;
     flex: none;
     align-items: stretch;
+    gap: var(--tk-space-3);
     min-height: calc(var(--_item-h) - var(--tk-border-width));
+    padding-inline-end: var(--tk-space-2);
     border-bottom: var(--tk-border-width) solid var(--tk-border-subtle);
     font-size: var(--_item-text);
+
+    /* The trigger's clear button sits by the control's outer edge; this row
+       starts inside the popup's border. */
+    & .tk-combobox-clear {
+      right: calc(var(--tk-space-2) + 1em + var(--tk-space-1) - var(--tk-border-width));
+    }
+
+    &[data-clearable] .tk-combobox-input {
+      padding-inline-end: 1.75em;
+    }
+  }
+
+  .tk-combobox-close {
+    align-self: center;
+    cursor: pointer;
   }
 
   .tk-combobox-popup {
@@ -307,18 +372,10 @@
     overflow-y: auto;
   }
 
-  .tk-combobox-search-icon {
-    position: absolute;
-    top: 50%;
-    left: var(--tk-space-3);
-    translate: 0 -50%;
-    color: var(--tk-fg-subtle);
-    pointer-events: none;
-  }
-
   .tk-combobox-input {
-    width: 100%;
-    padding: 0 var(--tk-space-3) 0 calc(var(--tk-space-3) * 2 + 1em);
+    flex: 1;
+    min-width: 0;
+    padding: 0 0 0 var(--tk-space-3);
     border: 0;
     background: transparent;
     color: var(--tk-fg);
@@ -329,7 +386,7 @@
   .tk-combobox-placeholder {
     position: absolute;
     top: 50%;
-    left: calc(var(--tk-space-3) * 2 + 1em);
+    left: var(--tk-space-3);
     translate: 0 -50%;
     color: var(--tk-fg-subtle);
     white-space: nowrap;
@@ -637,13 +694,11 @@
   }
 
   /* A select laid over its trigger (data-side='none'): Base UI sets the chosen
-     row's text on the value, so the popup starts left of the trigger by a row's
-     text inset less the trigger's; widen it by as much (and a hair) to cover the
-     trigger's edge. */
+     row's text on the value, and a row's text is inset as far as the trigger's
+     value, so the popup's sides land on the trigger's and the frame only grows
+     up and down. Base UI's overlay lands one border-width high; set the row on
+     the value. */
   .tk-select-popup[data-side='none'] {
-    --_shift: calc(var(--tk-space-1) + var(--tk-space-2) * 2 + 1.1rem - var(--tk-space-3));
-    min-width: max(calc(var(--anchor-width, 0px) + var(--_shift) + var(--tk-border-width)), 12rem);
-    /* Base UI's overlay lands one border-width high; set the row on the value. */
     translate: 0 var(--tk-border-width);
   }
 
@@ -729,6 +784,17 @@
     opacity: 0;
   }
 
+  /* With no morph to carry the change (no view transitions, or an `open` the
+     parent changed itself), the trigger crossfades with its popup where they
+     stand: out as the popup fades in, back as it fades away. */
+  [data-tk-container='trigger'][data-tk-fade] {
+    animation: tk-fade-in var(--tk-duration-1) var(--tk-ease-in);
+
+    &[data-tk-open] {
+      animation: tk-fade-out var(--tk-duration-2) var(--tk-ease-fade);
+    }
+  }
+
   /* Carried by a morph, a popup is in place at once and leaves at once: the
      morph moves its frame and content from the trigger and back. With no
      trigger to grow out of, it rises in and sinks away like any other. */
@@ -782,15 +848,16 @@
     background: var(--tk-surface);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
-    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+    transition:
+      border-color var(--tk-duration-1) var(--tk-ease-out),
+      border-radius var(--tk-duration-morph) var(--tk-ease-morph);
 
     &:hover {
       border-color: var(--tk-border-strong);
     }
 
-    /* Ringed while typing or open; the chips and actions inside ring themselves. */
-    &:has(.tk-combobox-field-input:focus-visible),
-    &[data-popup-open] {
+    /* Ringed while typing; the chips and actions inside ring themselves. */
+    &:has(.tk-combobox-field-input:focus-visible) {
       outline: var(--tk-focus-width) solid var(--tk-focus-color);
       outline-offset: var(--tk-focus-offset);
     }
@@ -801,7 +868,9 @@
     color: var(--tk-fg-subtle);
   }
 
+  /* Positioned: chips glide within it, and one removed fades where it stood. */
   .tk-combobox-chips {
+    position: relative;
     display: flex;
     flex: 1;
     flex-wrap: wrap;
@@ -858,92 +927,99 @@
     }
   }
 
-  /* Open, the field and its suggestions are one container: the list carries
-     on from the field's edge, the corners between them square, and one ring
-     goes round the whole (each half's is cut where they meet). */
-  .tk-combobox-field,
-  .tk-combobox-suggestions {
-    --_ring: calc((var(--tk-focus-width) + var(--tk-focus-offset)) * -1);
-  }
-
+  /* Open, the suggestions are the field grown. They are laid over the field,
+     seen through a window as tall as it, and carry on below it (or above) as
+     the list, with one edge and one ring round the whole; the field's own
+     edge between the two is the rule between field and list. The window lets
+     the pointer through, so the field stays in use. */
   .tk-combobox-suggestions {
     --_corner: min(var(--tk-radius), var(--tk-radius-popup));
+    --_window: calc(var(--anchor-height, 0px) - var(--tk-border-width));
     display: flex;
     flex-direction: column;
     width: var(--anchor-width);
     max-width: var(--available-width);
-    max-height: min(24rem, var(--available-height));
-    margin-top: calc(var(--tk-border-width) * -1);
-    border-radius: 0 0 var(--_corner) var(--_corner);
+    max-height: min(calc(24rem + var(--_window)), var(--available-height));
+    padding: var(--_window) 0 0;
+    overflow: clip;
+    border-radius: var(--_corner);
+    background: transparent;
     outline: var(--tk-focus-width) solid var(--tk-focus-color);
     outline-offset: var(--tk-focus-offset);
-    clip-path: inset(0 var(--_ring) var(--_ring));
     font-size: var(--tk-text-sm);
+    pointer-events: none;
 
     .tk-positioner[data-side='top'] > & {
-      margin-top: 0;
-      margin-bottom: calc(var(--tk-border-width) * -1);
-      border-radius: var(--_corner) var(--_corner) 0 0;
-      clip-path: inset(var(--_ring) var(--_ring) 0);
+      padding: 0 0 var(--_window);
+    }
+
+    /* With no morph, it fades in where it lies, over the field. (It is a
+       plain surface, with no starting style of its own.) */
+    &[data-tk-fade] {
+      animation: tk-fade-in var(--tk-duration-2) var(--tk-ease-fade);
     }
   }
 
+  .tk-positioner:has(> .tk-combobox-suggestions) {
+    pointer-events: none;
+  }
+
+  .tk-combobox-suggestions-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: var(--tk-space-1);
+    background: var(--tk-surface-raised);
+    pointer-events: auto;
+  }
+
+  /* Its fill's corners square on the side the list carries on from, in step
+     with the frame's. */
   .tk-combobox-field[data-popup-open] {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
-    clip-path: inset(var(--_ring) var(--_ring) 0);
 
     &[data-side='top'] {
       border-start-start-radius: 0;
       border-start-end-radius: 0;
       border-end-start-radius: var(--tk-radius);
       border-end-end-radius: var(--tk-radius);
-      clip-path: inset(0 var(--_ring) var(--_ring));
     }
   }
 
-  /* The field's edge on the side its suggestions open from: the container
-     they grow out of (see InputCombobox), with the list's look, seen edge on. */
-  .tk-combobox-seam {
+  /* The field's outline: its edge, corners and ring, as the container its
+     suggestions grow out of and shrink back into (see InputCombobox). It is
+     never seen itself; the morph starts from and lands on its look, so the
+     ring stays round the whole while focus does, and fades if focus leaves. */
+  .tk-combobox-outline {
     position: absolute;
-    right: calc(var(--tk-border-width) * -1);
-    bottom: calc(var(--tk-border-width) * -1);
-    left: calc(var(--tk-border-width) * -1);
-    border-top: var(--tk-border-width) solid var(--tk-border);
-    background: var(--tk-surface-raised);
+    inset: calc(var(--tk-border-width) * -1);
+    border: var(--tk-border-width) solid var(--tk-border);
+    border-radius: var(--tk-radius);
     opacity: 0;
     pointer-events: none;
 
-    .tk-combobox-field[data-side='top'] > & {
-      top: calc(var(--tk-border-width) * -1);
-      bottom: auto;
+    .tk-combobox-field:hover > & {
+      border-color: var(--tk-border-strong);
+    }
+
+    .tk-combobox-field[data-invalid] > & {
+      border-color: var(--tk-danger);
+    }
+
+    .tk-combobox-field:has(.tk-combobox-field-input:focus-visible) > & {
+      outline: var(--tk-focus-width) solid var(--tk-focus-color);
+      outline-offset: var(--tk-focus-offset);
     }
   }
 
-  /* Morphing, the moving frame wears the ring, cut where it meets the field. */
-  .tk-combobox-seam,
+  /* The field shows through the container, so it is hollow: its list is
+     uncovered and covered by the frame, never faded. */
+  .tk-combobox-outline,
   .tk-combobox-suggestions {
     &[data-tk-morph='container'] {
-      view-transition-class: tk-container tk-field-ring;
+      view-transition-class: tk-container tk-hollow;
     }
-  }
-
-  .tk-combobox-field[data-side='top'] > .tk-combobox-seam,
-  .tk-positioner[data-side='top'] > .tk-combobox-suggestions {
-    &[data-tk-morph='container'] {
-      view-transition-class: tk-container tk-field-ring tk-field-ring-up;
-    }
-  }
-
-  ::view-transition-group(.tk-field-ring) {
-    --_ring: calc((var(--tk-focus-width) + var(--tk-focus-offset)) * -1);
-    outline: var(--tk-focus-width) solid var(--tk-focus-color);
-    outline-offset: var(--tk-focus-offset);
-    clip-path: inset(0 var(--_ring) var(--_ring));
-  }
-
-  ::view-transition-group(.tk-field-ring-up) {
-    clip-path: inset(var(--_ring) var(--_ring) 0);
   }
 
   .tk-combobox-suggestions-list {
@@ -1041,6 +1117,7 @@
 
     & .tk-icon {
       font-size: 0.9em;
+      transition: rotate var(--tk-duration-3) var(--tk-ease-morph);
     }
 
     &[data-popup-open] .tk-icon {
@@ -1065,7 +1142,7 @@
     }
 
     /* Alone in the popup (an error, say), it needs no rule beneath it. */
-    .tk-combobox-suggestions:not(:has([role='option'], .tk-list-empty:not(:empty))) > & {
+    .tk-combobox-suggestions-body:not(:has([role='option'], .tk-list-empty:not(:empty))) > & {
       border-bottom: 0;
     }
   }

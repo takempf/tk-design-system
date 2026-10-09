@@ -5,7 +5,7 @@ export const meta = {
   section: 'inputs',
   title: 'Combobox chips',
   description:
-    'Several values as removable chips. Chosen rows keep their tick, and picking one again removes it. Backspace removes the last chip; Left arrow walks into them.',
+    'Several values as removable chips. A picked row flies into the field as a chip while the others make room; a removed chip fades as the rest close up. Chosen rows keep their tick, and picking one again removes it. Backspace removes the last chip; Left arrow walks into them.',
   order: 5.3,
 };
 

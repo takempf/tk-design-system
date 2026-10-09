@@ -104,11 +104,12 @@ function useChosenRowBesideSearch() {
 /**
  * A searchable select: a quiet trigger that opens into a filterable list.
  *
- * The trigger is the popup's container, closed. It opens over itself: the
- * search field lands on the trigger and the frame grows around the list (below
- * it, or above when there is no room). The trigger's text travels between the
- * two states. With nothing chosen, the placeholder slides from the trigger into
- * the search field; with a value, the value slides onto its row in the list,
+ * The trigger is the popup's container, closed. It opens over itself, and the
+ * search field is the trigger made editable: it lands exactly on it, laid out
+ * the same, with the clear button and chevron where they were (the chevron
+ * closes it again). The frame grows around the list, below it or above when
+ * there is no room. With nothing chosen, the placeholder stays where it is,
+ * now in the field; with a value, the value slides onto its row in the list,
  * and the chosen row slides back as the list folds away. A multiselect's
  * trigger lists its choices, which stay where they are.
  */
@@ -151,6 +152,10 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
   const container = usePortalContainer();
   const alignChosen = useChosenRowBesideSearch();
   const reveal = useRef<Reveal>(null);
+  const changeOpen = (next: boolean) => {
+    popup.setOpen(next);
+    if (!next) setQuery('');
+  };
 
   return (
     <PopupMorph.Provider value={popup.state}>
@@ -172,10 +177,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
         inputValue={query}
         onInputValueChange={setQuery}
         open={popup.open}
-        onOpenChange={(next) => {
-          popup.setOpen(next);
-          if (!next) setQuery('');
-        }}
+        onOpenChange={changeOpen}
         onOpenChangeComplete={popup.onOpenChangeComplete}
         onItemHighlighted={(item, details) => {
           if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
@@ -205,17 +207,21 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
                   <span>{shown || placeholder}</span>
                 </PopupMorph.Part>
               </span>
-              <BaseCombobox.Icon className="tk-select-icon">
-                <Icon name="chevron-updown" />
-              </BaseCombobox.Icon>
+              <PopupMorph.Part name="icon" side="trigger" fit="icon">
+                <BaseCombobox.Icon className="tk-select-icon">
+                  <Icon name="chevron-updown" />
+                </BaseCombobox.Icon>
+              </PopupMorph.Part>
             </BaseCombobox.Trigger>
             {clearable && (
-              <BaseCombobox.Clear
-                className="tk-combobox-action tk-combobox-clear"
-                aria-label="Clear"
-              >
-                <Icon name="close" />
-              </BaseCombobox.Clear>
+              <PopupMorph.Part name="clear" side="trigger" fit="icon">
+                <BaseCombobox.Clear
+                  className="tk-combobox-action tk-combobox-clear"
+                  aria-label="Clear"
+                >
+                  <Icon name="close" />
+                </BaseCombobox.Clear>
+              </PopupMorph.Part>
             )}
           </span>
         </PopupMorph.Trigger>
@@ -225,9 +231,10 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
               <BaseCombobox.Popup
                 className="tk-popup tk-list-popup tk-combobox-popup"
                 data-size={size}
+                data-indicator="end"
               >
-                <div className="tk-combobox-search">
-                  <Icon name="search" className="tk-combobox-search-icon" />
+                {/* The trigger, made editable: laid out like it, so each part stays put. */}
+                <div className="tk-combobox-search" data-clearable={clearable || undefined}>
                   <BaseCombobox.Input
                     className="tk-combobox-input"
                     aria-label={ariaLabel ?? placeholder}
@@ -239,6 +246,27 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
                       </span>
                     </PopupMorph.Part>
                   )}
+                  {clearable && (
+                    <PopupMorph.Part name="clear" side="popup" fit="icon">
+                      <BaseCombobox.Clear
+                        className="tk-combobox-action tk-combobox-clear"
+                        aria-label="Clear"
+                      >
+                        <Icon name="close" />
+                      </BaseCombobox.Clear>
+                    </PopupMorph.Part>
+                  )}
+                  {/* The trigger's chevron, still where it was: pressing it closes. */}
+                  <PopupMorph.Part name="icon" side="popup" fit="icon">
+                    <span
+                      className="tk-select-icon tk-combobox-close"
+                      aria-hidden="true"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => changeOpen(false)}
+                    >
+                      <Icon name="chevron-updown" />
+                    </span>
+                  </PopupMorph.Part>
                 </div>
                 <BaseCombobox.Empty className="tk-list-empty">{emptyMessage}</BaseCombobox.Empty>
                 <BaseCombobox.List ref={multiple ? undefined : alignChosen} className="tk-list">
@@ -253,15 +281,15 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
                   >
                     {(option) => (
                       <>
-                        <BaseCombobox.ItemIndicator className="tk-list-indicator">
-                          <Icon name="check" />
-                        </BaseCombobox.ItemIndicator>
                         <PopupMorph.Part
                           side="popup"
                           when={selected !== null && Object.is(option.value, selected.value)}
                         >
                           <span className="tk-list-text">{option.label}</span>
                         </PopupMorph.Part>
+                        <BaseCombobox.ItemIndicator className="tk-list-indicator">
+                          <Icon name="check" />
+                        </BaseCombobox.ItemIndicator>
                       </>
                     )}
                   </Rows>

@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { type Grammar, type Token, tokenize } from '../code/tokenize';
 import { Icon } from '../icons/Icon';
+import { useLayoutMorph } from '../motion/layout';
 import { cx } from '../utils';
 import { Button } from './Button';
 import { Tooltip } from './Popover';
@@ -312,6 +313,9 @@ export function CodeEditor({
 
   const lines = useEditorLines(value, language);
   const digits = String(lines.length).length;
+  // It grows a line at a time, up to `maxLines`, and shrinks back: smoothly,
+  // the new line uncovered as the frame reaches it. The text stays live.
+  const growth = useLayoutMorph(String(lines.length));
   const unit = ' '.repeat(tabSize);
 
   // The textarea is sized to its content and never scrolls itself; the frame does.
@@ -432,6 +436,7 @@ export function CodeEditor({
 
   return (
     <div
+      ref={growth.frame}
       className={cx('tk-code-editor', className)}
       data-line-numbers={lineNumbers || undefined}
       data-disabled={disabled || undefined}

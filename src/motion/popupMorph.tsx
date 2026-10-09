@@ -14,13 +14,19 @@ import {
   useState,
 } from 'react';
 import { mergeRefs } from '../utils';
-import { Morph, morph, useMorphName } from './morph';
+import { Morph, morph, useMorphName, willMorph } from './morph';
 
 /** What a popup's parts need to share one container with its trigger. */
 export interface PopupMorphState {
   /** The container's name: the morph's scope, and the prefix of its parts' names. */
   readonly name: string;
   readonly open: boolean;
+  /**
+   * The last change wasn't carried by a morph (no view transitions, or a
+   * controlled `open` the parent changed itself): the trigger and its popup
+   * crossfade where they stand instead.
+   */
+  readonly instant: boolean;
   /** The trigger's container, while it is on the page. */
   readonly trigger: RefObject<HTMLElement | null>;
 }
@@ -73,16 +79,24 @@ export function usePopupMorph<Rest extends unknown[] = []>({
   latest.current = { onOpenChange, onOpenChangeComplete };
   const flight = useRef<ViewTransition | null>(null);
   const turn = useRef(0);
+  const [faded, setFaded] = useState(false);
+  // What this hook last asked for: a controlled `open` that differs changed on its own.
+  const requested = useRef(current);
 
   const setOpen = useCallback(
     (next: boolean, ...rest: Rest) => {
+      const onPage = Boolean(trigger.current?.isConnected);
+      const carried = onPage && willMorph();
       const update = () => {
         latest.current.onOpenChange?.(next, ...rest);
         const details = rest[0] as { isCanceled?: boolean } | undefined;
-        if (!details?.isCanceled) setInner(next);
+        if (details?.isCanceled) return;
+        requested.current = next;
+        setInner(next);
+        setFaded(onPage && !carried);
       };
       turn.current++;
-      if (trigger.current?.isConnected) {
+      if (onPage) {
         flight.current = morph(update, { type: next ? 'open' : 'close', scope: name });
       } else {
         flight.current = null;
@@ -91,6 +105,13 @@ export function usePopupMorph<Rest extends unknown[] = []>({
     },
     [name],
   );
+  // Judged once per change of `open`, so a parent that turns a change down
+  // doesn't make the trigger fade with nothing changing.
+  const settled = useRef({ open: current, instant: false });
+  if (settled.current.open !== current) {
+    settled.current = { open: current, instant: faded || current !== requested.current };
+  }
+  const { instant } = settled.current;
 
   // Base UI reports the change complete when the popup's own animations end,
   // and the morph is not one of them.
@@ -103,7 +124,10 @@ export function usePopupMorph<Rest extends unknown[] = []>({
     else done();
   }, []);
 
-  const state = useMemo(() => ({ name, open: current, trigger }), [name, current]);
+  const state = useMemo(
+    () => ({ name, open: current, instant, trigger }),
+    [name, current, instant],
+  );
   return { open: current, setOpen, onOpenChangeComplete: complete, state };
 }
 
@@ -140,13 +164,18 @@ function Trigger({ children, hide = true }: PopupMorphTriggerProps) {
           ref,
           'data-tk-container': 'trigger',
           'data-tk-open': hide && state.open ? '' : undefined,
+          'data-tk-fade': hide && state.instant ? '' : undefined,
         } as Partial<Part['props']>)}
       </Morph>
     </InTriggerContext>
   );
 }
 
-/** The popup's side of the container: it holds the name while open. */
+/**
+ * The popup's side of the container: it holds the name while open. Marked
+ * `data-tk-fade` when it came without a morph, for a surface that has no
+ * entrance of its own to fade in by.
+ */
 function Popup({ children }: { readonly children: Part }) {
   const state = useContext(PopupMorphContext);
   if (!state) return children;
@@ -154,6 +183,7 @@ function Popup({ children }: { readonly children: Part }) {
     <Morph name={state.name} active={state.open} fit="container" scope={state.name}>
       {cloneElement(Children.only(children), {
         'data-tk-container': 'popup',
+        'data-tk-fade': state.instant ? '' : undefined,
       } as Partial<Part['props']>)}
     </Morph>
   );
@@ -165,8 +195,11 @@ export interface PopupMorphPartProps {
   readonly side: 'trigger' | 'popup';
   /** Whether this element is the part's place on its side (the chosen row, say). */
   readonly when?: boolean;
-  /** `text` (default) keeps letters at their size; `box` scales, for icons. */
-  readonly fit?: 'text' | 'box';
+  /**
+   * `text` (default) keeps letters at their size. `icon` scales and turns one
+   * glyph into the other (a chevron into a check); `box` scales, for pictures.
+   */
+  readonly fit?: 'text' | 'icon' | 'box';
   readonly children: Part;
 }
 

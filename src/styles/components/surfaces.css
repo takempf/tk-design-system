@@ -226,8 +226,22 @@
       width var(--tk-duration-3) var(--tk-ease-morph);
   }
 
+  /* The new panel rises in where the old one was; the old one makes way at
+     once, so the two never stack. */
   .tk-tabs-panel {
     outline: 0;
+    transition:
+      opacity var(--tk-duration-2) var(--tk-ease-fade),
+      translate var(--tk-duration-3) var(--tk-ease-out);
+
+    &[data-starting-style] {
+      opacity: 0;
+      translate: 0 var(--tk-enter-offset);
+    }
+
+    &[data-ending-style] {
+      display: none;
+    }
   }
 
   /* Accordion & collapsible ----------------------------------------------- */

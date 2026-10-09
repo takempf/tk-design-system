@@ -3,7 +3,8 @@ import { Badge, Button, Icon, Popover, Stack } from 'tk-design-system';
 export const meta = {
   section: 'surfaces',
   title: 'Popover',
-  description: 'Rich content that grows out of its trigger and folds back into it.',
+  description:
+    'Rich content that grows out of its trigger and folds back into it. The trigger’s icon flies to the title rather than fading.',
   order: 3,
 };
 
@@ -11,10 +12,18 @@ export default function Popovers() {
   return (
     <Popover.Root>
       <Popover.Trigger render={<Button />}>
-        <Icon name="info" /> About this path
+        <Popover.SharedElement name="icon" side="trigger" fit="icon">
+          <Icon name="info" />
+        </Popover.SharedElement>
+        About this path
       </Popover.Trigger>
       <Popover.Popup side="bottom" align="start">
-        <Popover.Title>The Hollow Way</Popover.Title>
+        <Popover.Title className="demo-popover-title">
+          <Popover.SharedElement name="icon" side="popup" fit="icon">
+            <Icon name="info" />
+          </Popover.SharedElement>
+          The Hollow Way
+        </Popover.Title>
         <Popover.Description>
           Sunk six feet into the hillside by centuries of feet and cartwheels. Muddy after rain.
         </Popover.Description>

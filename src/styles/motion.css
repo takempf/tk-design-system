@@ -26,6 +26,10 @@
     view-transition-class: tk-morph-text;
   }
 
+  [data-tk-morph='icon'] {
+    view-transition-class: tk-morph tk-morph-icon;
+  }
+
   [data-tk-reveal] {
     view-transition-class: tk-reveal;
   }
@@ -54,8 +58,16 @@
     mix-blend-mode: normal;
   }
 
+  /* An icon's two ends add up, like text's: the same glyph at both ends holds
+     its strength, and a glyph that changes (chevron to check) turns without
+     dimming between the two. */
+  ::view-transition-old(.tk-morph-icon),
+  ::view-transition-new(.tk-morph-icon) {
+    mix-blend-mode: plus-lighter;
+  }
+
   /* Containers: one frame in two places, such as a trigger and then its popup.
-     morph() paints the frame on the moving group, turning its fill, edge and
+     morph() paints the frame on the moving group, turning its fill, edge, ring and
      corners from one end's to the other's, and snapshots both ends without
      theirs (data-tk-frameless), so nothing inside stretches. The content keeps
      its size and its place on the page, clipped to the frame (morph() offsets
@@ -98,10 +110,19 @@
     animation-duration: calc(var(--tk-duration-morph) * 0.6);
   }
 
+  /* A hollow container has no fill of its own (a field seen through it), so
+     its content never fades, or the page would show through: the frame only
+     uncovers one end's and covers the other's. */
+  ::view-transition-old(.tk-hollow),
+  ::view-transition-new(.tk-hollow) {
+    animation: none;
+  }
+
   /* biome-ignore-start lint/complexity/noImportantStyles: a snapshot without its frame must beat every component and theme rule */
   [data-tk-frameless] {
     border-color: transparent !important;
     background: transparent !important;
+    outline-color: transparent !important;
   }
   /* biome-ignore-end lint/complexity/noImportantStyles: a snapshot without its frame must beat every component and theme rule */
 
@@ -162,6 +183,20 @@
     to {
       opacity: 0;
       transform: translateX(calc(var(--tk-enter-offset) * 3));
+    }
+  }
+
+  /* Fades in place, for what has nowhere to come from or go to. Each animates
+     to or from the element's own opacity. */
+  @keyframes tk-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes tk-fade-out {
+    from {
+      opacity: 1;
     }
   }
 

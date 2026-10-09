@@ -29,10 +29,12 @@ export interface SelectProps<V> {
 
 /**
  * A single-choice list. The trigger is the list's container, closed: it opens
- * over itself with the chosen row exactly on the trigger's value, the frame
- * growing around it, and choosing another row carries that label back into the
- * trigger as the frame shrinks home. Where Base UI can't line the row up (no
- * room, or touch) the list still opens over the trigger, its first row on it.
+ * over itself with the chosen row exactly on the trigger — its label on the
+ * value, its check on the chevron, which turns into it — and the frame grows
+ * up and down around it. Choosing another row carries that label and check
+ * back into the trigger as the frame shrinks home, the check turning back into
+ * the chevron. Where Base UI can't line the row up (no room, or touch) the list
+ * still opens over the trigger, its first row on it.
  */
 export function Select<V>({
   items,
@@ -82,33 +84,44 @@ export function Select<V>({
                 <BaseSelect.Value>{selected?.label ?? placeholder}</BaseSelect.Value>
               </PopupMorph.Part>
             </span>
-            <BaseSelect.Icon className="tk-select-icon">
-              <Icon name="chevron-updown" />
-            </BaseSelect.Icon>
+            <PopupMorph.Part name="icon" side="trigger" when={Boolean(selected)} fit="icon">
+              <BaseSelect.Icon className="tk-select-icon">
+                <Icon name="chevron-updown" />
+              </BaseSelect.Icon>
+            </PopupMorph.Part>
           </BaseSelect.Trigger>
         </PopupMorph.Trigger>
         <BaseSelect.Portal container={container}>
           <BaseSelect.Positioner className="tk-positioner" sideOffset={overTrigger} align="start">
             <PopupMorph.Popup>
-              <BaseSelect.Popup className="tk-popup tk-list-popup tk-select-popup" data-size={size}>
+              <BaseSelect.Popup
+                className="tk-popup tk-list-popup tk-select-popup"
+                data-size={size}
+                data-indicator="end"
+              >
                 <BaseSelect.List className="tk-list">
-                  {items.map((item) => (
-                    <BaseSelect.Item
-                      key={String(item.value)}
-                      value={item.value}
-                      disabled={item.disabled}
-                      className="tk-list-item"
-                    >
-                      <BaseSelect.ItemIndicator className="tk-list-indicator">
-                        <Icon name="check" />
-                      </BaseSelect.ItemIndicator>
-                      <PopupMorph.Part side="popup" when={Object.is(item.value, current)}>
-                        <BaseSelect.ItemText className="tk-list-text">
-                          {item.label}
-                        </BaseSelect.ItemText>
-                      </PopupMorph.Part>
-                    </BaseSelect.Item>
-                  ))}
+                  {items.map((item) => {
+                    const chosen = Object.is(item.value, current);
+                    return (
+                      <BaseSelect.Item
+                        key={String(item.value)}
+                        value={item.value}
+                        disabled={item.disabled}
+                        className="tk-list-item"
+                      >
+                        <PopupMorph.Part side="popup" when={chosen}>
+                          <BaseSelect.ItemText className="tk-list-text">
+                            {item.label}
+                          </BaseSelect.ItemText>
+                        </PopupMorph.Part>
+                        <PopupMorph.Part name="icon" side="popup" when={chosen} fit="icon">
+                          <BaseSelect.ItemIndicator className="tk-list-indicator">
+                            <Icon name="check" />
+                          </BaseSelect.ItemIndicator>
+                        </PopupMorph.Part>
+                      </BaseSelect.Item>
+                    );
+                  })}
                 </BaseSelect.List>
               </BaseSelect.Popup>
             </PopupMorph.Popup>

@@ -327,7 +327,22 @@ function ScenerySettingsButton() {
         <Button size="sm" variant="ghost" onClick={resetScenerySettings}>
           Reset
         </Button>
+        <Separator />
+        <SlowMotion />
       </Popover.Popup>
     </Popover.Root>
+  );
+}
+
+/** Every move and fade at a pace you can watch, to check that nothing comes from nowhere. */
+function SlowMotion() {
+  const [slow, setSlow] = useState(() => document.documentElement.classList.contains('pg-slow'));
+  useEffect(() => {
+    document.documentElement.classList.toggle('pg-slow', slow);
+  }, [slow]);
+  return (
+    <Switch checked={slow} onCheckedChange={setSlow}>
+      Slow motion
+    </Switch>
   );
 }

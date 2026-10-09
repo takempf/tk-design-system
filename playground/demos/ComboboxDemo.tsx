@@ -4,7 +4,7 @@ export const meta = {
   section: 'inputs',
   title: 'Combobox',
   description:
-    'A searchable select that opens over itself. The placeholder travels into the search field; a chosen value travels to its row. It can be cleared, and some options can be disabled.',
+    'A searchable select that opens over itself: the trigger becomes the search field, its clear button and chevron where they were. A chosen value travels to its row. It can be cleared, and some options can be disabled.',
   order: 5,
 };
 

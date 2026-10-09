@@ -202,6 +202,15 @@
   gap: var(--tk-space-4);
 }
 
+/* Slow motion: every move and fade at a pace you can watch. */
+:root.pg-slow,
+:root.pg-slow [data-tk-theme] {
+  --tk-duration-1: 900ms;
+  --tk-duration-2: 1300ms;
+  --tk-duration-3: 2200ms;
+  --tk-duration-morph: 2800ms;
+}
+
 .pg-page {
   display: flex;
   flex-direction: column;
@@ -659,6 +668,16 @@
   font-family: var(--tk-font-display);
   font-stretch: var(--tk-display-stretch);
   font-size: var(--tk-text-xl);
+}
+
+.demo-popover-title {
+  display: flex;
+  align-items: center;
+  gap: var(--tk-space-2);
+
+  & .tk-icon {
+    color: var(--tk-accent);
+  }
 }
 
 .demo-find {
