@@ -71,8 +71,8 @@
      corners from one end's to the other's, and snapshots both ends without
      theirs (data-tk-frameless), so nothing inside stretches. The content keeps
      its size and its place on the page, clipped to the frame (morph() offsets
-     it as the frame moves), so the frame uncovers one end's and covers the
-     other's. */
+     it as the frame moves); it is gone as the frame sets off, and fades in as
+     it lands. */
   [data-tk-morph='container'] {
     view-transition-class: tk-container;
   }
@@ -100,14 +100,16 @@
     animation-timing-function: var(--tk-ease-fade);
   }
 
-  /* The content trades places early: the old is gone halfway, the new is in
-     well before the frame lands. */
+  /* Only shared parts travel. The content the frame leaves is gone as it sets
+     off, and the content it arrives at fades in as it lands, finishing with
+     the move. */
   ::view-transition-old(.tk-container) {
-    animation-duration: calc(var(--tk-duration-morph) * 0.5);
+    animation-duration: var(--tk-duration-1);
   }
 
   ::view-transition-new(.tk-container) {
-    animation-duration: calc(var(--tk-duration-morph) * 0.6);
+    animation-delay: calc(var(--tk-duration-morph) - var(--tk-duration-2));
+    animation-duration: var(--tk-duration-2);
   }
 
   /* A hollow container has no fill of its own (a field seen through it), so

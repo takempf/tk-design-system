@@ -276,11 +276,27 @@ function cutToFrame(from: End, to: End, timing: Timing, into: Animation[]) {
 /** Which morph last stripped a frame, so an earlier one never restores it. */
 const framedBy = new WeakMap<HTMLElement, object>();
 
+/** A container with no fill of its own, whose content never fades (see motion.css). */
+const isHollow = (element: HTMLElement) =>
+  getComputedStyle(element)
+    .getPropertyValue('view-transition-class')
+    .split(/\s+/)
+    .includes('tk-hollow');
+
 /**
  * Reads each named container's look, then strips its frame for the snapshot.
  * Read first: the look is the frame's own, and the snapshot is everything else.
+ *
+ * The browser shows the frame it captures the old state from, so a frame
+ * stripped for that capture blinks out for a frame. The old content fades as
+ * the frame sets off, where its own frame matches the moving one, so it keeps
+ * it. Only a hollow container's is stripped, since its content never fades.
  */
-function captureContainers(named: Iterable<HTMLElement>, owner: object): Map<string, End> {
+function captureContainers(
+  named: Iterable<HTMLElement>,
+  owner: object,
+  old = false,
+): Map<string, End> {
   const ends = new Map<string, End>();
   const containers = [...named].filter((element) => element.dataset.tkMorph === 'container');
   for (const element of containers) {
@@ -291,6 +307,7 @@ function captureContainers(named: Iterable<HTMLElement>, owner: object): Map<str
     });
   }
   for (const element of containers) {
+    if (old && !isHollow(element)) continue;
     const frame = frameOf(element);
     frame.dataset.tkFrameless = '';
     framedBy.set(frame, owner);
@@ -404,7 +421,8 @@ export function willMorph(): boolean {
  * A `fit="container"` part is one frame in two places (a trigger, then its
  * popup): the frame moves and resizes between them, its fill, edge and corners
  * turning from one end's to the other's. The content inside never stretches
- * or slides: it holds still while the frame uncovers or covers it.
+ * or slides: it holds still, fading out as the frame sets off and in as it
+ * lands (motion.css times the fades).
  *
  * The update runs synchronously (flushSync) inside the transition, so it works
  * with any state — React, an external store, or a Base UI popup's open state.
@@ -428,7 +446,7 @@ export function morph(
   const owner = {};
   // Named now, so the old state is captured with them.
   let named = nameParts(scope, owner);
-  let before = captureContainers(named, owner);
+  let before = captureContainers(named, owner, true);
   let after = new Map<string, End>();
   const depths = new Map<string, number>();
   const animations: Animation[] = [];
@@ -443,7 +461,7 @@ export function morph(
     unnameParts(named, owner);
     restoreFrames(before, owner);
     named = nameParts(scope, owner);
-    before = captureContainers(named, owner);
+    before = captureContainers(named, owner, true);
   });
   // The old state is captured by the time the update runs, and the moving
   // parts are only built once it has: the nesting of both ends is known then.

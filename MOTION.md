@@ -16,9 +16,10 @@ mechanics live in `src/motion/`; the README's Motion section covers the API.
 
 3. **A popup is its trigger, elsewhere.** A trigger and its popup are one container in two
    places. The container's frame (fill, edge, corners) moves and resizes between them.
-   Content never stretches: each side's content holds still on the page while the frame
-   uncovers one and covers the other. While a popup is open its trigger is hidden, because
-   the popup is the trigger.
+   Content never stretches, and only shared parts travel. Everything else fades during
+   the move: what the frame leaves is gone as it sets off, and what it arrives at fades in
+   as it lands. While a popup is open its trigger is hidden, because the popup is the
+   trigger.
 
 4. **Same place, same part.** When a popup opens over its trigger, whatever lands on a
    trigger part's spot *is* that part, laid out to match it to the pixel. Every part of a
@@ -54,10 +55,12 @@ mechanics live in `src/motion/`; the README's Motion section covers the API.
    in a field — apply at once. Motion is for discrete changes: opening, choosing,
    removing, navigating.
 
-8. **One clock.** Moves ride `--tk-duration-morph` and `--tk-ease-morph`. Fades ride
-   `--tk-ease-fade` and finish early: content leaving is gone by half-way, content
-   arriving is in by 60%. Leaving is faster than arriving. Themes tune these tokens,
-   never the choreography: Grove settles slowly, Bureau snaps and flickers.
+8. **One clock.** Moves ride `--tk-duration-morph` and `--tk-ease-morph`. A container's own
+   content rides `--tk-ease-fade` within the move: leaving, it fades out over the first
+   `--tk-duration-1`; arriving, it fades in over the last `--tk-duration-2`, finishing as the
+   frame lands. Leaving is faster than arriving. A dialog's backdrop dims and clears with the
+   frame. Themes tune these tokens, never the choreography: Grove settles slowly, Bureau
+   snaps and flickers.
 
 9. **Motion is never structure.** DOM order, focus, roles and names are the same with or
    without motion. A copy made for motion (a popup's echo of its trigger's label, a chip
@@ -86,6 +89,9 @@ morph must own the change.
 - A container with no fill of its own, seen through to what is under it, is hollow
   (`view-transition-class: tk-container tk-hollow`): its content isn't faded, or the page
   would show through it, only uncovered and covered by the frame.
+- The browser shows the frame it captures the old state from, so `morph()` leaves the old
+  end's frame in its snapshot (it matches the moving frame while the content fades out).
+  Only a hollow container's is stripped for the capture.
 - `PopupMorph.Part` and `SharedElement` name the parts shown on both sides.
 - `morph()` names its parts again just before the old state is captured, so a change made
   in the same gesture — a select's new value, set as its list closes — is the one that
