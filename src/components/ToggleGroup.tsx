@@ -18,6 +18,12 @@ const marker = ['x', 'y', 'w', 'h'] as const;
   label inverts exactly where the marker is, even mid-slide. The pressed toggle
   is measured whenever Base UI moves `data-pressed` or the group resizes; the
   marker and the clip both transition from there.
+
+  Measured only once the browser has laid the page out: in the resize
+  observer (whose first report comes as the group is first laid out) and in
+  the frame after a press. Measured in React's commit, as the ref callback
+  runs, it would lay out the whole page there, for the rest of the commit to
+  throw away.
 */
 function useSlidingMarker(enabled: boolean) {
   return useCallback(
@@ -39,17 +45,27 @@ function useSlidingMarker(enabled: boolean) {
           group.style.setProperty(`--tk-marker-${name}`, `${values[i]}px`);
         });
       };
-      place();
-      const resize = new ResizeObserver(place);
-      const press = new MutationObserver(place);
+      let placing = 0;
+      let settling = 0;
+      const resize = new ResizeObserver(() => {
+        place();
+        // Transitions switch on a frame after the first placing, so the
+        // marker starts in place.
+        if (!settling) {
+          settling = requestAnimationFrame(() => group.setAttribute('data-placed', ''));
+        }
+      });
+      const press = new MutationObserver(() => {
+        cancelAnimationFrame(placing);
+        placing = requestAnimationFrame(place);
+      });
       resize.observe(group);
       press.observe(group, { subtree: true, attributes: true, attributeFilter: ['data-pressed'] });
-      // Transitions switch on a frame later, so the marker starts in place.
-      const frame = requestAnimationFrame(() => group.setAttribute('data-placed', ''));
       return () => {
         resize.disconnect();
         press.disconnect();
-        cancelAnimationFrame(frame);
+        cancelAnimationFrame(placing);
+        cancelAnimationFrame(settling);
       };
     },
     [enabled],
