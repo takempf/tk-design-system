@@ -106,7 +106,10 @@
     color: color-mix(in oklab, currentColor, var(--tk-fg-bright) 70%);
   }
 
-  ::selection {
+  /* Below the body, not on <html>: Chrome restyles <html> at both ends of
+     every view transition, and with a selection style of its own that
+     restyles the whole page each time. */
+  :where(body) ::selection {
     background: var(--tk-selection-bg);
     color: var(--tk-selection-fg);
     text-shadow: none;
