@@ -224,6 +224,14 @@
     padding-block: var(--tk-space-2);
     line-height: var(--tk-leading-reading);
     resize: vertical;
+
+    /* Sized to its text (`grow`), by the browser: nothing measured in script.
+       Nothing to drag and nothing to scroll: the page scrolls instead. */
+    &[data-grow] {
+      field-sizing: content;
+      overflow-y: hidden;
+      resize: none;
+    }
   }
 
   /* Checkbox, radio, switch ----------------------------------------------- */

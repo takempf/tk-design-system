@@ -28,12 +28,18 @@ export function Input({ className, size = 'md', ...props }: InputProps) {
   return <BaseInput {...props} data-size={size} className={withBase('tk-input', className)} />;
 }
 
-export type TextareaProps = ComponentProps<'textarea'>;
+export type TextareaProps = ComponentProps<'textarea'> & {
+  /**
+   * Grow and shrink to fit the text (`field-sizing: content`) instead of
+   * scrolling inside a fixed box. The page scrolls past a long text.
+   */
+  readonly grow?: boolean;
+};
 
-export function Textarea({ className, ...props }: TextareaProps) {
+export function Textarea({ className, grow = false, ...props }: TextareaProps) {
   return (
     <BaseField.Control
-      render={<textarea {...props} />}
+      render={<textarea {...props} data-grow={grow ? '' : undefined} />}
       className={withBase('tk-input tk-textarea', className)}
     />
   );
