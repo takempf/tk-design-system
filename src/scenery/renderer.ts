@@ -75,6 +75,14 @@ interface Build {
 const sceneSource = (scene: SceneInfo) =>
   `${prelude}\n${scene.source}\nvoid main() { fragColor = render(gl_FragCoord.xy); }\n`;
 
+/**
+ * How long the GPU context outlives the last window. One window closing as the
+ * next opens (a popup stepping to its next page, one popup after another) keeps
+ * the context, its compiled shaders and its targets instead of building them
+ * all again in between.
+ */
+const RELEASE_AFTER_MS = 30_000;
+
 const idle = (callback: () => void) =>
   'requestIdleCallback' in window ? requestIdleCallback(callback) : setTimeout(callback, 200);
 
@@ -215,6 +223,7 @@ class SceneryRenderer {
   /** Something changed that the next frame must render, whatever the frame rate. */
   private dirty = false;
   private queued = false;
+  private releaseTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     const gl = this.canvas.getContext('webgl2', {
@@ -653,6 +662,8 @@ class SceneryRenderer {
   }
 
   private scrolled = (event: Event): void => {
+    // Held for the next window (release): the next refresh reads the scroll.
+    if (!this.surfaces.size) return;
     const root = this.scrollRoot();
     if (
       event.target === root ||
@@ -733,6 +744,7 @@ class SceneryRenderer {
   };
 
   add(surface: Surface): void {
+    clearTimeout(this.releaseTimer);
     this.surfaces.add(surface);
   }
 
@@ -743,6 +755,12 @@ class SceneryRenderer {
     cancelAnimationFrame(this.frame);
     cancelAnimationFrame(this.presentFrame);
     cancelAnimationFrame(this.requestFrame);
+    this.frame = this.presentFrame = this.requestFrame = 0;
+    this.releaseTimer = setTimeout(this.release, RELEASE_AFTER_MS);
+  }
+
+  private release = (): void => {
+    if (this.surfaces.size) return;
     document.removeEventListener('visibilitychange', this.refresh);
     document.removeEventListener('scroll', this.scrolled, true);
     window.removeEventListener('resize', this.request);
@@ -769,7 +787,7 @@ class SceneryRenderer {
     gl.deleteBuffer(this.buffer);
     gl.getExtension('WEBGL_lose_context')?.loseContext();
     renderer = null;
-  }
+  };
 }
 
 let renderer: SceneryRenderer | null = null;
