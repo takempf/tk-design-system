@@ -233,18 +233,45 @@ const shapeOf = ({ look, rect }: End): Keyframe => ({
 const area = (rect: DOMRect) => rect.width * rect.height;
 
 /**
+ * The part of a box in the window. A frame far larger than the window (a
+ * long page, scrolled to where its reader left off) travels to and from
+ * this instead of its whole: off screen nothing is seen to move, and on
+ * screen its edges no longer sweep past in the first instant of the move.
+ * A box wholly off screen is left whole.
+ */
+function onScreen(rect: DOMRect): DOMRect {
+  const left = Math.max(rect.left, 0);
+  const top = Math.max(rect.top, 0);
+  const right = Math.min(rect.right, innerWidth);
+  const bottom = Math.min(rect.bottom, innerHeight);
+  return right > left && bottom > top ? new DOMRect(left, top, right - left, bottom - top) : rect;
+}
+
+const sameBox = (a: DOMRect, b: DOMRect) =>
+  a.left === b.left && a.top === b.top && a.width === b.width && a.height === b.height;
+
+/**
  * Each end's content holds still on the page while the frame moves over it:
  * the trigger's stays where the trigger is, the popup's where the popup will
  * be, and the frame uncovers one and covers the other on its way. Each
  * snapshot keeps its own size inside the moving frame, offset by where the
- * frame has got to (an object-position that eases with it).
+ * frame has got to (an object-position that eases with it). The frame runs
+ * from `start` to `end`: the two ends' boxes, or the parts of them on screen.
  */
-function holdStill(name: string, from: DOMRect, to: DOMRect, timing: Timing, into: Animation[]) {
-  const x = to.left - from.left;
-  const y = to.top - from.top;
-  const at = (dx: number, dy: number) => ({ objectPosition: `${dx}px ${dy}px` });
-  follow(name, 'old', [at(0, 0), at(-x, -y)], timing, into);
-  follow(name, 'new', [at(x, y), at(0, 0)], timing, into);
+function holdStill(
+  name: string,
+  from: DOMRect,
+  to: DOMRect,
+  start: DOMRect,
+  end: DOMRect,
+  timing: Timing,
+  into: Animation[],
+) {
+  const at = (content: DOMRect, frame: DOMRect) => ({
+    objectPosition: `${content.left - frame.left}px ${content.top - frame.top}px`,
+  });
+  follow(name, 'old', [at(from, start), at(from, end)], timing, into);
+  follow(name, 'new', [at(to, start), at(to, end)], timing, into);
 }
 
 /**
@@ -254,18 +281,18 @@ function holdStill(name: string, from: DOMRect, to: DOMRect, timing: Timing, int
  * apart from it). Cut to the frame, the copy in place is the very part the
  * frame shows, in the same place, and nothing shows outside the frame.
  */
-function cutToFrame(from: End, to: End, timing: Timing, into: Animation[]) {
-  const inset = (a: DOMRect, b: DOMRect) =>
-    [a.top - b.top, b.right - a.right, b.bottom - a.bottom, a.left - b.left]
+function cutToFrame(start: End, end: End, to: DOMRect, timing: Timing, into: Animation[]) {
+  const inset = (a: DOMRect) =>
+    [a.top - to.top, to.right - a.right, to.bottom - a.bottom, a.left - to.left]
       .map((side) => `${Math.max(0, side)}px`)
       .join(' ');
-  const round = (end: End) => shapeOf(end).borderRadius;
+  const round = (at: End) => shapeOf(at).borderRadius;
   into.push(
-    to.element.animate(
+    end.element.animate(
       {
         clipPath: [
-          `inset(${inset(from.rect, to.rect)} round ${round(from)})`,
-          `inset(0 round ${round(to)})`,
+          `inset(${inset(start.rect)} round ${round(start)})`,
+          `inset(${inset(end.rect)} round ${round(end)})`,
         ],
       },
       { ...timing, fill: 'both' },
@@ -390,10 +417,22 @@ function moveFrames(before: Map<string, End>, after: Map<string, End>, animation
       continue;
     }
     const timing = { duration, easing };
-    follow(name, 'group', [shapeOf(from), shapeOf(to)], timing, animations);
-    follow(name, 'group', turnFill(from, to, easing), { duration }, animations);
-    holdStill(name, from.rect, to.rect, timing, animations);
-    cutToFrame(from, to, timing, animations);
+    const start = { ...from, rect: onScreen(from.rect) };
+    const end = { ...to, rect: onScreen(to.rect) };
+    // The browser moves the box between the ends' whole boxes; from or to a
+    // box larger than the window, it moves between the parts on screen.
+    if (!sameBox(start.rect, from.rect) || !sameBox(end.rect, to.rect)) {
+      const box = ({ rect }: End): Keyframe => ({
+        transform: `translate(${rect.left}px, ${rect.top}px)`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+      });
+      follow(name, 'group', [box(start), box(end)], timing, animations);
+    }
+    follow(name, 'group', [shapeOf(start), shapeOf(end)], timing, animations);
+    follow(name, 'group', turnFill(start, end, easing), { duration }, animations);
+    holdStill(name, from.rect, to.rect, start.rect, end.rect, timing, animations);
+    cutToFrame(start, end, to.rect, timing, animations);
   }
   for (const [name, from] of before) {
     if (!after.has(name)) fade(name, from, 1, 0, 0.5);
