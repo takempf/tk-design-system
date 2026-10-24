@@ -27,6 +27,7 @@ const dot = 'M8 6.25a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5z';
 const circle = 'M8 2.75a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5z';
 const square = 'M3.25 3.25h9.5v9.5h-9.5z';
 const triangle = 'M8 2.9 13.75 12.86H2.25z';
+const lens = 'M7 2.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5zM10.1 10.1l3.4 3.4';
 
 // A 0.4-unit clear gap is 1px at the gallery's 40px size. The inset also includes
 // half of each bordering stroke: 0.5 + 0.275, then 0.5 + 0.55 + 0.125.
@@ -48,12 +49,20 @@ const glyphs = {
   'arrow-right': { stroke: 'M3 8h10M9 4l4 4-4 4' },
   'arrow-left': { stroke: 'M13 8H3M7 4 3 8l4 4' },
   'arrow-up': { stroke: 'M8 13V3M4 7l4-4 4 4' },
-  search: { stroke: 'M7 2.75a4.25 4.25 0 1 1 0 8.5 4.25 4.25 0 0 1 0-8.5zM10.1 10.1l3.4 3.4' },
+  search: { stroke: lens },
+  'zoom-in': { stroke: `${lens}M7 5v4M5 7h4` },
+  'zoom-out': { stroke: `${lens}M5 7h4` },
   menu: { stroke: 'M3 4.5h10M3 8h10M3 11.5h10' },
   sliders: { stroke: 'M3 5h10M3 11h10M6 3v4M10 9v4' },
   info: { stroke: `${circle}M8 7.25v4`, fill: 'M8 4.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8z' },
   warning: { stroke: `${triangle}M8 6.5v2.75`, fill: 'M8 10.1a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6z' },
   copy: { stroke: 'M5.5 5.5h7v7h-7zM3.5 10.5v-7h7' },
+  // The ferrule runs flush between the pencil's two long sides.
+  edit: { stroke: 'M10.5 2.75l2.75 2.75-7.75 7.75H2.75V10.5z', inner: 'M8.75 4.5l2.75 2.75' },
+  trash: {
+    stroke: 'M2.75 4.25h10.5M6 4.25v-1.5h4v1.5M4.25 4.25l.75 9h6l.75-9M6.75 6.75v4M9.25 6.75v4',
+  },
+  stop: { fill: 'M4 4h8v8H4z' },
   external: { stroke: 'M9 3h4v4M13 3 7.5 8.5M11 9.5V13H3V5h3.5' },
   ember: { stroke: 'M8 2.25 13.75 8 8 13.75 2.25 8z', fill: 'M8 5.75 10.25 8 8 10.25 5.75 8z' },
   tree: { stroke: 'M8 2.5l4.75 8.25h-9.5zM8 10.75v3' },
