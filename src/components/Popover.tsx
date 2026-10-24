@@ -42,7 +42,7 @@ function PopoverTrigger(props: ComponentProps<typeof BasePopover.Trigger>) {
 
 type PositionerProps = Pick<
   ComponentProps<typeof BasePopover.Positioner>,
-  'side' | 'align' | 'sideOffset' | 'alignOffset'
+  'side' | 'align' | 'sideOffset' | 'alignOffset' | 'collisionPadding'
 >;
 
 function PopoverPopup({
@@ -50,6 +50,7 @@ function PopoverPopup({
   align,
   sideOffset = 8,
   alignOffset,
+  collisionPadding,
   className,
   ref,
   ...props
@@ -63,6 +64,7 @@ function PopoverPopup({
         align={align}
         sideOffset={sideOffset}
         alignOffset={alignOffset}
+        collisionPadding={collisionPadding}
       >
         <PopupMorph.Popup>
           <BasePopover.Popup
