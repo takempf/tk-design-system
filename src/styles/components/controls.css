@@ -70,6 +70,25 @@
       cursor: not-allowed;
     }
 
+    /* Under way (Button's loading): the label keeps the button's size, unseen,
+       and a spinner turns in its place. Not faded as disabled is: it's busy. */
+    &[data-loading] {
+      position: relative;
+      opacity: 1;
+      cursor: progress;
+
+      & > .tk-button-label {
+        display: contents;
+        visibility: hidden;
+      }
+
+      & > .tk-spinner {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+      }
+    }
+
     &[data-size='sm'] {
       --_h: var(--tk-control-h-sm);
       padding-inline: var(--tk-space-3);

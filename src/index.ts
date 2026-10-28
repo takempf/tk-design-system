@@ -49,6 +49,15 @@ export type {
   MultipleInputComboboxProps,
   SingleInputComboboxProps,
 } from './components/InputCombobox';
+export {
+  Loading,
+  type LoadingProps,
+  Skeleton,
+  type SkeletonProps,
+  type SkeletonShape,
+  Spinner,
+  type SpinnerProps,
+} from './components/Loading';
 export { Menu } from './components/Menu';
 export { Popover, Tooltip, type TooltipProps, TooltipProvider } from './components/Popover';
 export {

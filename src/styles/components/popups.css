@@ -641,6 +641,14 @@
     }
   }
 
+  /* A toast of something under way (type 'loading', as toasts.promise makes
+     them): a spinner on the title's line. */
+  .tk-toast-spinner {
+    margin-top: calc((1lh - 1em) / 2);
+    color: var(--tk-fg-subtle);
+    font-size: var(--tk-text-md);
+  }
+
   .tk-toast-text {
     display: flex;
     flex: 1;
@@ -1150,23 +1158,6 @@
     /* Alone in the popup (an error, say), it needs no rule beneath it. */
     .tk-combobox-suggestions-body:not(:has([role='option'], .tk-list-empty:not(:empty))) > & {
       border-bottom: 0;
-    }
-  }
-
-  .tk-spinner {
-    display: inline-block;
-    flex: none;
-    width: 1em;
-    height: 1em;
-    border: max(1.5px, var(--tk-border-width)) solid currentColor;
-    border-right-color: transparent;
-    border-radius: 50%;
-    animation: tk-spin 0.7s linear infinite;
-  }
-
-  @keyframes tk-spin {
-    to {
-      rotate: 1turn;
     }
   }
 }

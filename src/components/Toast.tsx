@@ -13,6 +13,9 @@ function ToastList() {
   return list.map((toast) => (
     <BaseToast.Root key={toast.id} toast={toast} className="tk-toast" data-tone={toast.type}>
       <BaseToast.Content className="tk-toast-content">
+        {toast.type === 'loading' && (
+          <span className="tk-spinner tk-toast-spinner" aria-hidden="true" />
+        )}
         <div className="tk-toast-text">
           <BaseToast.Title className="tk-toast-title" />
           <BaseToast.Description className="tk-toast-description" />
@@ -27,7 +30,8 @@ function ToastList() {
 
 /**
  * Mount once near the root. Uses the shared `toasts` manager unless given another.
- * `type` on a toast ('success' | 'danger' | …) becomes its `data-tone`.
+ * `type` on a toast ('success' | 'danger' | …) becomes its `data-tone`; a 'loading'
+ * toast (as `toasts.promise` makes) leads with a spinner.
  */
 export function Toaster({
   children,

@@ -119,6 +119,7 @@ retunes its code too.
 `Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
+`Loading`/`Skeleton`/`Spinner` (and `Button`'s `loading`, a `'loading'` toast's spinner) ·
 `Icon` (utility icons plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
 and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;
