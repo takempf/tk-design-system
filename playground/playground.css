@@ -52,12 +52,12 @@
 }
 
 .pg-brand-text {
-  font-family: var(--tk-label-font);
+  font-family: var(--tk-type-label-font);
   font-size: var(--tk-text-xs);
-  font-stretch: var(--tk-label-stretch);
-  letter-spacing: var(--tk-label-tracking);
+  font-stretch: var(--tk-type-label-stretch);
+  letter-spacing: var(--tk-type-label-tracking);
   line-height: 1.1;
-  text-transform: var(--tk-label-transform);
+  text-transform: var(--tk-type-label-transform);
 }
 
 /* The links, the marker and a lit copy of the links, stacked in one cell. */
@@ -853,10 +853,10 @@
 
 .pg-trip-theme {
   color: var(--tk-fg-subtle);
-  font-family: var(--tk-label-font);
+  font-family: var(--tk-type-label-font);
   font-size: var(--tk-text-xs);
-  letter-spacing: var(--tk-label-tracking);
-  text-transform: var(--tk-label-transform);
+  letter-spacing: var(--tk-type-label-tracking);
+  text-transform: var(--tk-type-label-transform);
 }
 
 .app {
@@ -902,11 +902,11 @@
   gap: var(--tk-space-3);
   padding: var(--tk-space-4);
   color: var(--tk-fg-bright);
-  font-family: var(--tk-label-font);
+  font-family: var(--tk-type-label-font);
   font-size: var(--tk-text-sm);
-  font-stretch: var(--tk-label-stretch);
-  letter-spacing: var(--tk-label-tracking);
-  text-transform: var(--tk-label-transform);
+  font-stretch: var(--tk-type-label-stretch);
+  letter-spacing: var(--tk-type-label-tracking);
+  text-transform: var(--tk-type-label-transform);
 }
 
 .app-journal-mark {

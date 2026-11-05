@@ -36,17 +36,18 @@ Peer dependencies are React and React DOM 19. Base UI, zustand and the Fontsourc
 packages come with the package, and so does Geist Serif.
 
 **Type.** Every face is a variable font: Geist and Geist Mono (base), Archivo
-(labels — its width axis runs 62–125%, narrowed with `--tk-label-stretch`), Instrument
+(labels — its width axis runs 62–125%, narrowed with `--tk-type-label-stretch`), Instrument
 Sans (Grove, also width-variable), Newsreader (Paper display), with Noto Sans KR and Noto
 Color Emoji as the shared `--tk-font-fallback`. All come from Fontsource but Geist Serif,
 which ships in `src/fonts` under its OFL license. Stacks end only in a generic family, so
 nothing depends on what the OS has installed. Narrowing is always `font-stretch` on a
-width axis: `--tk-label-stretch` for labels, `--tk-display-stretch` for headings.
+width axis: `--tk-type-label-stretch` for labels, `--tk-display-stretch` for headings.
 
 **Serif.** For reading — a story, dialogue, long prose — the `.tk-serif` text style sets
 Geist Serif (`--tk-font-serif`). It has one weight (400) and no italic, so the style sets
 that weight and lets bold and italics inside it be synthesized. Size and leading are the
-text's own; `--tk-leading-reading` suits paragraphs.
+text's own, so it pairs with a role or with prose: `tk-type-body-lg tk-serif`,
+`tk-prose tk-serif`.
 
 ## How it fits together
 
@@ -54,7 +55,8 @@ text's own; `--tk-leading-reading` suits paragraphs.
 src/
   styles/tokens.css      every token, on :root and every [data-tk-theme]
   themes/*.css           grove, bureau, paper — token overrides (+ anything beyond)
-  styles/components/*    one class per part: .tk-button, .tk-list-item, …
+  styles/components/*    one class per part: .tk-button, .tk-list-item, .tk-prose, …
+  styles/type.css        text utilities: .tk-type-*, .tk-ink-*, .tk-nums-*, …
   components/            thin typed wrappers over @base-ui/react parts
   motion/                morph(), <Morph>, <Reveal>, <Decipher>, wipe()
   scenery/               the WebGL renderer, scenes, <SceneryWindow>, <SceneryBackdrop>
@@ -65,7 +67,8 @@ playground/              the proving grounds: every component, its source, every
 **Styling is CSS, not JS.** Components render Base UI parts with a stable `tk-*` class
 and style off Base UI's data attributes (`[data-highlighted]`, `[data-starting-style]`,
 …). Everything lives in cascade layers — `tk.reset, tk.tokens, tk.base, tk.components,
-tk.themes` — so any unlayered CSS in your app overrides it without `!important`.
+tk.themes, tk.utilities` — so any unlayered CSS in your app overrides it without
+`!important`. Utilities come last, so a text class beats a component's own type.
 
 **Themes are token blocks.** `tokens.css` declares the full set on `:root` *and* on every
 `[data-tk-theme]`, so a nested theme starts clean rather than inheriting its parent's
@@ -117,6 +120,51 @@ A theme's color comes in four groups, and everything else is derived from them:
 
 Syntax colors are drawn from these (see Code), so a theme that retunes its hues
 retunes its code too.
+
+## Type
+
+Text comes in eleven roles. Each is six tokens (`--tk-type-<role>-font`, `-size`,
+`-weight`, `-leading`, `-tracking`, `-stretch`; the label role adds `-transform`) and a
+`.tk-type-<role>` class that sets them. The playground's Type page shows every role in
+the active theme, with its measured size, leading, weight and face.
+
+| Role | Built from | For |
+| --- | --- | --- |
+| `display` | display face, `--tk-text-4xl` (4.5rem) | a page's opening line |
+| `h1`–`h4` | display face, `3xl`, `2xl`, `xl`, `lg` | headings; `<h1>`–`<h4>` take them without a class |
+| `body-lg`, `body`, `body-sm` | sans face, `lg`, `md`, `sm` | running text; the document is `body` |
+| `caption` | sans face, `xs` | figures, timestamps, fine print |
+| `label` | label face, narrowed and uppercase | eyebrows (`<Eyebrow>` uses it) |
+| `code` | `--tk-code-font` at `--tk-code-text` | code in running text |
+
+Roles are built on the primitives above them in `tokens.css` (faces, the `--tk-text-*`
+scale, weights, leadings, trackings), so a theme changes every role at once through a
+primitive, or one role through its own token:
+
+```css
+[data-tk-theme='tide'] {
+  --tk-font-display: var(--tk-font-serif); /* every heading role */
+  --tk-type-h1-size: var(--tk-text-4xl);   /* only h1 */
+}
+```
+
+Utilities that combine with any role:
+
+- **Ink:** `.tk-ink-muted`, `-subtle`, `-bright`, `-label`, `-accent`, `-success`, `-info`,
+  `-warning`, `-danger`.
+- **Numbers:** `.tk-nums-tabular`, `.tk-nums-oldstyle` and `.tk-fractions` each set one
+  part of `font-variant-numeric`, so they stack. The Fontsource subsets keep few OpenType
+  features: tabular figures are in every bundled face, fractions only in Geist, Geist Mono
+  and Archivo, and old-style figures only in Geist Serif.
+- **Small caps:** `.tk-small-caps` (all small caps, for acronyms). No bundled face has
+  them, so the browser draws them from scaled capitals.
+- **Truncation:** `.tk-truncate` cuts one line with an ellipsis; `.tk-clamp` stops after
+  `--tk-clamp-lines` lines (3 by default).
+
+**Prose.** `.tk-prose` sets long-form text, such as rendered markdown: block spacing
+(`--tk-prose-gap`, `--tk-prose-heading-gap`), a measure (`--tk-prose-measure`, 68ch),
+reading leading, and lists, quotes, tables, rules, figures, inline code and `<kbd>` styled
+like their components. Add `.tk-serif` for the serif.
 
 ## Components
 

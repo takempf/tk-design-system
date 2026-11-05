@@ -130,20 +130,100 @@
     --tk-text-xl: 1.5rem;
     --tk-text-2xl: 2.25rem;
     --tk-text-3xl: 3.25rem;
+    --tk-text-4xl: 4.5rem;
     --tk-weight-regular: 500;
     --tk-weight-medium: 600;
     --tk-weight-bold: 675;
+    --tk-leading-display: 1.05;
     --tk-leading-tight: 1.2;
     --tk-leading-normal: 1.5;
     --tk-leading-reading: 1.65;
     --tk-tracking: 0.025em;
     --tk-tracking-display: -0.01em;
-    --tk-label-font: var(--tk-font-label);
-    --tk-label-size: var(--tk-text-sm);
-    --tk-label-weight: var(--tk-weight-bold);
-    --tk-label-tracking: 0.1em;
-    --tk-label-transform: uppercase;
-    --tk-label-stretch: 66%;
+
+    /* Type roles: each role is the same six tokens, read by its .tk-type-* class (type.css). */
+    --tk-type-display-font: var(--tk-font-display);
+    --tk-type-display-size: var(--tk-text-4xl);
+    --tk-type-display-weight: var(--tk-weight-bold);
+    --tk-type-display-leading: var(--tk-leading-display);
+    --tk-type-display-tracking: var(--tk-tracking-display);
+    --tk-type-display-stretch: var(--tk-display-stretch);
+
+    --tk-type-h1-font: var(--tk-font-display);
+    --tk-type-h1-size: var(--tk-text-3xl);
+    --tk-type-h1-weight: var(--tk-weight-bold);
+    --tk-type-h1-leading: var(--tk-leading-tight);
+    --tk-type-h1-tracking: var(--tk-tracking-display);
+    --tk-type-h1-stretch: var(--tk-display-stretch);
+
+    --tk-type-h2-font: var(--tk-font-display);
+    --tk-type-h2-size: var(--tk-text-2xl);
+    --tk-type-h2-weight: var(--tk-weight-bold);
+    --tk-type-h2-leading: var(--tk-leading-tight);
+    --tk-type-h2-tracking: var(--tk-tracking-display);
+    --tk-type-h2-stretch: var(--tk-display-stretch);
+
+    --tk-type-h3-font: var(--tk-font-display);
+    --tk-type-h3-size: var(--tk-text-xl);
+    --tk-type-h3-weight: var(--tk-weight-bold);
+    --tk-type-h3-leading: var(--tk-leading-tight);
+    --tk-type-h3-tracking: var(--tk-tracking-display);
+    --tk-type-h3-stretch: var(--tk-display-stretch);
+
+    --tk-type-h4-font: var(--tk-font-display);
+    --tk-type-h4-size: var(--tk-text-lg);
+    --tk-type-h4-weight: var(--tk-weight-bold);
+    --tk-type-h4-leading: var(--tk-leading-tight);
+    --tk-type-h4-tracking: var(--tk-tracking-display);
+    --tk-type-h4-stretch: var(--tk-display-stretch);
+
+    --tk-type-body-lg-font: var(--tk-font-sans);
+    --tk-type-body-lg-size: var(--tk-text-lg);
+    --tk-type-body-lg-weight: var(--tk-weight-regular);
+    --tk-type-body-lg-leading: var(--tk-leading-normal);
+    --tk-type-body-lg-tracking: var(--tk-tracking);
+    --tk-type-body-lg-stretch: normal;
+
+    --tk-type-body-font: var(--tk-font-sans);
+    --tk-type-body-size: var(--tk-text-md);
+    --tk-type-body-weight: var(--tk-weight-regular);
+    --tk-type-body-leading: var(--tk-leading-normal);
+    --tk-type-body-tracking: var(--tk-tracking);
+    --tk-type-body-stretch: normal;
+
+    --tk-type-body-sm-font: var(--tk-font-sans);
+    --tk-type-body-sm-size: var(--tk-text-sm);
+    --tk-type-body-sm-weight: var(--tk-weight-regular);
+    --tk-type-body-sm-leading: var(--tk-leading-normal);
+    --tk-type-body-sm-tracking: var(--tk-tracking);
+    --tk-type-body-sm-stretch: normal;
+
+    --tk-type-caption-font: var(--tk-font-sans);
+    --tk-type-caption-size: var(--tk-text-xs);
+    --tk-type-caption-weight: var(--tk-weight-regular);
+    --tk-type-caption-leading: var(--tk-leading-normal);
+    --tk-type-caption-tracking: var(--tk-tracking);
+    --tk-type-caption-stretch: normal;
+
+    --tk-type-label-font: var(--tk-font-label);
+    --tk-type-label-size: var(--tk-text-sm);
+    --tk-type-label-weight: var(--tk-weight-bold);
+    --tk-type-label-leading: var(--tk-leading-tight);
+    --tk-type-label-tracking: 0.1em;
+    --tk-type-label-stretch: 66%;
+    --tk-type-label-transform: uppercase;
+
+    --tk-type-code-font: var(--tk-code-font);
+    --tk-type-code-size: var(--tk-code-text);
+    --tk-type-code-weight: var(--tk-weight-regular);
+    --tk-type-code-leading: var(--tk-code-leading);
+    --tk-type-code-tracking: 0;
+    --tk-type-code-stretch: normal;
+
+    /* Long-form text in .tk-prose: its widest line, and the space between and above blocks. */
+    --tk-prose-measure: 68ch;
+    --tk-prose-gap: var(--tk-space-4);
+    --tk-prose-heading-gap: var(--tk-space-10);
 
     /* Space. */
     --tk-space-1: 0.25rem;

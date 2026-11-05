@@ -46,10 +46,10 @@
     --tk-code-constant: var(--tk-fg-bright);
     --tk-code-line-marker: var(--tk-accent-2);
 
-    --tk-label-tracking: 0.16em;
+    --tk-type-label-tracking: 0.16em;
     --tk-font-display: var(--tk-font-label);
     --tk-display-stretch: 72%;
-    --tk-label-stretch: 62%;
+    --tk-type-label-stretch: 62%;
     --tk-tracking-display: 0.02em;
 
     --tk-duration-1: 90ms;

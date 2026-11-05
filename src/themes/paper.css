@@ -39,13 +39,13 @@
 
     --tk-font-display: 'Newsreader Variable', var(--tk-font-fallback), serif;
     --tk-font-label: var(--tk-font-mono);
-    --tk-label-stretch: normal;
+    --tk-type-label-stretch: normal;
     --tk-weight-regular: 450;
     --tk-tracking: 0.005em;
     --tk-tracking-display: -0.015em;
-    --tk-label-size: var(--tk-text-xs);
-    --tk-label-weight: var(--tk-weight-medium);
-    --tk-label-tracking: 0.08em;
+    --tk-type-label-size: var(--tk-text-xs);
+    --tk-type-label-weight: var(--tk-weight-medium);
+    --tk-type-label-tracking: 0.08em;
 
     --tk-radius: 3px;
     --tk-radius-sm: 2px;

@@ -8,8 +8,9 @@
     tk.components  one class per part: .tk-button, .tk-list-item, …
     tk.themes      bundled themes: token overrides first, then anything a
                    theme wants to restyle beyond tokens (it wins over the above)
+    tk.utilities   text classes: .tk-type-*, .tk-ink-*, … (they win over all of it)
 */
-@layer tk.reset, tk.tokens, tk.base, tk.components, tk.themes;
+@layer tk.reset, tk.tokens, tk.base, tk.components, tk.themes, tk.utilities;
 
 @import './styles/reset.css';
 @import './styles/tokens.css';
@@ -22,3 +23,5 @@
 @import './styles/components/surfaces.css';
 @import './styles/components/loading.css';
 @import './styles/components/code.css';
+@import './styles/components/prose.css';
+@import './styles/type.css';

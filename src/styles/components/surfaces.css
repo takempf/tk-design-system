@@ -4,13 +4,13 @@
   .tk-eyebrow {
     margin: 0;
     color: var(--tk-label);
-    font-family: var(--tk-label-font);
-    font-size: var(--tk-label-size);
-    font-weight: var(--tk-label-weight);
-    font-stretch: var(--tk-label-stretch);
-    line-height: var(--tk-leading-tight);
-    letter-spacing: var(--tk-label-tracking);
-    text-transform: var(--tk-label-transform);
+    font-family: var(--tk-type-label-font);
+    font-size: var(--tk-type-label-size);
+    font-weight: var(--tk-type-label-weight);
+    font-stretch: var(--tk-type-label-stretch);
+    line-height: var(--tk-type-label-leading);
+    letter-spacing: var(--tk-type-label-tracking);
+    text-transform: var(--tk-type-label-transform);
   }
 
   .tk-badge {
@@ -22,13 +22,13 @@
     border-radius: var(--tk-radius-sm);
     corner-shape: var(--tk-corner-shape);
     color: var(--tk-fg-muted);
-    font-family: var(--tk-label-font);
+    font-family: var(--tk-type-label-font);
     font-size: var(--tk-text-xs);
-    font-weight: var(--tk-label-weight);
-    font-stretch: var(--tk-label-stretch);
+    font-weight: var(--tk-type-label-weight);
+    font-stretch: var(--tk-type-label-stretch);
     line-height: 1.2;
-    letter-spacing: calc(var(--tk-label-tracking) * 0.6);
-    text-transform: var(--tk-label-transform);
+    letter-spacing: calc(var(--tk-type-label-tracking) * 0.6);
+    text-transform: var(--tk-type-label-transform);
     white-space: nowrap;
 
     &[data-tone='accent'] {
@@ -67,7 +67,8 @@
     }
   }
 
-  .tk-kbd {
+  .tk-kbd,
+  .tk-prose :where(kbd) {
     display: inline-block;
     min-width: 1.6em;
     padding: 0.1em 0.45em;

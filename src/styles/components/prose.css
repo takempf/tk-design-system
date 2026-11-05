@@ -1,0 +1,106 @@
+@layer tk.components {
+  /* Long-form text, such as rendered markdown: block rhythm and every element a document uses. */
+  .tk-prose {
+    max-inline-size: var(--tk-prose-measure);
+    line-height: var(--tk-leading-reading);
+
+    & > * {
+      margin-block: 0;
+    }
+
+    & > * + * {
+      margin-block-start: var(--tk-prose-gap);
+    }
+
+    & > :where(h1, h2, h3, h4, hr):not(:first-child),
+    & > :where(hr) + * {
+      margin-block-start: var(--tk-prose-heading-gap);
+    }
+
+    & > :where(h1, h2, h3, h4) + * {
+      margin-block-start: var(--tk-space-3);
+    }
+
+    & :where(ul, ol) {
+      padding-inline-start: 1.4em;
+    }
+
+    & :where(li + li, li > :where(ul, ol)) {
+      margin-block-start: var(--tk-space-1);
+    }
+
+    & :where(li)::marker {
+      color: var(--tk-fg-subtle);
+    }
+
+    & :where(blockquote) {
+      padding-inline-start: var(--tk-space-4);
+      border-inline-start: 2px solid var(--tk-border-strong);
+      color: var(--tk-fg-muted);
+    }
+
+    & :where(pre) {
+      overflow-x: auto;
+      padding: var(--tk-space-3) var(--tk-space-4);
+      border: var(--tk-border-width) solid var(--tk-code-border);
+      border-radius: min(var(--tk-radius), var(--tk-radius-lg));
+      corner-shape: var(--tk-corner-shape);
+      background: var(--tk-code-bg);
+      color: var(--tk-code-fg);
+      font-family: var(--tk-type-code-font);
+      font-size: var(--tk-type-code-size);
+      line-height: var(--tk-type-code-leading);
+      letter-spacing: var(--tk-type-code-tracking);
+      tab-size: var(--tk-code-tab-size);
+
+      & code {
+        font: inherit;
+      }
+    }
+
+    & :where(hr) {
+      block-size: var(--tk-border-width);
+      border: 0;
+      background: var(--tk-border-subtle);
+    }
+
+    & :where(table) {
+      inline-size: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+    }
+
+    & :where(th, td) {
+      padding: var(--tk-space-2) var(--tk-space-3);
+      border-block-end: var(--tk-border-width) solid var(--tk-border-subtle);
+      text-align: start;
+      vertical-align: top;
+    }
+
+    & :where(th, td):first-child {
+      padding-inline-start: 0;
+    }
+
+    & :where(th, td):last-child {
+      padding-inline-end: 0;
+    }
+
+    & :where(th) {
+      border-block-end-color: var(--tk-border);
+      color: var(--tk-fg-muted);
+      font-weight: var(--tk-weight-medium);
+    }
+
+    & :where(figure) {
+      display: flex;
+      flex-direction: column;
+      gap: var(--tk-space-2);
+    }
+
+    & :where(figcaption) {
+      color: var(--tk-fg-subtle);
+      font-size: var(--tk-type-caption-size);
+      line-height: var(--tk-type-caption-leading);
+    }
+  }
+}

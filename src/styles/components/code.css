@@ -75,7 +75,8 @@
 
   /* Inline ------------------------------------------------------------------ */
 
-  .tk-code {
+  .tk-code,
+  .tk-prose :where(:not(pre) > code) {
     padding: 0.1em 0.35em;
     border-radius: var(--tk-radius-sm);
     corner-shape: var(--tk-corner-shape);
@@ -150,11 +151,11 @@
 
   .tk-code-block-language {
     color: var(--tk-fg-subtle);
-    font-family: var(--tk-label-font);
-    font-weight: var(--tk-label-weight);
-    font-stretch: var(--tk-label-stretch);
-    letter-spacing: var(--tk-label-tracking);
-    text-transform: var(--tk-label-transform);
+    font-family: var(--tk-type-label-font);
+    font-weight: var(--tk-type-label-weight);
+    font-stretch: var(--tk-type-label-stretch);
+    letter-spacing: var(--tk-type-label-tracking);
+    text-transform: var(--tk-type-label-transform);
   }
 
   .tk-code-block-float {

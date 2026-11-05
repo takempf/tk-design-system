@@ -1,0 +1,193 @@
+/* Text utilities: last in the cascade, so a class here wins over any component's own type. */
+@layer tk.utilities {
+  /* Roles ------------------------------------------------------------------ */
+
+  .tk-type-display {
+    font-family: var(--tk-type-display-font);
+    font-size: var(--tk-type-display-size);
+    font-weight: var(--tk-type-display-weight);
+    font-stretch: var(--tk-type-display-stretch);
+    line-height: var(--tk-type-display-leading);
+    letter-spacing: var(--tk-type-display-tracking);
+  }
+
+  .tk-type-h1 {
+    font-family: var(--tk-type-h1-font);
+    font-size: var(--tk-type-h1-size);
+    font-weight: var(--tk-type-h1-weight);
+    font-stretch: var(--tk-type-h1-stretch);
+    line-height: var(--tk-type-h1-leading);
+    letter-spacing: var(--tk-type-h1-tracking);
+  }
+
+  .tk-type-h2 {
+    font-family: var(--tk-type-h2-font);
+    font-size: var(--tk-type-h2-size);
+    font-weight: var(--tk-type-h2-weight);
+    font-stretch: var(--tk-type-h2-stretch);
+    line-height: var(--tk-type-h2-leading);
+    letter-spacing: var(--tk-type-h2-tracking);
+  }
+
+  .tk-type-h3 {
+    font-family: var(--tk-type-h3-font);
+    font-size: var(--tk-type-h3-size);
+    font-weight: var(--tk-type-h3-weight);
+    font-stretch: var(--tk-type-h3-stretch);
+    line-height: var(--tk-type-h3-leading);
+    letter-spacing: var(--tk-type-h3-tracking);
+  }
+
+  .tk-type-h4 {
+    font-family: var(--tk-type-h4-font);
+    font-size: var(--tk-type-h4-size);
+    font-weight: var(--tk-type-h4-weight);
+    font-stretch: var(--tk-type-h4-stretch);
+    line-height: var(--tk-type-h4-leading);
+    letter-spacing: var(--tk-type-h4-tracking);
+  }
+
+  .tk-type-body-lg {
+    font-family: var(--tk-type-body-lg-font);
+    font-size: var(--tk-type-body-lg-size);
+    font-weight: var(--tk-type-body-lg-weight);
+    font-stretch: var(--tk-type-body-lg-stretch);
+    line-height: var(--tk-type-body-lg-leading);
+    letter-spacing: var(--tk-type-body-lg-tracking);
+  }
+
+  .tk-type-body {
+    font-family: var(--tk-type-body-font);
+    font-size: var(--tk-type-body-size);
+    font-weight: var(--tk-type-body-weight);
+    font-stretch: var(--tk-type-body-stretch);
+    line-height: var(--tk-type-body-leading);
+    letter-spacing: var(--tk-type-body-tracking);
+  }
+
+  .tk-type-body-sm {
+    font-family: var(--tk-type-body-sm-font);
+    font-size: var(--tk-type-body-sm-size);
+    font-weight: var(--tk-type-body-sm-weight);
+    font-stretch: var(--tk-type-body-sm-stretch);
+    line-height: var(--tk-type-body-sm-leading);
+    letter-spacing: var(--tk-type-body-sm-tracking);
+  }
+
+  .tk-type-caption {
+    font-family: var(--tk-type-caption-font);
+    font-size: var(--tk-type-caption-size);
+    font-weight: var(--tk-type-caption-weight);
+    font-stretch: var(--tk-type-caption-stretch);
+    line-height: var(--tk-type-caption-leading);
+    letter-spacing: var(--tk-type-caption-tracking);
+  }
+
+  .tk-type-label {
+    font-family: var(--tk-type-label-font);
+    font-size: var(--tk-type-label-size);
+    font-weight: var(--tk-type-label-weight);
+    font-stretch: var(--tk-type-label-stretch);
+    line-height: var(--tk-type-label-leading);
+    letter-spacing: var(--tk-type-label-tracking);
+    text-transform: var(--tk-type-label-transform);
+  }
+
+  .tk-type-code {
+    font-family: var(--tk-type-code-font);
+    font-size: var(--tk-type-code-size);
+    font-weight: var(--tk-type-code-weight);
+    font-stretch: var(--tk-type-code-stretch);
+    line-height: var(--tk-type-code-leading);
+    letter-spacing: var(--tk-type-code-tracking);
+  }
+
+  /* After the roles, so a serif role keeps its size and leading but takes this face. */
+  .tk-serif {
+    font-family: var(--tk-font-serif);
+    font-weight: 400;
+    letter-spacing: normal;
+    /* Geist Serif has one weight and no italic, so bold and italics inside are synthesized. */
+    font-synthesis: weight style;
+  }
+
+  /* Ink -------------------------------------------------------------------- */
+
+  .tk-ink-muted {
+    color: var(--tk-fg-muted);
+  }
+
+  .tk-ink-subtle {
+    color: var(--tk-fg-subtle);
+  }
+
+  .tk-ink-bright {
+    color: var(--tk-fg-bright);
+  }
+
+  .tk-ink-label {
+    color: var(--tk-label);
+  }
+
+  .tk-ink-accent {
+    color: var(--tk-accent);
+  }
+
+  .tk-ink-success {
+    color: var(--tk-success);
+  }
+
+  .tk-ink-info {
+    color: var(--tk-info);
+  }
+
+  .tk-ink-warning {
+    color: var(--tk-warning);
+  }
+
+  .tk-ink-danger {
+    color: var(--tk-danger);
+  }
+
+  /* OpenType --------------------------------------------------------------- */
+
+  /* Each class sets one part of font-variant-numeric, so they combine. */
+  .tk-nums-tabular,
+  .tk-nums-oldstyle,
+  .tk-fractions {
+    font-variant-numeric: var(--_nums-figure,) var(--_nums-spacing,) var(--_nums-fraction,);
+  }
+
+  .tk-nums-tabular {
+    --_nums-spacing: tabular-nums;
+  }
+
+  .tk-nums-oldstyle {
+    --_nums-figure: oldstyle-nums;
+  }
+
+  .tk-fractions {
+    --_nums-fraction: diagonal-fractions;
+  }
+
+  .tk-small-caps {
+    font-variant-caps: all-small-caps;
+    /* No bundled face has small caps, so the browser draws them from capitals. */
+    font-synthesis-small-caps: auto;
+  }
+
+  /* Truncation ------------------------------------------------------------- */
+
+  .tk-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tk-clamp {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--tk-clamp-lines, 3);
+  }
+}

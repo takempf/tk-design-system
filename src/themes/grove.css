@@ -45,9 +45,9 @@
     --tk-weight-regular: 460;
     --tk-weight-medium: 560;
     --tk-weight-bold: 640;
-    --tk-label-size: var(--tk-text-xs);
-    --tk-label-tracking: 0.2em;
-    --tk-label-stretch: 75%;
+    --tk-type-label-size: var(--tk-text-xs);
+    --tk-type-label-tracking: 0.2em;
+    --tk-type-label-stretch: 75%;
 
     --tk-radius: 7px;
     --tk-radius-sm: 4px;
