@@ -4,7 +4,8 @@ import { Button, Icon, morph, Panel, Reveal, Stack } from 'tk-design-system';
 export const meta = {
   section: 'motion',
   title: 'Reveal',
-  description: 'Content mounted inside morph() rises in; removed content sinks away.',
+  description:
+    'Content mounted inside morph() grows in from half size; removed content shrinks away. What moves to make room moves on the same curve.',
   order: 3,
 };
 
@@ -36,9 +37,11 @@ export default function RevealDemo() {
           </Panel>
         </Reveal>
       ))}
-      <Button onClick={add} disabled={found.length === finds.length}>
-        <Icon name="plus" /> Pick something up
-      </Button>
+      <Reveal scope="finds">
+        <Button onClick={add} disabled={found.length === finds.length}>
+          <Icon name="plus" /> Pick something up
+        </Button>
+      </Reveal>
     </Stack>
   );
 }

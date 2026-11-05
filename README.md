@@ -264,8 +264,8 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
 - `<Morph>` shares a name between two states; the browser carries one into the other.
   `fit="text"` keeps letters at true size while they travel; `fit="icon"` scales and turns
   one glyph into another without dimming between them.
-- `<Reveal>` rises in on mount, sinks on unmount, slides when siblings move; `directional`
-  follows `forward`/`back` types.
+- `<Reveal>` grows in on mount, shrinks away on unmount, slides when siblings move;
+  `directional` follows `forward`/`back` types.
 - `scope` keeps a local change local: names only exist for the morph that asks for them,
   so opening a popup never captures (or covers) the rest of the page.
 - A part nested in another stays on top of it while both travel, as the page paints them.

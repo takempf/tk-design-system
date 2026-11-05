@@ -282,6 +282,7 @@
     --tk-enter-offset: 4px;
     --tk-enter-scale: 0.98;
     --tk-enter-blur: 0px;
+    --tk-reveal-scale: 0.5;
 
     /* Text decoding (<Decipher>, <DecipherStream>): each word glitches in as it
        shows. About a share of its letters cycle through the glyphs, one every

@@ -453,8 +453,8 @@ export function willMorph(): boolean {
 
 /**
  * Apply a state change inside a view transition. <Morph>s that trade a name glide
- * from the old box to the new; <Reveal>s that mount rise in, those that unmount
- * sink away, and those that merely move slide to their new place.
+ * from the old box to the new; <Reveal>s that mount grow in, those that unmount
+ * shrink away, and those that merely move slide to their new place.
  *
  * A `fit="container"` part is one frame in two places (a trigger, then its
  * popup): the frame moves and resizes between them, its fill, edge and corners
@@ -626,10 +626,7 @@ export interface RevealProps {
   readonly scope?: string;
 }
 
-/**
- * Content that rises in when a `morph()` mounts it and sinks away when one removes
- * it. Siblings that merely move glide to their new places. Key it to replace it.
- */
+/** Content that grows in when a `morph()` mounts it, shrinks away when one removes it, and glides when it moves. */
 export function Reveal({ children, directional = false, scope }: RevealProps) {
   const name = useMorphName('reveal');
   return tag(

@@ -142,19 +142,17 @@
     mix-blend-mode: plus-lighter;
   }
 
-  @keyframes tk-vt-rise-in {
+  @keyframes tk-vt-grow-in {
     from {
       opacity: 0;
-      transform: translateY(calc(var(--tk-enter-offset) * 2));
-      filter: blur(var(--tk-enter-blur));
+      transform: scale(var(--tk-reveal-scale));
     }
   }
 
-  @keyframes tk-vt-sink-out {
+  @keyframes tk-vt-shrink-out {
     to {
       opacity: 0;
-      transform: translateY(calc(var(--tk-enter-offset) * -1));
-      filter: blur(var(--tk-enter-blur));
+      transform: scale(var(--tk-reveal-scale));
     }
   }
 
@@ -203,31 +201,32 @@
   }
 
   /* Only a new image: the element entered. Only an old one: it left. */
+  /* On the morph's curve, in step with the parts that move to make room. */
   ::view-transition-new(.tk-reveal):only-child {
-    animation: tk-vt-rise-in var(--tk-duration-3) var(--tk-ease-out) both;
+    animation: tk-vt-grow-in var(--tk-duration-morph) var(--tk-ease-morph) both;
   }
 
   ::view-transition-old(.tk-reveal):only-child {
-    animation: tk-vt-sink-out var(--tk-duration-1) var(--tk-ease-in) both;
+    animation: tk-vt-shrink-out var(--tk-duration-morph) var(--tk-ease-morph) both;
   }
 
   :root:active-view-transition-type(forward) {
     &::view-transition-new(.tk-directional):only-child {
-      animation-name: tk-vt-from-right;
+      animation: tk-vt-from-right var(--tk-duration-3) var(--tk-ease-out) both;
     }
 
     &::view-transition-old(.tk-directional):only-child {
-      animation-name: tk-vt-to-left;
+      animation: tk-vt-to-left var(--tk-duration-1) var(--tk-ease-in) both;
     }
   }
 
   :root:active-view-transition-type(back) {
     &::view-transition-new(.tk-directional):only-child {
-      animation-name: tk-vt-from-left;
+      animation: tk-vt-from-left var(--tk-duration-3) var(--tk-ease-out) both;
     }
 
     &::view-transition-old(.tk-directional):only-child {
-      animation-name: tk-vt-to-right;
+      animation: tk-vt-to-right var(--tk-duration-1) var(--tk-ease-in) both;
     }
   }
 
