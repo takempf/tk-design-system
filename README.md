@@ -300,9 +300,12 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   `strength: 100%` scramble every letter. The playground's Motion page has a lab for them.
 - `<DecipherStream active={streaming}>` does the same for text still arriving, such as a
   model's reply, each word once as it lands. While `active`, the last word waits until
-  it's whole (`wholeWords`), so it never scrambles again with each letter. Inside a
-  markdown renderer, `useStreamDecipher(streaming)` says when to decipher and
-  `decipherChildren(children, deciphering)` deciphers a component's text. `enabled={false}`
+  it's whole (`wholeWords`), so it never scrambles again with each letter. The block
+  around it wraps greedily (`text-wrap-style: auto`), since `pretty` would move earlier
+  words to new lines as each one lands. Inside a markdown renderer,
+  `useStreamDecipher(streaming)` says when to decipher and
+  `decipherChildren(children, deciphering)` deciphers a component's text; give its
+  paragraphs `text-wrap-style: auto` too. `enabled={false}`
   shows the text plainly. `readDecipher(element)` reads the settings where text sits.
 - `useSmoothText(text, { cps })` reveals text that arrives in bursts at an even pace,
   catching up when it falls far behind: `{ text, done }`.

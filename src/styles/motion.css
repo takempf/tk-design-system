@@ -261,6 +261,11 @@
     display: contents;
   }
 
+  /* `pretty` rebalances earlier lines each time a streamed word lands. */
+  :has(> .tk-decipher-stream) {
+    text-wrap-style: auto;
+  }
+
   .tk-decipher-word {
     position: relative;
     display: inline-block;
