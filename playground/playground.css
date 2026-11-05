@@ -745,6 +745,138 @@
   }
 }
 
+/* Type page -------------------------------------------------------------- */
+
+.pg-type-tester {
+  position: sticky;
+  top: var(--tk-space-4);
+  z-index: 1;
+  background: var(--tk-bg);
+}
+
+.pg-role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--tk-space-2) var(--tk-space-8);
+  padding-block: var(--tk-space-5);
+  border-top: var(--tk-border-width) solid var(--tk-border-subtle);
+}
+
+.pg-role-meta {
+  display: flex;
+  flex: 0 0 15rem;
+  flex-direction: column;
+  gap: var(--tk-space-1);
+}
+
+.pg-role-spec {
+  white-space: nowrap;
+}
+
+.pg-role-sample {
+  flex: 1 1 24rem;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.pg-inks-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tk-space-2) var(--tk-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pg-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: var(--tk-space-4);
+}
+
+.pg-feature {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-4);
+  min-width: 0;
+}
+
+.pg-feature-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--tk-space-4);
+
+  & figure {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tk-space-1);
+  }
+}
+
+.pg-feature-sample {
+  font-size: var(--tk-text-xl);
+  line-height: var(--tk-leading-tight);
+  white-space: pre-line;
+}
+
+.pg-faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+  gap: var(--tk-space-4);
+}
+
+.pg-face {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-4);
+  min-width: 0;
+}
+
+.pg-face-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-1);
+}
+
+.pg-face-token {
+  display: block;
+}
+
+.pg-face-ramp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tk-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  & li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--tk-space-1);
+  }
+
+  & li > :first-child {
+    font-size: var(--tk-text-xl);
+    line-height: 1;
+  }
+}
+
+.pg-face-characters {
+  font-size: var(--tk-text-lg);
+  letter-spacing: normal;
+  overflow-wrap: anywhere;
+}
+
+.pg-prose {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--tk-space-6);
+}
+
 /* Themes page ------------------------------------------------------------ */
 
 .pg-compare {

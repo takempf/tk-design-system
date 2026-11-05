@@ -114,26 +114,14 @@ export function Hall() {
           </p>
           <Eyebrow>Type</Eyebrow>
           <div className="pg-type">
-            <p
-              style={{
-                fontFamily: 'var(--tk-font-display)',
-                fontStretch: 'var(--tk-display-stretch)',
-                fontSize: 'var(--tk-text-2xl)',
-              }}
-            >
-              Moss on the north side
-            </p>
-            <p style={{ fontSize: 'var(--tk-text-lg)' }}>
-              Quiet paths between tall trunks, lit by a low moon.
-            </p>
-            <p
-              className="tk-serif"
-              style={{ fontSize: 'var(--tk-text-lg)', lineHeight: 'var(--tk-leading-reading)' }}
-            >
+            <p className="tk-type-h2">Moss on the north side</p>
+            <p className="tk-type-body-lg">Quiet paths between tall trunks, lit by a low moon.</p>
+            <p className="tk-type-body-lg tk-serif">
               “Keep to the stones,” the warden said, “and don’t let the lantern go out.”
             </p>
             <p className="pg-muted">
-              Body text is generous — the letterforms have room to be read slowly.
+              Body text is generous — the letterforms have room to be read slowly. Every role is on
+              the <a href="#/type">Type</a> page.
             </p>
             <p>
               Inline, <Code>trail.follow(moonlight)</Code> sits in the line.

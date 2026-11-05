@@ -30,12 +30,14 @@ import { Glyphs } from './pages/Glyphs';
 import { Hall } from './pages/Hall';
 import { SceneryLab } from './pages/SceneryLab';
 import { ThemeCompare } from './pages/ThemeCompare';
+import { Typography } from './pages/Typography';
 import { demos, Specimen } from './Specimen';
 import { type Section, sections } from './sections';
 import { playgroundThemes } from './themes';
 
 const pages: Record<string, () => ReactNode> = {
   hall: Hall,
+  type: Typography,
   motion: DecipherLab,
   scenery: SceneryLab,
   glyphs: Glyphs,

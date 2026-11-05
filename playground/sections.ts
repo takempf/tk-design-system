@@ -15,6 +15,12 @@ export const sections: readonly Section[] = [
     blurb: 'Where everything starts. The active theme, its palette, its type.',
   },
   {
+    id: 'type',
+    title: 'Type',
+    mark: 'triple-bar',
+    blurb: 'Text roles from display to caption, the faces behind them, and prose for reading.',
+  },
+  {
     id: 'actions',
     title: 'Actions',
     mark: 'triangle',
