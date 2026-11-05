@@ -65,6 +65,16 @@
     text-wrap: pretty;
   }
 
+  /* The serif text style, for reading. Geist Serif has one weight and no italic,
+     so it sets that weight, and bold and italics inside it are synthesized
+     rather than lost. Its letters want no extra tracking. */
+  .tk-serif {
+    font-family: var(--tk-font-serif);
+    font-weight: 400;
+    letter-spacing: normal;
+    font-synthesis: weight style;
+  }
+
   :where(code, kbd, pre, samp) {
     font-family: var(--tk-font-mono);
     font-size: 0.9em;

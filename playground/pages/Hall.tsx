@@ -126,6 +126,12 @@ export function Hall() {
             <p style={{ fontSize: 'var(--tk-text-lg)' }}>
               Quiet paths between tall trunks, lit by a low moon.
             </p>
+            <p
+              className="tk-serif"
+              style={{ fontSize: 'var(--tk-text-lg)', lineHeight: 'var(--tk-leading-reading)' }}
+            >
+              “Keep to the stones,” the warden said, “and don’t let the lantern go out.”
+            </p>
             <p className="pg-muted">
               Body text is generous — the letterforms have room to be read slowly.
             </p>

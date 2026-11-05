@@ -111,8 +111,8 @@
     --tk-code-deleted: var(--tk-danger);
 
     /* Type. Generous sizes; weight 500 keeps the letterforms full. Every face is
-       a Fontsource variable font (see fonts.css); stacks end in the shared
-       fallback for Korean and emoji, then only a generic family. */
+       a variable font (see fonts.css); stacks end in the shared fallback for
+       Korean and emoji, then only a generic family. */
     --tk-root-size: 18px;
     --tk-font-fallback: 'Noto Sans KR Variable', 'Noto Color Emoji';
     --tk-font-sans: 'Geist Variable', var(--tk-font-fallback), sans-serif;
@@ -121,6 +121,8 @@
     /* Archivo's width axis runs 62–125%: labels are the narrow cut. */
     --tk-font-label: 'Archivo Variable', var(--tk-font-fallback), sans-serif;
     --tk-font-mono: 'Geist Mono Variable', var(--tk-font-fallback), monospace;
+    /* For reading: story, dialogue, long prose (see .tk-serif). */
+    --tk-font-serif: 'Geist Serif', var(--tk-font-fallback), serif;
     --tk-text-xs: 0.75rem;
     --tk-text-sm: 0.875rem;
     --tk-text-md: 1rem;

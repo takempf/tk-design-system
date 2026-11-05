@@ -18,7 +18,7 @@ npm install ../tk-design-system        # or a git URL; run `npm run build` in he
 ```
 
 ```tsx
-import 'tk-design-system/fonts.css';   // the Fontsource faces the themes name
+import 'tk-design-system/fonts.css';   // the faces the themes name
 import 'tk-design-system/styles.css';
 import { Theme, SceneryBackdrop, Button, Select } from 'tk-design-system';
 
@@ -33,14 +33,20 @@ export function App() {
 ```
 
 Peer dependencies are React and React DOM 19. Base UI, zustand and the Fontsource
-packages come with the package.
+packages come with the package, and so does Geist Serif.
 
-**Type.** Every face is a Fontsource variable font: Geist and Geist Mono (base), Archivo
+**Type.** Every face is a variable font: Geist and Geist Mono (base), Archivo
 (labels — its width axis runs 62–125%, narrowed with `--tk-label-stretch`), Instrument
 Sans (Grove, also width-variable), Newsreader (Paper display), with Noto Sans KR and Noto
-Color Emoji as the shared `--tk-font-fallback`. Stacks end only in a generic family, so
+Color Emoji as the shared `--tk-font-fallback`. All come from Fontsource but Geist Serif,
+which ships in `src/fonts` under its OFL license. Stacks end only in a generic family, so
 nothing depends on what the OS has installed. Narrowing is always `font-stretch` on a
 width axis: `--tk-label-stretch` for labels, `--tk-display-stretch` for headings.
+
+**Serif.** For reading — a story, dialogue, long prose — the `.tk-serif` text style sets
+Geist Serif (`--tk-font-serif`). It has one weight (400) and no italic, so the style sets
+that weight and lets bold and italics inside it be synthesized. Size and leading are the
+text's own; `--tk-leading-reading` suits paragraphs.
 
 ## How it fits together
 

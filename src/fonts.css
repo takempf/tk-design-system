@@ -1,6 +1,6 @@
 /*
-  Every face the bundled themes name, all from Fontsource. Import once, next to
-  styles.css. The width-axis builds matter: labels narrow Archivo and Instrument
+  Every face the bundled themes name, all from Fontsource but Geist Serif, which
+  ships here (fonts/geist-serif). Import once, next to styles.css. The width-axis builds matter: labels narrow Archivo and Instrument
   Sans with font-stretch. Korean and emoji load only when a page uses them
   (unicode-range subsets).
 */
@@ -13,3 +13,12 @@
 @import '@fontsource-variable/newsreader/opsz-italic.css';
 @import '@fontsource-variable/noto-sans-kr';
 @import '@fontsource/noto-color-emoji';
+
+/* One weight, upright, variable on its dot shapes (ELSH). See fonts/geist-serif. */
+@font-face {
+  font-family: 'Geist Serif';
+  src: url('./fonts/geist-serif/GeistSerif-Variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
