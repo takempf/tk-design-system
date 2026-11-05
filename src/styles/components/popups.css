@@ -644,7 +644,7 @@
   /* A toast of something under way (type 'loading', as toasts.promise makes
      them): a spinner on the title's line. */
   .tk-toast-spinner {
-    margin-top: calc((1lh - 1em) / 2);
+    margin-top: calc((1lh - 1.15em) / 2);
     color: var(--tk-fg-subtle);
     font-size: var(--tk-text-md);
   }

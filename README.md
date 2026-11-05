@@ -60,6 +60,7 @@ src/
   components/            thin typed wrappers over @base-ui/react parts
   motion/                morph(), <Morph>, <Reveal>, <Decipher>, wipe()
   scenery/               the WebGL renderer, scenes, <SceneryWindow>, <SceneryBackdrop>
+  raster/                a software renderer for small dithered solids (the spinner's)
   theme/                 <Theme>, theme registry
 playground/              the proving grounds: every component, its source, every theme
 ```
@@ -173,7 +174,10 @@ like their components. Add `.tk-serif` for the serif.
 `Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
-`Loading`/`Skeleton`/`Spinner` (and `Button`'s `loading`, a `'loading'` toast's spinner) ·
+`Loading`/`Skeleton`/`Spinner`/`SpinnerIcon` (the spinner is a low-poly solid tumbling,
+lit and dithered in `--tk-spinner-ink-1…3`, by default the text it sits in at rising
+strength; `SpinnerIcon` is the bare one for a control that already says it's busy, as
+`Button`'s `loading` and a `'loading'` toast use) ·
 `Icon` (utility icons plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
 and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;

@@ -1,6 +1,7 @@
 import { Button as BaseButton } from '@base-ui/react/button';
 import type { ComponentProps } from 'react';
 import { withBase } from '../utils';
+import { SpinnerIcon } from './SpinnerIcon';
 
 export type ButtonVariant = 'default' | 'primary' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -43,7 +44,7 @@ export function Button({
       {loading ? (
         <>
           <span className="tk-button-label">{children}</span>
-          <span className="tk-spinner" aria-hidden="true" />
+          <SpinnerIcon />
         </>
       ) : (
         children

@@ -15,6 +15,7 @@ import { usePortalContainer } from '../theme/Theme';
 import { cx, mergeRefs } from '../utils';
 import { type ComboboxGroup, type Reveal, Rows } from './comboboxList';
 import { overTrigger, useControllable } from './popup';
+import { SpinnerIcon } from './SpinnerIcon';
 
 type Details = BaseCombobox.Root.ChangeEventDetails;
 
@@ -402,7 +403,7 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           }}
         >
           {loading ? (
-            <span className="tk-spinner tk-combobox-field-icon" aria-hidden="true" />
+            <SpinnerIcon className="tk-combobox-field-icon" />
           ) : (
             <Icon name="search" className="tk-combobox-field-icon" />
           )}

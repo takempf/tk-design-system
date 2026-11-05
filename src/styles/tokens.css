@@ -294,6 +294,11 @@
     --tk-decipher-flicker: 120ms;
     --tk-decipher-duration: 650ms;
 
+    /* SpinnerIcon's solid, dimmest face to brightest: the text it sits in, at rising strength. */
+    --tk-spinner-ink-1: color-mix(in oklab, currentColor 22%, transparent);
+    --tk-spinner-ink-2: color-mix(in oklab, currentColor 55%, transparent);
+    --tk-spinner-ink-3: currentColor;
+
     /* Scenery: the dithered WebGL illustration revealed through windows. The
        ramp runs dark → light; the ember ink marks a scene's emissive spots. */
     --tk-scenery-scene: 'trapper';

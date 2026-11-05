@@ -2,6 +2,7 @@ import { Toast as BaseToast } from '@base-ui/react/toast';
 import type { ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { usePortalContainer } from '../theme/Theme';
+import { SpinnerIcon } from './SpinnerIcon';
 
 /** Add toasts from anywhere, including outside React: `toasts.add({ title })`. */
 export const toasts = BaseToast.createToastManager();
@@ -13,9 +14,7 @@ function ToastList() {
   return list.map((toast) => (
     <BaseToast.Root key={toast.id} toast={toast} className="tk-toast" data-tone={toast.type}>
       <BaseToast.Content className="tk-toast-content">
-        {toast.type === 'loading' && (
-          <span className="tk-spinner tk-toast-spinner" aria-hidden="true" />
-        )}
+        {toast.type === 'loading' && <SpinnerIcon className="tk-toast-spinner" />}
         <div className="tk-toast-text">
           <BaseToast.Title className="tk-toast-title" />
           <BaseToast.Description className="tk-toast-description" />

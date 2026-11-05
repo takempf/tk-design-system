@@ -1,24 +1,19 @@
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 import { cx } from '../utils';
+import { SpinnerIcon } from './SpinnerIcon';
 
 export interface SpinnerProps extends Omit<ComponentProps<'span'>, 'children'> {
-  /** What's under way, set beside the ring in quiet type: "Thinking". */
+  /** What's under way, set beside the spinner in quiet type: "Thinking". */
   readonly children?: ReactNode;
-  /** Read out, not shown, when nothing is set beside the ring. */
+  /** Read out, not shown, when nothing is set beside the spinner. */
   readonly label?: string;
 }
 
-/**
- * Something under way that has no shape to hold in its place (an answer being written,
- * a lookup): a ring the size of the text, turning. It's a status, so assistive tech
- * announces it. It comes in after a beat, so what's quick never flashes it. Inside a
- * control that already says it's busy, use the bare `.tk-spinner` class instead
- * (`<Button loading>` does).
- */
+/** A status for work with no shape to hold its place, announced, and shown after a beat; in a busy control use SpinnerIcon. */
 export function Spinner({ children, label = 'Loading', className, ...props }: SpinnerProps) {
   return (
     <span {...props} role="status" className={cx('tk-spinner-status', className)}>
-      <span className="tk-spinner" aria-hidden="true" />
+      <SpinnerIcon />
       {children ?? <span className="tk-visually-hidden">{label}</span>}
     </span>
   );
