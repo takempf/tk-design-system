@@ -2,39 +2,56 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { cx } from '../utils';
 import { reducedMotion } from './reducedMotion';
 
-/** The most numbers a roll shows on its way, its first and last among them. */
-const MAX_STEPS = 12;
 /** How long the number stays green or red once it's arrived, before it fades back. */
 const HOLD_MS = 900;
 /** easeOutQuart: quick to start, settling into the number it arrives at. */
 const EASING = 'cubic-bezier(0.25, 1, 0.5, 1)';
+/** Holds a line's height where a place has no character, as a digit appears or goes. */
+const BLANK = '​';
 
 /**
- * How long a roll takes: 700ms for a step of one, longer the further it goes
- * (1.1s for two, about 2.1s for ten), up to 2.6s.
+ * How long a roll takes, by the most steps any place rolls: 700ms for one,
+ * longer the further it goes (1.1s for two, about 2s for nine), up to 2.6s.
  */
-export const rollDuration = (delta: number): number =>
-  Math.min(2600, 700 + 400 * Math.log2(Math.max(1, Math.abs(delta))));
+export const rollDuration = (steps: number): number =>
+  Math.min(2600, 700 + 400 * Math.log2(Math.max(1, Math.abs(steps))));
 
 /**
- * The numbers a roll from `from` to `to` passes, in order: each one on the
- * way, or for a long way, `MAX_STEPS` of them spread evenly along it.
+ * One place in a number as it rolls, from the left: a character that stays,
+ * or the characters a changing one rolls through, from its old one to its new.
  */
-export function rollSteps(from: number, to: number): number[] {
-  const distance = Math.abs(to - from);
-  if (distance < MAX_STEPS)
-    return Array.from({ length: distance + 1 }, (_, step) => from + Math.sign(to - from) * step);
-  const steps = Array.from({ length: MAX_STEPS }, (_, step) =>
-    Math.round(from + ((to - from) * step) / (MAX_STEPS - 1)),
-  );
-  return steps.filter((step, index) => step !== steps[index - 1]);
+export type RollPlace = string | string[];
+
+/**
+ * The places of a roll from `from` to `to`, lined up from the right. A digit
+ * that stays holds still. One that changes rolls through the digits on its way,
+ * upward as the number grows (9 turning over to 0) and downward as it shrinks.
+ * A place only one number has rolls in from blank or out to it ('').
+ */
+export function rollPlaces(from: number, to: number): RollPlace[] {
+  const before = Array.from(String(from));
+  const after = Array.from(String(to));
+  const width = Math.max(before.length, after.length);
+  const pad = (chars: string[]): string[] => [...Array(width - chars.length).fill(''), ...chars];
+  const was = pad(before);
+  const growing = Math.abs(to) >= Math.abs(from);
+  return pad(after).map((char, index) => {
+    const old = was[index]!;
+    if (old === char) return char;
+    if (!/\d/.test(old) || !/\d/.test(char)) return [old, char];
+    const steps = [old];
+    for (let digit = Number(old); String(digit) !== char; ) {
+      digit = (digit + (growing ? 1 : 9)) % 10;
+      steps.push(String(digit));
+    }
+    return steps;
+  });
 }
 
 interface Roll {
-  from: number;
-  to: number;
-  /** The numbers on the way, from `from` to `to`. */
-  steps: number[];
+  readonly places: RollPlace[];
+  /** Whether the places roll upward through their digits, the number growing. */
+  readonly growing: boolean;
 }
 
 export interface RollingNumberProps {
@@ -43,14 +60,15 @@ export interface RollingNumberProps {
 }
 
 /**
- * A number that rolls to its new value when it changes, sliding up through
- * the numbers on the way when it goes up and down when it goes down, green or
- * red until a moment after it arrives. A longer way takes longer. Its first
- * value just shows; with reduced motion, a change only colors it.
+ * A number that rolls to its new value when it changes, like an odometer: only
+ * the digits that change move, each sliding through the digits on its way, up
+ * as the number grows and down as it shrinks, green or red until a moment after
+ * it arrives. The digits that stay hold still. Its first value just shows; with
+ * reduced motion, a change only colors it.
  */
 export function RollingNumber({ value, className }: RollingNumberProps) {
   const previous = useRef(value);
-  const strip = useRef<HTMLSpanElement>(null);
+  const strips = useRef<(HTMLSpanElement | null)[]>([]);
   const [roll, setRoll] = useState<Roll | null>(null);
   const [trend, setTrend] = useState<'up' | 'down' | null>(null);
 
@@ -60,25 +78,40 @@ export function RollingNumber({ value, className }: RollingNumberProps) {
     previous.current = value;
     if (from === value) return;
     setTrend(value > from ? 'up' : 'down');
-    setRoll(reducedMotion() ? null : { from, to: value, steps: rollSteps(from, value) });
+    setRoll(
+      reducedMotion()
+        ? null
+        : { places: rollPlaces(from, value), growing: Math.abs(value) >= Math.abs(from) },
+    );
   }, [value]);
 
-  // Roll the strip to the new number, then show it alone.
+  // Roll each changing place to its new digit, all landing together, then show the number alone.
   useLayoutEffect(() => {
-    const element = strip.current;
-    if (!roll || !element) return;
-    // Up, the strip runs from → to downward and slides up; down, the other way.
-    const span = (100 * (roll.steps.length - 1)) / roll.steps.length;
-    const [start, end] = roll.to > roll.from ? [0, -span] : [-span, 0];
-    const animation = element.animate(
-      [{ transform: `translateY(${start}%)` }, { transform: `translateY(${end}%)` }],
-      { duration: rollDuration(roll.to - roll.from), easing: EASING, fill: 'forwards' },
-    );
-    animation.finished.then(
-      () => setRoll(null),
+    if (!roll) return;
+    const rolling = roll.places.filter((place): place is string[] => Array.isArray(place));
+    const duration = rollDuration(Math.max(...rolling.map((steps) => steps.length - 1)));
+    const animations = rolling.flatMap((steps, index) => {
+      const strip = strips.current[index];
+      if (!strip || typeof strip.animate !== 'function') return [];
+      // Growing, a strip runs old → new downward and slides up; shrinking, the other way.
+      const span = (100 * (steps.length - 1)) / steps.length;
+      const [start, end] = roll.growing ? [0, -span] : [-span, 0];
+      return [
+        strip.animate(
+          [{ transform: `translateY(${start}%)` }, { transform: `translateY(${end}%)` }],
+          { duration, easing: EASING, fill: 'forwards' },
+        ),
+      ];
+    });
+    let current = true;
+    Promise.all(animations.map((animation) => animation.finished)).then(
+      () => current && setRoll(null),
       () => {},
     );
-    return () => animation.cancel();
+    return () => {
+      current = false;
+      for (const animation of animations) animation.cancel();
+    };
   }, [roll]);
 
   // Once it's arrived, its color holds a moment, then fades back.
@@ -88,28 +121,39 @@ export function RollingNumber({ value, className }: RollingNumberProps) {
     return () => clearTimeout(hold);
   }, [trend, roll]);
 
-  const shown = roll && roll.to < roll.from ? [...roll.steps].reverse() : (roll?.steps ?? []);
-  // While it rolls, the widest number on the way holds the space, so none is cut off.
-  const held = roll
-    ? roll.steps.map(String).reduce((wide, step) => (step.length > wide.length ? step : wide))
-    : String(value);
+  let strip = 0;
   return (
     <span className={cx('tk-rolling-number', className)} data-trend={trend ?? undefined}>
       <span className="tk-visually-hidden">{value}</span>
-      <span
-        className="tk-rolling-number-held"
-        data-rolling={roll ? '' : undefined}
-        aria-hidden="true"
-      >
-        {held}
+      <span aria-hidden="true">
+        {roll
+          ? roll.places.map((place, index) => {
+              // Places are keyed from the right, where digits line up between numbers.
+              const key = roll.places.length - index;
+              if (!Array.isArray(place)) return <span key={key}>{place}</span>;
+              const at = strip++;
+              const shown = roll.growing ? place : [...place].reverse();
+              // The place holds the widest of its characters, so none is cut off.
+              const held = place.find((char) => /\d/.test(char)) ?? place.find(Boolean) ?? '';
+              return (
+                <span key={key} className="tk-rolling-number-place">
+                  <span className="tk-rolling-number-held">{held || BLANK}</span>
+                  <span
+                    ref={(node) => {
+                      strips.current[at] = node;
+                    }}
+                    className="tk-rolling-number-strip"
+                  >
+                    {shown.map((char, step) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: a strip's characters repeat (9 → 0 → 9) and never reorder
+                      <span key={step}>{char || BLANK}</span>
+                    ))}
+                  </span>
+                </span>
+              );
+            })
+          : value}
       </span>
-      {roll && (
-        <span ref={strip} className="tk-rolling-number-strip" aria-hidden="true">
-          {shown.map((step) => (
-            <span key={step}>{step}</span>
-          ))}
-        </span>
-      )}
     </span>
   );
 }

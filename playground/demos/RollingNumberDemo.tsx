@@ -5,9 +5,11 @@ export const meta = {
   section: 'motion',
   title: 'Rolling number',
   description:
-    'A number that rolls through the values on its way, up or down, lit green or red as it lands. A longer way takes longer.',
+    'An odometer: only the digits that change roll, through the digits on their way, lit green or red as they land. +10 moves only the tens; a carry turns over each place it reaches.',
   order: 5,
 };
+
+const steps = [-1, 1, 9, 10, 100, -100];
 
 export default function RollingNumberDemo() {
   const [lamp, setLamp] = useState(12);
@@ -20,18 +22,11 @@ export default function RollingNumberDemo() {
         </span>
       </Stack>
       <Stack direction="row" gap={2} wrap>
-        <Button size="sm" onClick={() => setLamp(lamp - 1)}>
-          −1
-        </Button>
-        <Button size="sm" onClick={() => setLamp(lamp + 1)}>
-          +1
-        </Button>
-        <Button size="sm" onClick={() => setLamp(lamp + 10)}>
-          +10
-        </Button>
-        <Button size="sm" onClick={() => setLamp(lamp - 100)}>
-          −100
-        </Button>
+        {steps.map((step) => (
+          <Button key={step} size="sm" onClick={() => setLamp(lamp + step)}>
+            {step > 0 ? `+${step}` : `−${-step}`}
+          </Button>
+        ))}
       </Stack>
     </Stack>
   );

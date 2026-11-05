@@ -282,10 +282,11 @@
     color: color-mix(in oklab, var(--tk-decipher-ink) var(--tk-decipher-strength), transparent);
   }
 
-  /* <RollingNumber>: the held number sits in the line, so the box has its size
-     and baseline; while it rolls, it hides under the strip of numbers on the
-     way, which slides through a window one line tall. clip-path, not overflow,
-     makes the window, so the baseline stays the number's. */
+  /* <RollingNumber>: an odometer. Each place that changes holds its widest
+     character in the line, so the place has its size and baseline, hidden under
+     a strip of the digits on its way that slides past. clip-path on the number,
+     not overflow, makes the window one line tall, so the baseline stays the
+     number's. */
   .tk-rolling-number {
     position: relative;
     display: inline-block;
@@ -307,17 +308,22 @@
     color: var(--tk-red);
   }
 
-  .tk-rolling-number-held[data-rolling] {
+  .tk-rolling-number-place {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tk-rolling-number-held {
     visibility: hidden;
   }
 
   .tk-rolling-number-strip {
     position: absolute;
     top: 0;
-    right: 0;
+    inset-inline: 0;
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
     will-change: transform;
   }
 

@@ -306,9 +306,10 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   shows the text plainly. `readDecipher(element)` reads the settings where text sits.
 - `useSmoothText(text, { cps })` reveals text that arrives in bursts at an even pace,
   catching up when it falls far behind: `{ text, done }`.
-- `<RollingNumber value={n} />` rolls through the numbers on its way to a new value,
-  sliding up or down, green or red (`--tk-green`, `--tk-red`) until a moment after it
-  lands. Screen readers hear only the new value.
+- `<RollingNumber value={n} />` rolls to a new value like an odometer: only the digits
+  that change move, each sliding through the digits on its way (up as the number grows,
+  9 turning over to 0; down as it shrinks), all landing together, green or red
+  (`--tk-green`, `--tk-red`) until a moment after. Screen readers hear only the new value.
 - `wipe(update, origin)` swaps the theme behind a circular reveal (Bureau scans instead).
 
 All of it respects `prefers-reduced-motion`.
