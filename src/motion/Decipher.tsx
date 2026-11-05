@@ -1,5 +1,6 @@
 import { type ElementType, useLayoutEffect, useRef } from 'react';
 import { cx } from '../utils';
+import { reducedMotion } from './reducedMotion';
 
 export interface DecipherProps {
   readonly children: string;
@@ -11,9 +12,8 @@ export interface DecipherProps {
   readonly initial?: boolean;
 }
 
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-const readGlyphs = (element: Element): string[] => {
+/** The theme's glyphs for text that resolves (`--tk-decipher-glyphs`), where `element` sits. */
+export const readGlyphs = (element: Element): string[] => {
   const raw = getComputedStyle(element).getPropertyValue('--tk-decipher-glyphs').trim();
   const glyphs = Array.from(raw.replace(/^['"]|['"]$/g, '').replace(/\\\\/g, '\\'));
   return glyphs.length ? glyphs : ['·'];

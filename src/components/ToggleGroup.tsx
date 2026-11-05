@@ -1,6 +1,7 @@
 import { Toggle as BaseToggle } from '@base-ui/react/toggle';
 import { ToggleGroup as BaseToggleGroup } from '@base-ui/react/toggle-group';
 import { type ComponentProps, createContext, use, useCallback, useMemo } from 'react';
+import { reducedMotion } from '../motion/reducedMotion';
 import { cx, mergeRefs, withBase } from '../utils';
 
 export type ToggleGroupProps = ComponentProps<typeof BaseToggleGroup> & {
@@ -71,8 +72,6 @@ function useSlidingMarker(enabled: boolean) {
     [enabled],
   );
 }
-
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const readTime = (style: CSSStyleDeclaration, name: string): number => {
   const raw = style.getPropertyValue(name).trim();

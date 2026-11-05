@@ -201,8 +201,10 @@
     --tk-enter-scale: 0.98;
     --tk-enter-blur: 0px;
 
-    /* Text decoding (see <Decipher>): the glyphs text resolves through. */
+    /* Text decoding (see <Decipher>): the glyphs text resolves through, and the
+       ink a streamed word's glyphs take, faintly (<DecipherStream>). */
     --tk-decipher-glyphs: '▓▒░█▚▞▟▙/\\|_-=+#';
+    --tk-decipher-ink: currentColor;
 
     /* Scenery: the dithered WebGL illustration revealed through windows. The
        ramp runs dark → light; the ember ink marks a scene's emissive spots. */

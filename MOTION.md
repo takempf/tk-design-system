@@ -131,7 +131,8 @@ that grows.
 
 Outside popups: tab panels rise in where the last one was, accordion panels open in place,
 checks grow in and shrink away, toasts slide in from the edge, toggle groups slide one
-marker between choices.
+marker between choices. Streamed text arrives at an even pace, each word glitching in once
+as it lands, and a number rolls through the values on its way to a new one.
 
 ## Building a component with a popup
 

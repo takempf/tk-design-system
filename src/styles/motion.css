@@ -273,6 +273,69 @@
     color: transparent;
   }
 
+  /* <DecipherStream>: each word glitches in over itself. The overlay is out of
+     the flow and clipped to the word, so a glyph wider than its letter never
+     moves the line. */
+  .tk-decipher-word {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tk-decipher-word-overlay {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    white-space: pre;
+    pointer-events: none;
+  }
+
+  .tk-decipher-word:has(.tk-decipher-word-overlay:not(:empty)) .tk-decipher-word-text {
+    color: transparent;
+  }
+
+  .tk-decipher-glyph {
+    color: color-mix(in oklab, var(--tk-decipher-ink) 55%, transparent);
+  }
+
+  /* <RollingNumber>: the held number sits in the line, so the box has its size
+     and baseline; while it rolls, it hides under the strip of numbers on the
+     way, which slides through a window one line tall. clip-path, not overflow,
+     makes the window, so the baseline stays the number's. */
+  .tk-rolling-number {
+    position: relative;
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    clip-path: inset(0 -0.25em);
+    transition: color 800ms var(--tk-ease-fade);
+  }
+
+  /* Bright as it changes, quick to light and slow to fade. */
+  .tk-rolling-number[data-trend] {
+    transition-duration: 120ms;
+  }
+
+  .tk-rolling-number[data-trend='up'] {
+    color: var(--tk-green);
+  }
+
+  .tk-rolling-number[data-trend='down'] {
+    color: var(--tk-red);
+  }
+
+  .tk-rolling-number-held[data-rolling] {
+    visibility: hidden;
+  }
+
+  .tk-rolling-number-strip {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    will-change: transform;
+  }
+
   .tk-portal {
     display: contents;
   }

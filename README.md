@@ -287,6 +287,19 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   Everything moves on `--tk-duration-morph` and `--tk-ease-morph`.
 - `<Decipher>` resolves changed text through the theme's glyphs (`--tk-decipher-glyphs`):
   geometric shapes in Grove, digits in Bureau.
+- `<DecipherStream active={streaming}>` is for text still arriving, such as a model's
+  reply. Each word glitches in once as it lands: a few of its letters cycle slowly
+  through the glyphs, faint in `--tk-decipher-ink` (the text's own color unless set), and
+  settle one by one. While `active`, the last word waits until it's whole
+  (`wholeWords`), so it never scrambles again with each letter. Inside a markdown
+  renderer, `useStreamDecipher(streaming)` says when to decipher and
+  `decipherChildren(children, deciphering)` deciphers a component's text. `enabled={false}`
+  shows the text plainly.
+- `useSmoothText(text, { cps })` reveals text that arrives in bursts at an even pace,
+  catching up when it falls far behind: `{ text, done }`.
+- `<RollingNumber value={n} />` rolls through the numbers on its way to a new value,
+  sliding up or down, green or red (`--tk-green`, `--tk-red`) until a moment after it
+  lands. Screen readers hear only the new value.
 - `wipe(update, origin)` swaps the theme behind a circular reveal (Bureau scans instead).
 
 All of it respects `prefers-reduced-motion`.

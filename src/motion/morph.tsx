@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { flushSync } from 'react-dom';
 import { holdScenery } from '../scenery/hold';
+import { reducedMotion } from './reducedMotion';
 
 /**
  * Transition types the bundled CSS understands, matched with
@@ -25,8 +26,6 @@ export interface MorphOptions {
    */
   readonly scope?: string;
 }
-
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Narrows a part's selector to the parts of one scope. */
 function inScope(scope: string | undefined): string {

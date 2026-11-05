@@ -670,6 +670,19 @@
   font-size: var(--tk-text-xl);
 }
 
+.demo-stream {
+  width: 100%;
+  max-width: 60ch;
+  min-height: 7lh;
+  padding: var(--tk-space-4);
+}
+
+.demo-rolling {
+  font-family: var(--tk-font-display);
+  font-stretch: var(--tk-display-stretch);
+  font-size: var(--tk-text-2xl);
+}
+
 .demo-popover-title {
   display: flex;
   align-items: center;

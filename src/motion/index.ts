@@ -1,4 +1,12 @@
 export { Decipher, type DecipherProps } from './Decipher';
+export {
+  DecipherStream,
+  type DecipherStreamProps,
+  decipherChildren,
+  type StreamDecipherOptions,
+  useStreamDecipher,
+  wholeWords,
+} from './DecipherStream';
 export { type LayoutMorph, useLayoutMorph } from './layout';
 export {
   Morph,
@@ -21,4 +29,6 @@ export {
   usePopupMorph,
   usePopupMorphState,
 } from './popupMorph';
+export { RollingNumber, type RollingNumberProps } from './RollingNumber';
+export { type SmoothText, type SmoothTextOptions, useSmoothText } from './useSmoothText';
 export { wipe } from './wipe';

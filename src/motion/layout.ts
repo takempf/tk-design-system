@@ -1,4 +1,5 @@
 import { type RefCallback, useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import { reducedMotion } from './reducedMotion';
 
 /** Where a child sat in the layout, in the frame: its offset and size, with no motion applied. */
 interface Place {
@@ -18,8 +19,6 @@ interface Source {
 
 /** A source older than this belongs to a change that never came (a cancelled pick). */
 const sourceLifetime = 1000;
-
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function readTime(style: CSSStyleDeclaration, name: string, fallback: number): number {
   const raw = style.getPropertyValue(name).trim();

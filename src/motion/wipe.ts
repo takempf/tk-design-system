@@ -1,5 +1,6 @@
 import { flushSync } from 'react-dom';
 import { holdScenery } from '../scenery/hold';
+import { reducedMotion } from './reducedMotion';
 
 /**
  * Swap something page-wide — usually the theme — behind a view transition that
@@ -11,7 +12,7 @@ export function wipe(
   origin?: { readonly x: number; readonly y: number },
 ): void {
   const root = document.documentElement;
-  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (!document.startViewTransition || reducedMotion()) {
     update();
     return;
   }
