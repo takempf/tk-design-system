@@ -254,28 +254,13 @@
     animation: tk-wipe-reveal calc(var(--tk-duration-morph) * 1.6) var(--tk-ease-in-out) both;
   }
 
-  /* <Decipher>: the real text holds the space; the scramble sits on top. */
-  .tk-decipher {
-    display: inline-grid;
+  /* <Decipher>, <DecipherStream>: each word glitches in over itself. The real
+     word holds the space; the overlay is out of the flow and clipped to it, so
+     a glyph wider than its letter never moves the line. */
+  .tk-decipher-stream {
+    display: contents;
   }
 
-  .tk-decipher > * {
-    grid-area: 1 / 1;
-  }
-
-  .tk-decipher-overlay {
-    white-space: pre;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .tk-decipher:has(.tk-decipher-overlay:not(:empty)) .tk-decipher-text {
-    color: transparent;
-  }
-
-  /* <DecipherStream>: each word glitches in over itself. The overlay is out of
-     the flow and clipped to the word, so a glyph wider than its letter never
-     moves the line. */
   .tk-decipher-word {
     position: relative;
     display: inline-block;
@@ -294,7 +279,7 @@
   }
 
   .tk-decipher-glyph {
-    color: color-mix(in oklab, var(--tk-decipher-ink) 55%, transparent);
+    color: color-mix(in oklab, var(--tk-decipher-ink) var(--tk-decipher-strength), transparent);
   }
 
   /* <RollingNumber>: the held number sits in the line, so the box has its size

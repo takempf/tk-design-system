@@ -203,10 +203,16 @@
     --tk-enter-scale: 0.98;
     --tk-enter-blur: 0px;
 
-    /* Text decoding (see <Decipher>): the glyphs text resolves through, and the
-       ink a streamed word's glyphs take, faintly (<DecipherStream>). */
+    /* Text decoding (<Decipher>, <DecipherStream>): each word glitches in as it
+       shows. About a share of its letters cycle through the glyphs, one every
+       flicker, in their ink at a strength, and settle one by one within the
+       duration. */
     --tk-decipher-glyphs: '▓▒░█▚▞▟▙/\\|_-=+#';
     --tk-decipher-ink: currentColor;
+    --tk-decipher-strength: 55%;
+    --tk-decipher-share: 0.35;
+    --tk-decipher-flicker: 120ms;
+    --tk-decipher-duration: 650ms;
 
     /* Scenery: the dithered WebGL illustration revealed through windows. The
        ramp runs dark → light; the ember ink marks a scene's emissive spots. */

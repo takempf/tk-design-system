@@ -291,16 +291,19 @@ morph(() => setOpen(true), { type: 'open', scope: 'card' });
   ```
 
   Everything moves on `--tk-duration-morph` and `--tk-ease-morph`.
-- `<Decipher>` resolves changed text through the theme's glyphs (`--tk-decipher-glyphs`):
-  geometric shapes in Grove, digits in Bureau.
-- `<DecipherStream active={streaming}>` is for text still arriving, such as a model's
-  reply. Each word glitches in once as it lands: a few of its letters cycle slowly
-  through the glyphs, faint in `--tk-decipher-ink` (the text's own color unless set), and
-  settle one by one. While `active`, the last word waits until it's whole
-  (`wholeWords`), so it never scrambles again with each letter. Inside a markdown
-  renderer, `useStreamDecipher(streaming)` says when to decipher and
+- `<Decipher>` deciphers its text when it changes (`initial` on mount too). Each word
+  glitches in: a share of its letters cycle through the theme's glyphs (shapes in Grove,
+  digits in Bureau), faint in their ink, and settle one by one. Tokens set it all:
+  `--tk-decipher-glyphs`, `-share` (0.35 of the letters), `-flicker` (a glyph every
+  120ms), `-duration` (settled within 650ms; slower in Grove, quicker in Bureau),
+  `-ink` (the text's own color) and `-strength` (55%). `share: 1`, `flicker: 45ms` and
+  `strength: 100%` scramble every letter. The playground's Motion page has a lab for them.
+- `<DecipherStream active={streaming}>` does the same for text still arriving, such as a
+  model's reply, each word once as it lands. While `active`, the last word waits until
+  it's whole (`wholeWords`), so it never scrambles again with each letter. Inside a
+  markdown renderer, `useStreamDecipher(streaming)` says when to decipher and
   `decipherChildren(children, deciphering)` deciphers a component's text. `enabled={false}`
-  shows the text plainly.
+  shows the text plainly. `readDecipher(element)` reads the settings where text sits.
 - `useSmoothText(text, { cps })` reveals text that arrives in bursts at an even pace,
   catching up when it falls far behind: `{ text, done }`.
 - `<RollingNumber value={n} />` rolls through the numbers on its way to a new value,

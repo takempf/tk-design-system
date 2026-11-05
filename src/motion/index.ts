@@ -1,4 +1,4 @@
-export { Decipher, type DecipherProps } from './Decipher';
+export { Decipher, type DecipherProps, type DecipherSettings, readDecipher } from './Decipher';
 export {
   DecipherStream,
   type DecipherStreamProps,

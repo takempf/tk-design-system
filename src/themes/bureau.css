@@ -63,6 +63,7 @@
     --tk-enter-scale: 1;
 
     --tk-decipher-glyphs: '0123456789#%&/<>[]{}=+';
+    --tk-decipher-duration: 560ms;
 
     --tk-scenery-scene: 'monolith';
     --tk-scenery-ink-0: oklch(0.115 0.001 100);

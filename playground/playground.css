@@ -506,6 +506,38 @@
   gap: var(--tk-space-5);
 }
 
+.pg-lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tk-space-2);
+}
+
+.pg-decipher-specimens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-4);
+  min-width: 0;
+}
+
+.pg-decipher-specimen {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--tk-space-4);
+}
+
+.pg-decipher-line {
+  min-height: 2.5lh;
+  font-family: var(--tk-font-display);
+  font-stretch: var(--tk-display-stretch);
+  font-size: var(--tk-text-xl);
+}
+
+.pg-decipher-stream {
+  min-height: 7lh;
+  max-width: 60ch;
+}
+
 /* Glyphs ----------------------------------------------------------------- */
 
 .pg-glyphs {
@@ -661,20 +693,6 @@
 
 .demo-morph-card h3 {
   display: inline-block;
-}
-
-.demo-decipher {
-  min-height: 2.5em;
-  font-family: var(--tk-font-display);
-  font-stretch: var(--tk-display-stretch);
-  font-size: var(--tk-text-xl);
-}
-
-.demo-stream {
-  width: 100%;
-  max-width: 60ch;
-  min-height: 7lh;
-  padding: var(--tk-space-4);
 }
 
 .demo-rolling {

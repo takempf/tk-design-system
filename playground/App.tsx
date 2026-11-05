@@ -24,6 +24,7 @@ import {
   useScenerySettings,
   wipe,
 } from 'tk-design-system';
+import { DecipherLab } from './pages/DecipherLab';
 import { FieldTrips } from './pages/FieldTrips';
 import { Glyphs } from './pages/Glyphs';
 import { Hall } from './pages/Hall';
@@ -35,6 +36,7 @@ import { playgroundThemes } from './themes';
 
 const pages: Record<string, () => ReactNode> = {
   hall: Hall,
+  motion: DecipherLab,
   scenery: SceneryLab,
   glyphs: Glyphs,
   themes: ThemeCompare,

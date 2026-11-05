@@ -74,6 +74,7 @@
     --tk-enter-blur: 6px;
 
     --tk-decipher-glyphs: '○●◇◆□■△▲◎◈▣▽';
+    --tk-decipher-duration: 1000ms;
 
     --tk-scenery-scene: 'grove';
     --tk-scenery-ink-0: oklch(0.13 0.012 172);
