@@ -695,6 +695,36 @@
   display: inline-block;
 }
 
+.demo-chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-4);
+  min-height: 18rem;
+  padding: var(--tk-space-4);
+}
+
+.demo-chat-ask {
+  align-self: end;
+  max-width: 80%;
+  padding: var(--tk-space-2) var(--tk-space-3);
+  border-radius: var(--tk-radius);
+  background: var(--tk-surface-raised);
+}
+
+.demo-chat-reply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-3);
+  max-width: 62ch;
+  font-size: var(--tk-text-lg);
+  line-height: var(--tk-leading-reading);
+}
+
+.demo-chat-reply ul {
+  margin: 0;
+  padding-inline-start: 1.25em;
+}
+
 .demo-rolling {
   font-family: var(--tk-font-display);
   font-stretch: var(--tk-display-stretch);
