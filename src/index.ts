@@ -87,7 +87,14 @@ export {
   type ToggleGroupProps,
   type ToggleProps,
 } from './components/ToggleGroup';
-export { Icon, type IconName, type IconProps, iconNames, markNames } from './icons/Icon';
+export {
+  animalNames,
+  Icon,
+  type IconName,
+  type IconProps,
+  iconNames,
+  markNames,
+} from './icons/Icon';
 export { Logo, type LogoProps, logoPaths } from './icons/Logo';
 export * from './motion';
 export * from './scenery';

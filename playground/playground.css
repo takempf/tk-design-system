@@ -575,6 +575,34 @@
   }
 }
 
+.pg-animal-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  color: var(--tk-label);
+
+  & li {
+    padding-block: var(--tk-space-6);
+    border: 0;
+  }
+
+  & code {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+}
+
+@media (max-width: 80rem) {
+  .pg-animal-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .pg-animal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .pg-logo {
   display: flex;
   flex-wrap: wrap;

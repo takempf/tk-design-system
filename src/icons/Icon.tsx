@@ -1,28 +1,21 @@
-import type { SVGProps } from 'react';
+import { type SVGProps, useId } from 'react';
 import { cx } from '../utils';
+import { animalGlyphs } from './animals';
+import type { Glyph } from './glyph';
+
+export { animalNames } from './animals';
 
 /*
   Icons on a 16×16 grid. Outlines share one stroke (--tk-icon-stroke) and the
   theme's caps and joins; tapered nesting thins the strokes with equal edge-to-edge gaps.
-  Solids are filled paths, never thick strokes.
+  Solids are filled paths, never thick strokes. Animal details use 55% of the
+  outline weight; masked details leave transparent lines through solids.
 
   Marks are plain geometry at one optical size: the circle runs a touch larger
   than the square and the triangle is centred by eye, so all three read the same
   size. Nested inner solids (dot, square, triangle) share one area, ~12 square units;
   lines inside a triangle end flush on its sides and meet at its centroid.
 */
-interface Glyph {
-  readonly stroke?: string;
-  readonly nested?: {
-    readonly center: readonly [number, number];
-    /** Perpendicular distance from the center to the outer outline. */
-    readonly radius: number;
-  };
-  /** Open strokes that end on another outline: always butt-capped, never joined. */
-  readonly inner?: string;
-  readonly fill?: string;
-}
-
 const dot = 'M8 6.25a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5z';
 const circle = 'M8 2.75a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5z';
 const square = 'M3.25 3.25h9.5v9.5h-9.5z';
@@ -99,6 +92,8 @@ const glyphs = {
     stroke:
       'M4 2a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5zM4 10.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5zM12 10.5a1.75 1.75 0 1 1 0 3.5 1.75 1.75 0 0 1 0-3.5zM4 5.5v5M12 10.5V5.25a1.5 1.5 0 0 0-1.5-1.5H7.5M9.25 2 7.5 3.75 9.25 5.5',
   },
+
+  ...animalGlyphs,
 
   // Marks: ornament and wayfinding rather than meaning.
   dot: { fill: dot },
@@ -270,6 +265,7 @@ export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'name'> {
 }
 
 export function Icon({ name, label, size = '1em', className, ...rest }: IconProps) {
+  const cutoutId = useId();
   const glyph: Glyph = glyphs[name];
   const nested = glyph.nested;
   return (
@@ -283,6 +279,22 @@ export function Icon({ name, label, size = '1em', className, ...rest }: IconProp
       aria-hidden={label ? undefined : true}
       {...rest}
     >
+      {glyph.cutout && (
+        <defs>
+          <mask id={cutoutId} maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+            <rect width="16" height="16" fill="white" stroke="none" />
+            <path
+              d={glyph.cutout}
+              className="tk-icon-inner"
+              style={{
+                fill: 'none',
+                stroke: 'black',
+                strokeWidth: 'calc(var(--tk-icon-stroke) * 0.55)',
+              }}
+            />
+          </mask>
+        </defs>
+      )}
       {glyph.stroke && <path d={glyph.stroke} />}
       {nested &&
         nestedLevels.map(({ weight, gap, strokeInset }) => {
@@ -301,7 +313,20 @@ export function Icon({ name, label, size = '1em', className, ...rest }: IconProp
           );
         })}
       {glyph.inner && <path d={glyph.inner} className="tk-icon-inner" />}
-      {glyph.fill && <path d={glyph.fill} className="tk-icon-fill" />}
+      {glyph.fill && (
+        <path
+          d={glyph.fill}
+          className="tk-icon-fill"
+          mask={glyph.cutout ? `url(#${cutoutId})` : undefined}
+        />
+      )}
+      {glyph.detail && (
+        <path
+          d={glyph.detail}
+          className="tk-icon-inner"
+          style={{ strokeWidth: 'calc(var(--tk-icon-stroke) * 0.55)' }}
+        />
+      )}
     </svg>
   );
 }

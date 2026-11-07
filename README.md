@@ -178,10 +178,24 @@ like their components. Add `.tk-serif` for the serif.
 lit and dithered in `--tk-spinner-ink-1…3`, by default the text it sits in at rising
 strength; `SpinnerIcon` is the bare one for a control that already says it's busy, as
 `Button`'s `loading` and a `'loading'` toast use) ·
-`Icon` (utility icons plus geometric marks —
+`Icon` (utility icons, 46 animal glyphs, plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
 and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;
 also shipped as a file at `tk-design-system/logo.svg`).
+
+**Animals.** Forty-six abstract marks suggest an animal through a fold, fork,
+arc, or simple mass. The core six (`rabbit`, `squirrel`, `rabbit-solid`,
+`raven-flight`, `owl-solid`, `stag-solid`) are followed by forty studies:
+paired treatments of bull, fox, raven, stag, wolf, bear, cat, lynx, ram, horse,
+bat, snake, fish, whale, turtle, frog, moth, beetle, octopus and crane.
+
+They share the utility icons' 16×16 grid, `currentColor`, and theme stroke.
+Most use one path; occasional structural lines use 55% of `--tk-icon-stroke`,
+following the tapered nested marks. Lines through solids (including the owl's
+chest) are masked out, so the background shows through on any surface. Use
+`<Icon name="raven-flight" />`; add `label` when the icon needs an accessible
+name. The exported `animalNames` lists the core six, then the forty other
+designs in pairs. The playground's Glyphs page shows every mark at 40px.
 
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.

@@ -1,6 +1,30 @@
-import { Eyebrow, Icon, iconNames, Logo, markNames, Panel, Tooltip } from 'tk-design-system';
+import {
+  animalNames,
+  Eyebrow,
+  Icon,
+  type IconName,
+  iconNames,
+  Logo,
+  markNames,
+  Panel,
+  Tooltip,
+} from 'tk-design-system';
 
-const icons = iconNames.filter((name) => !markNames.includes(name));
+const animals = new Set<IconName>(animalNames);
+const icons = iconNames.filter((name) => !markNames.includes(name) && !animals.has(name));
+
+function AnimalGrid({ names }: { names: readonly IconName[] }) {
+  return (
+    <ul className="pg-glyph-grid pg-animal-grid">
+      {names.map((name) => (
+        <li key={name}>
+          <Icon name={name} size={40} />
+          <code>{name}</code>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function Glyphs() {
   return (
@@ -14,6 +38,11 @@ export function Glyphs() {
           <Logo label="" /> design system
         </p>
       </Panel>
+      <Eyebrow>Animal marks</Eyebrow>
+      <p className="pg-muted">
+        Horn, wing, ear, coil. Forty-six suggestions built from open lines and simple masses.
+      </p>
+      <AnimalGrid names={animalNames} />
       <Eyebrow>Marks</Eyebrow>
       <ul className="pg-glyph-grid" data-marks="">
         {markNames.map((name) => (
