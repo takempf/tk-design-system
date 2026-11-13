@@ -23,7 +23,6 @@
   [data-tk-theme] {
     color: var(--tk-fg);
     font-family: var(--tk-type-body-font);
-    font-size: var(--tk-type-body-size);
     font-weight: var(--tk-type-body-weight);
     font-stretch: var(--tk-type-body-stretch);
     line-height: var(--tk-type-body-leading);
@@ -31,6 +30,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-synthesis: none;
+  }
+
+  /* Text sits at the body size, but the root keeps --tk-root-size: every rem
+     is measured from it. (A size in rem set on the root is measured from the
+     browser's 16px instead, which would leave --tk-root-size doing nothing.) */
+  body,
+  [data-tk-theme]:not(:root) {
+    font-size: var(--tk-type-body-size);
   }
 
   :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote) {
