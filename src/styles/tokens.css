@@ -37,8 +37,8 @@
     --tk-highlight: #e5e5e2;
     --tk-highlight-fg: #171717;
 
-    /* Accents: two per theme. The first marks focus and interactive color; the
-       second is the wayfinding color section labels are set in. */
+    /* Accents: two per theme. The first marks interactive color; the
+       second marks focus and the wayfinding color section labels are set in. */
     --tk-accent: #00c8b4;
     --tk-accent-2: #ff353f;
     --tk-label: var(--tk-accent-2);
@@ -265,7 +265,7 @@
     --tk-icon-join: miter;
     --tk-focus-width: 1px;
     --tk-focus-offset: 1px;
-    --tk-focus-color: var(--tk-accent);
+    --tk-focus-color: var(--tk-accent-2);
     --tk-z-popup: 100;
 
     /* Motion. Durations scale together; fades and moves ease separately, so a

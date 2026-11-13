@@ -131,6 +131,26 @@
     text-shadow: none;
   }
 
+  :where(
+    a,
+    button,
+    input,
+    textarea,
+    select,
+    [tabindex],
+    [role='button'],
+    [role='checkbox'],
+    [role='radio'],
+    [role='tab'],
+    [role='combobox'],
+    [role='option'],
+    [role='switch']
+  ) {
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition: outline-color var(--tk-duration-1) var(--tk-ease-out);
+  }
+
   :focus-visible {
     outline: var(--tk-focus-width) solid var(--tk-focus-color);
     outline-offset: var(--tk-focus-offset);

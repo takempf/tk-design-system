@@ -197,7 +197,15 @@
     font-size: var(--tk-control-text);
     font-weight: var(--tk-weight-medium);
     cursor: pointer;
-    transition: color var(--tk-duration-2) var(--tk-ease-out);
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition:
+      color var(--tk-duration-2) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
+    }
 
     &:hover {
       color: var(--tk-fg-muted);

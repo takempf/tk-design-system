@@ -512,6 +512,32 @@
   gap: var(--tk-space-2);
 }
 
+.pg-lab-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-6);
+}
+
+.pg-timing-specimens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-4);
+  min-width: 0;
+}
+
+.pg-timing-specimen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tk-space-3);
+}
+
+.pg-timing-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tk-space-3);
+}
+
 .pg-decipher-specimens {
   display: flex;
   flex-direction: column;

@@ -295,6 +295,7 @@
     position: relative;
     display: inline-block;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
     clip-path: inset(0 -0.25em);
     transition: color 800ms var(--tk-ease-fade);
   }
@@ -315,6 +316,13 @@
   .tk-rolling-number-place {
     position: relative;
     display: inline-block;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .tk-rolling-number-place[data-entering],
+  .tk-rolling-number-place[data-leaving] {
+    overflow: hidden;
   }
 
   .tk-rolling-number-held {

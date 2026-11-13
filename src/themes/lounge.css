@@ -81,9 +81,13 @@
 
     /* Elevation, read by the rules below. */
     --tk-lounge-shadow-popup:
-      0 0 0 1px rgb(4 4 10 / 0.28), 0 6px 14px rgb(4 4 10 / 0.26), 0 18px 40px rgb(4 4 10 / 0.3);
+      0 1px 2px rgb(0 0 0 / 0.35),
+      0 3px 6px -2px rgb(0 0 0 / 0.55),
+      0 6px 10px -4px rgb(0 0 0 / 0.45);
     --tk-lounge-shadow-dialog:
-      0 0 0 1px rgb(4 4 10 / 0.32), 0 12px 28px rgb(4 4 10 / 0.34), 0 32px 80px rgb(4 4 10 / 0.42);
+      0 2px 4px rgb(0 0 0 / 0.35),
+      0 6px 12px -3px rgb(0 0 0 / 0.55),
+      0 12px 18px -5px rgb(0 0 0 / 0.5);
 
     --tk-duration-1: 110ms;
     --tk-duration-2: 170ms;
@@ -107,9 +111,12 @@
     --tk-enter-scale: 0.96;
     --tk-reveal-scale: 0.6;
 
-    /* Channels, mentions and the rest of the chat line's punctuation. */
-    --tk-decipher-glyphs: '#@:+*~/<>=';
-    --tk-decipher-duration: 600ms;
+    --tk-decipher-glyphs: '⌧▯⌸⏌⍔⎑⎐';
+    --tk-decipher-share: 0.5;
+    --tk-decipher-flicker: 100ms;
+    --tk-decipher-duration: 250ms;
+    --tk-decipher-strength: 100%;
+    --tk-decipher-ink: var(--tk-accent);
 
     --tk-scenery-scene: 'contour';
     --tk-scenery-ink-0: oklch(0.145 0.02 280);

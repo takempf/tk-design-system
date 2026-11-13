@@ -190,7 +190,9 @@ function lookOf(frame: HTMLElement): Look {
     edge: style.borderTopColor,
     width: style.borderTopWidth,
     ring:
-      style.outlineStyle === 'none'
+      style.outlineStyle === 'none' ||
+      style.outlineColor === 'transparent' ||
+      style.outlineColor === 'rgba(0, 0, 0, 0)'
         ? { color: 'transparent', width: '0px', offset: '0px' }
         : { color: style.outlineColor, width: style.outlineWidth, offset: style.outlineOffset },
     corners: corners.map((corner) => style[corner]),
@@ -345,7 +347,11 @@ function restoreFrames(ends: Map<string, End>, owner: object): void {
   for (const { element } of ends.values()) {
     const frame = frameOf(element);
     if (framedBy.get(frame) !== owner) continue;
+    const { transition } = frame.style;
+    frame.style.transition = 'none';
     delete frame.dataset.tkFrameless;
+    void frame.offsetWidth;
+    frame.style.transition = transition;
     framedBy.delete(frame);
   }
 }

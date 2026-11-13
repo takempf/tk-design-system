@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { type ReactElement, useLayoutEffect, useRef, useState } from 'react';
 import { cx } from '../utils';
 import { reducedMotion } from './reducedMotion';
 
@@ -32,11 +32,14 @@ export function rollPlaces(from: number, to: number): RollPlace[] {
   const before = Array.from(String(from));
   const after = Array.from(String(to));
   const width = Math.max(before.length, after.length);
-  const pad = (chars: string[]): string[] => [...Array(width - chars.length).fill(''), ...chars];
+  const pad = (chars: string[]): string[] => [
+    ...Array.from({ length: width - chars.length }, () => ''),
+    ...chars,
+  ];
   const was = pad(before);
   const growing = Math.abs(to) >= Math.abs(from);
   return pad(after).map((char, index) => {
-    const old = was[index]!;
+    const old = was[index] ?? '';
     if (old === char) return char;
     if (!/\d/.test(old) || !/\d/.test(char)) return [old, char];
     const steps = [old];
@@ -45,6 +48,49 @@ export function rollPlaces(from: number, to: number): RollPlace[] {
       steps.push(String(digit));
     }
     return steps;
+  });
+}
+
+function animateStrip(
+  strip: HTMLSpanElement,
+  stepsCount: number,
+  growing: boolean,
+  duration: number,
+): Animation {
+  const span = (100 * (stepsCount - 1)) / stepsCount;
+  const [start, end] = growing ? [0, -span] : [-span, 0];
+  return strip.animate(
+    [{ transform: `translateY(${start}%)` }, { transform: `translateY(${end}%)` }],
+    { duration, easing: EASING, fill: 'forwards' },
+  );
+}
+
+function animatePlaceWidth(
+  node: HTMLSpanElement,
+  steps: string[],
+  duration: number,
+): Animation | null {
+  const isEntering = steps[0] === '';
+  const isLeaving = steps[steps.length - 1] === '';
+  if (!isEntering && !isLeaving) return null;
+
+  const fullWidth = node.getBoundingClientRect().width;
+  if (fullWidth <= 0) return null;
+
+  const keyframes = isEntering
+    ? [
+        { width: '0px', opacity: 0 },
+        { width: `${fullWidth}px`, opacity: 1 },
+      ]
+    : [
+        { width: `${fullWidth}px`, opacity: 1 },
+        { width: '0px', opacity: 0 },
+      ];
+
+  return node.animate(keyframes, {
+    duration,
+    easing: EASING,
+    fill: 'forwards',
   });
 }
 
@@ -63,11 +109,12 @@ export interface RollingNumberProps {
  * A number that rolls to its new value when it changes, like an odometer: only
  * the digits that change move, each sliding through the digits on its way, up
  * as the number grows and down as it shrinks, green or red until a moment after
- * it arrives. The digits that stay hold still. Its first value just shows; with
- * reduced motion, a change only colors it.
+ * it arrives. Digits that stay hold still; entering and leaving places smoothly
+ * transition their width so digits never jump.
  */
-export function RollingNumber({ value, className }: RollingNumberProps) {
+export function RollingNumber({ value, className }: RollingNumberProps): ReactElement {
   const previous = useRef(value);
+  const places = useRef<(HTMLSpanElement | null)[]>([]);
   const strips = useRef<(HTMLSpanElement | null)[]>([]);
   const [roll, setRoll] = useState<Roll | null>(null);
   const [trend, setTrend] = useState<'up' | 'down' | null>(null);
@@ -85,27 +132,30 @@ export function RollingNumber({ value, className }: RollingNumberProps) {
     );
   }, [value]);
 
-  // Roll each changing place to its new digit, all landing together, then show the number alone.
+  // Roll each changing place to its new digit and smoothly transition place widths.
   useLayoutEffect(() => {
     if (!roll) return;
     const rolling = roll.places.filter((place): place is string[] => Array.isArray(place));
     const duration = rollDuration(Math.max(...rolling.map((steps) => steps.length - 1)));
-    const animations = rolling.flatMap((steps, index) => {
+    const animations: Animation[] = [];
+
+    rolling.forEach((steps, index) => {
       const strip = strips.current[index];
-      if (!strip || typeof strip.animate !== 'function') return [];
-      // Growing, a strip runs old → new downward and slides up; shrinking, the other way.
-      const span = (100 * (steps.length - 1)) / steps.length;
-      const [start, end] = roll.growing ? [0, -span] : [-span, 0];
-      return [
-        strip.animate(
-          [{ transform: `translateY(${start}%)` }, { transform: `translateY(${end}%)` }],
-          { duration, easing: EASING, fill: 'forwards' },
-        ),
-      ];
+      if (strip && typeof strip.animate === 'function') {
+        animations.push(animateStrip(strip, steps.length, roll.growing, duration));
+      }
+      const placeNode = places.current[index];
+      if (placeNode && typeof placeNode.animate === 'function') {
+        const placeAnim = animatePlaceWidth(placeNode, steps, duration);
+        if (placeAnim) animations.push(placeAnim);
+      }
     });
+
     let current = true;
     Promise.all(animations.map((animation) => animation.finished)).then(
-      () => current && setRoll(null),
+      () => {
+        if (current) setRoll(null);
+      },
       () => {},
     );
     return () => {
@@ -121,7 +171,7 @@ export function RollingNumber({ value, className }: RollingNumberProps) {
     return () => clearTimeout(hold);
   }, [trend, roll]);
 
-  let strip = 0;
+  let changingPlaceIndex = 0;
   return (
     <span className={cx('tk-rolling-number', className)} data-trend={trend ?? undefined}>
       <span className="tk-visually-hidden">{value}</span>
@@ -131,12 +181,22 @@ export function RollingNumber({ value, className }: RollingNumberProps) {
               // Places are keyed from the right, where digits line up between numbers.
               const key = roll.places.length - index;
               if (!Array.isArray(place)) return <span key={key}>{place}</span>;
-              const at = strip++;
+              const at = changingPlaceIndex++;
               const shown = roll.growing ? place : [...place].reverse();
               // The place holds the widest of its characters, so none is cut off.
               const held = place.find((char) => /\d/.test(char)) ?? place.find(Boolean) ?? '';
+              const entering = place[0] === '';
+              const leaving = place[place.length - 1] === '';
               return (
-                <span key={key} className="tk-rolling-number-place">
+                <span
+                  key={key}
+                  ref={(node) => {
+                    places.current[at] = node;
+                  }}
+                  className="tk-rolling-number-place"
+                  data-entering={entering ? '' : undefined}
+                  data-leaving={leaving ? '' : undefined}
+                >
                   <span className="tk-rolling-number-held">{held || BLANK}</span>
                   <span
                     ref={(node) => {

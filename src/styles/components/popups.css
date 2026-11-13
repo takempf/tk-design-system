@@ -265,7 +265,15 @@
     text-align: start;
     cursor: pointer;
     user-select: none;
-    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition:
+      border-color var(--tk-duration-1) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
+    }
 
     &:hover:not([data-disabled]),
     &[data-popup-open] {
@@ -349,10 +357,14 @@
   }
 
   .tk-combobox-popup {
+    --_corner: min(var(--tk-radius), var(--tk-radius-popup));
     display: flex;
     flex-direction: column;
     min-width: max(var(--anchor-width, 0px), 16rem);
     padding: 0;
+    border-radius: var(--_corner);
+    outline: var(--tk-focus-width) solid var(--tk-focus-color);
+    outline-offset: var(--tk-focus-offset);
 
     /* Opened upward: the search field stays on the trigger, at the bottom. */
     &[data-side='top'] {
@@ -862,18 +874,20 @@
     background: var(--tk-surface);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
     transition:
       border-color var(--tk-duration-1) var(--tk-ease-out),
-      border-radius var(--tk-duration-morph) var(--tk-ease-morph);
+      border-radius var(--tk-duration-morph) var(--tk-ease-morph),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
 
     &:hover {
       border-color: var(--tk-border-strong);
     }
 
     /* Ringed while typing; the chips and actions inside ring themselves. */
-    &:has(.tk-combobox-field-input:focus-visible) {
-      outline: var(--tk-focus-width) solid var(--tk-focus-color);
-      outline-offset: var(--tk-focus-offset);
+    &:has(.tk-combobox-field-input:is(:focus, :focus-visible)) {
+      outline-color: var(--tk-focus-color);
     }
   }
 

@@ -137,7 +137,8 @@ ${tokens.map(([token, value]) => `  ${token}: ${value};`).join('\n')}
 }`;
 
   return (
-    <div className="pg-lab" ref={lab}>
+    <div className="pg-lab-section" ref={lab}>
+      <h2 className="pg-subhead">Decipher Effect</h2>
       <p className="pg-lede">
         Text deciphers a word at a time. As each word shows, a share of its letters cycle through
         the theme's glyphs, faint in their ink, and settle one by one. <code>{'<Decipher>'}</code>{' '}

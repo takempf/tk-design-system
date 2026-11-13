@@ -47,7 +47,9 @@
     text-decoration: none;
     cursor: pointer;
     user-select: none;
-    transition-property: background-color, border-color, color, translate;
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition-property: background-color, border-color, color, translate, outline-color;
     transition-duration: var(--tk-duration-1);
     transition-timing-function: var(--tk-ease-out);
 
@@ -63,6 +65,10 @@
 
     &:active:not([data-disabled]) {
       translate: 0 1px;
+    }
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
     }
 
     &[data-disabled] {
@@ -204,7 +210,11 @@
     background: var(--tk-surface);
     color: var(--tk-fg);
     font-size: var(--tk-control-text);
-    transition: border-color var(--tk-duration-1) var(--tk-ease-out);
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition:
+      border-color var(--tk-duration-1) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
 
     &::placeholder {
       color: var(--tk-fg-subtle);
@@ -213,6 +223,10 @@
 
     &:hover:not([data-disabled]) {
       border-color: var(--tk-border-strong);
+    }
+
+    &:is(:focus, :focus-visible) {
+      outline-color: var(--tk-focus-color);
     }
 
     &[data-invalid] {
@@ -281,8 +295,15 @@
     background: var(--tk-surface);
     color: var(--tk-primary-fg);
     cursor: inherit;
-    transition-property: background-color, border-color;
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition-property: background-color, border-color, outline-color;
     transition-duration: var(--tk-duration-1);
+    transition-timing-function: var(--tk-ease-out);
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
+    }
   }
 
   .tk-checkbox {
@@ -327,8 +348,8 @@
   }
 
   .tk-radio-indicator {
-    width: 0.55rem;
-    height: 0.55rem;
+    width: 100%;
+    height: 100%;
     border-radius: var(--tk-radio-radius);
     background: var(--tk-radio-color);
     transition: scale var(--tk-duration-2) var(--tk-ease-out);
@@ -359,13 +380,20 @@
     corner-shape: var(--tk-corner-shape);
     background: var(--tk-surface);
     cursor: inherit;
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
     transition:
       background-color var(--tk-duration-2) var(--tk-ease-out),
-      border-color var(--tk-duration-2) var(--tk-ease-out);
+      border-color var(--tk-duration-2) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
 
     &[data-checked] {
       background: var(--tk-primary);
       border-color: var(--tk-primary);
+    }
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
     }
   }
 
@@ -452,7 +480,9 @@
     background: var(--tk-primary);
     outline: 3px solid var(--tk-bg);
     rotate: var(--tk-knob-rotate);
-    transition: scale var(--tk-duration-1) var(--tk-ease-out);
+    transition:
+      scale var(--tk-duration-1) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
 
     &[data-dragging] {
       scale: 1.2;
@@ -533,9 +563,16 @@
     font-size: var(--tk-button-text);
     font-weight: var(--tk-weight-medium);
     cursor: pointer;
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
     transition:
       background-color var(--tk-duration-2) var(--tk-ease-out),
-      color var(--tk-duration-2) var(--tk-ease-out);
+      color var(--tk-duration-2) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
+    }
 
     /* Hover: a faint ghost of the pressed fill. Under the marker it's hidden,
        so a click leaves no gap while the marker slides over. */
