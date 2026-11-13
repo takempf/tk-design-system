@@ -111,16 +111,19 @@
     --tk-decipher-glyphs: '#@:+*~/<>=';
     --tk-decipher-duration: 600ms;
 
-    --tk-scenery-scene: 'aurora';
+    --tk-scenery-scene: 'contour';
     --tk-scenery-ink-0: oklch(0.145 0.02 280);
     --tk-scenery-ink-1: oklch(0.18 0.03 280);
     --tk-scenery-ink-2: oklch(0.215 0.042 280);
     --tk-scenery-ink-3: oklch(0.255 0.056 281);
     --tk-scenery-ink-4: oklch(0.3 0.072 282);
     --tk-scenery-ember: oklch(0.36 0.1 38);
+    --tk-scenery-bayer: 8;
+    --tk-scenery-pixel: 4;
+    --tk-scenery-softness: 10;
     --tk-scenery-key: 0.22;
-    --tk-scenery-tone-low: 0.08;
-    --tk-scenery-tone-high: 0.66;
+    --tk-scenery-tone-low: 0;
+    --tk-scenery-tone-high: 0.5;
   }
 
   /* Popouts and dialogs float on shadow, their edge only a hairline. */
