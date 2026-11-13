@@ -22,6 +22,11 @@ export const themes = [
     description: 'Brutalist concrete and red wayfinding. Fades that flicker.',
   },
   {
+    id: 'lounge',
+    name: 'Lounge',
+    description: 'A chat app after hours. Ink-indigo panes, blurple controls, a red-orange lamp.',
+  },
+  {
     id: 'paper',
     name: 'Paper',
     description: 'Warm grey stock, serif display, typewriter labels. The light one.',

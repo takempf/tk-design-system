@@ -1,0 +1,157 @@
+/*
+  Lounge — a members' lounge after hours: a chat app grown up.
+  Ink-indigo surfaces stepped like a chat client's panes, blurple for anything
+  you can press (fills, focus, links, the highlighted row), and a soft
+  red-orange, like a lamp across the room, for labels and wayfinding.
+  Headings are set wide and heavy; body text stays quiet. Floating surfaces
+  lift on soft shadows rather than outlines, and motion is quick with a small
+  spring as things settle.
+*/
+@layer tk.themes {
+  [data-tk-theme='lounge'] {
+    /* Surfaces climb in small, blue-tinted steps: recessed wells, the room,
+       raised cards and popouts. */
+    --tk-bg: #1b1c27;
+    --tk-surface: #14151e;
+    --tk-surface-raised: #232533;
+    --tk-surface-hover: #2c2f41;
+    --tk-fg: #dfe1ee;
+    --tk-fg-muted: #a6aac0;
+    --tk-fg-subtle: #8286a1;
+    --tk-fg-bright: #f7f7fd;
+    --tk-fg-inverse: #14151e;
+    --tk-border-subtle: #272a3a;
+    --tk-border: #363a4f;
+    --tk-border-strong: #5c617d;
+    --tk-primary: #5865f2;
+    --tk-primary-hover: #4954dd;
+    --tk-primary-fg: #ffffff;
+    /* A highlighted row is pressed blurple, white text on it. */
+    --tk-highlight: #4f5be6;
+    --tk-highlight-fg: #ffffff;
+    /* Blurple lifted to read as text and rings on the dark. */
+    --tk-accent: #8c95ff;
+    --tk-accent-2: #f3866a;
+    /* Hues at one soft pastel weight, cool-leaning so they sit on indigo. */
+    --tk-red: #f4808a;
+    --tk-orange: #f3a066;
+    --tk-yellow: #edc773;
+    --tk-green: #6fd5a1;
+    --tk-teal: #5bcfc6;
+    --tk-blue: #78b6f8;
+    --tk-purple: #b5a0ff;
+    --tk-pink: #f290c8;
+    --tk-radio-color: var(--tk-primary);
+    --tk-accent-soft: color-mix(in oklab, var(--tk-primary) 24%, transparent);
+    --tk-overlay: color-mix(in oklab, #07070c 72%, transparent);
+
+    --tk-code-bg: var(--tk-surface);
+    --tk-code-function: var(--tk-blue);
+    --tk-code-tag: var(--tk-accent);
+    --tk-code-selection: color-mix(in oklab, var(--tk-primary) 38%, transparent);
+
+    /* Chat density: a 16px root, a quiet sans, headings wide and heavy. */
+    --tk-root-size: 16px;
+    --tk-font-display: var(--tk-font-label);
+    --tk-display-stretch: 116%;
+    --tk-tracking: 0.004em;
+    --tk-tracking-display: -0.018em;
+    --tk-weight-regular: 450;
+    --tk-weight-medium: 560;
+    --tk-weight-bold: 700;
+    --tk-type-display-weight: 800;
+    --tk-type-h1-weight: 780;
+    --tk-type-h2-weight: 760;
+    --tk-type-label-size: var(--tk-text-xs);
+    --tk-type-label-tracking: 0.07em;
+    --tk-type-label-stretch: 108%;
+
+    /* Soft squares; squircles where the browser draws them. */
+    --tk-radius: 10px;
+    --tk-radius-sm: 6px;
+    --tk-radius-lg: 16px;
+    --tk-radius-popup: 12px;
+    --tk-corner-shape: squircle;
+    --tk-knob-radius: 50%;
+    --tk-icon-stroke: 1.6;
+    --tk-icon-cap: round;
+    --tk-icon-join: round;
+    --tk-focus-width: 2px;
+    --tk-focus-offset: 2px;
+
+    /* Elevation, read by the rules below. */
+    --tk-lounge-shadow-popup:
+      0 0 0 1px rgb(4 4 10 / 0.28), 0 6px 14px rgb(4 4 10 / 0.26), 0 18px 40px rgb(4 4 10 / 0.3);
+    --tk-lounge-shadow-dialog:
+      0 0 0 1px rgb(4 4 10 / 0.32), 0 12px 28px rgb(4 4 10 / 0.34), 0 32px 80px rgb(4 4 10 / 0.42);
+
+    --tk-duration-1: 110ms;
+    --tk-duration-2: 170ms;
+    --tk-duration-3: 280ms;
+    --tk-duration-morph: 380ms;
+    --tk-ease-out: cubic-bezier(0.2, 0.9, 0.3, 1);
+    --tk-ease-in-out: cubic-bezier(0.55, 0, 0.25, 1);
+    /* A small spring: past the mark by a few percent, then home. */
+    --tk-ease-morph: linear(
+      0,
+      0.22 7%,
+      0.6 18%,
+      0.9 30%,
+      1.03 42%,
+      1.04 50%,
+      1.015 64%,
+      0.998 80%,
+      1
+    );
+    --tk-enter-offset: 6px;
+    --tk-enter-scale: 0.96;
+    --tk-reveal-scale: 0.6;
+
+    /* Channels, mentions and the rest of the chat line's punctuation. */
+    --tk-decipher-glyphs: '#@:+*~/<>=';
+    --tk-decipher-duration: 600ms;
+
+    --tk-scenery-scene: 'aurora';
+    --tk-scenery-ink-0: oklch(0.145 0.02 280);
+    --tk-scenery-ink-1: oklch(0.18 0.03 280);
+    --tk-scenery-ink-2: oklch(0.215 0.042 280);
+    --tk-scenery-ink-3: oklch(0.255 0.056 281);
+    --tk-scenery-ink-4: oklch(0.3 0.072 282);
+    --tk-scenery-ember: oklch(0.36 0.1 38);
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.08;
+    --tk-scenery-tone-high: 0.66;
+  }
+
+  /* Popouts and dialogs float on shadow, their edge only a hairline. */
+  [data-tk-theme='lounge'] :is(.tk-popup, .tk-toast),
+  :is(.tk-popup, .tk-toast)[data-tk-theme='lounge'] {
+    border-color: var(--tk-border-subtle);
+    box-shadow: var(--tk-lounge-shadow-popup);
+  }
+
+  [data-tk-theme='lounge'] .tk-dialog,
+  .tk-dialog[data-tk-theme='lounge'] {
+    border-color: var(--tk-border-subtle);
+    box-shadow: var(--tk-lounge-shadow-dialog);
+  }
+
+  [data-tk-theme='lounge'] .tk-backdrop {
+    backdrop-filter: blur(2px);
+  }
+
+  /* Lounge's surface is the darkest well, which suits a field but would sink
+     a button into the page. Its plain buttons stand up instead: a raised,
+     borderless fill that lightens under the pointer. */
+  [data-tk-theme='lounge'] .tk-button[data-variant='default'] {
+    border-color: transparent;
+    background: var(--tk-surface-hover);
+    color: var(--tk-fg);
+
+    &:hover:not([data-disabled]) {
+      border-color: transparent;
+      background: color-mix(in oklab, var(--tk-surface-hover), var(--tk-fg) 9%);
+      color: var(--tk-fg-bright);
+    }
+  }
+}

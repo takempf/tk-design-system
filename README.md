@@ -54,7 +54,7 @@ text's own, so it pairs with a role or with prose: `tk-type-body-lg tk-serif`,
 ```
 src/
   styles/tokens.css      every token, on :root and every [data-tk-theme]
-  themes/*.css           grove, bureau, paper — token overrides (+ anything beyond)
+  themes/*.css           grove, bureau, lounge, paper — token overrides (+ anything beyond)
   styles/components/*    one class per part: .tk-button, .tk-list-item, .tk-prose, …
   styles/type.css        text utilities: .tk-type-*, .tk-ink-*, .tk-nums-*, …
   components/            thin typed wrappers over @base-ui/react parts
@@ -82,6 +82,7 @@ separate fade/move/morph easings, entrance offset/scale/blur) and scenery.
 | `base`   | tk-ai: neutral dark surfaces, off-white fills, teal focus, red labels and radios |
 | `grove`  | dark cozy forest: phthalo, orange-red ember, pale lavender; runic bevels, misty slow motion |
 | `bureau` | brutalist concrete and red wayfinding; fades flicker like a fluorescent tube |
+| `lounge` | a chat app after hours: ink-indigo panes, blurple controls and focus, soft red-orange labels; wide heavy headings, popouts on soft shadows, a small spring |
 | `paper`  | light: warm stock, serif display, typewriter labels; scenery prints as a negative |
 
 ### Writing a theme
