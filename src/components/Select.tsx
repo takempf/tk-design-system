@@ -1,4 +1,5 @@
 import { Select as BaseSelect } from '@base-ui/react/select';
+import type { ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
@@ -20,6 +21,21 @@ export interface SelectProps<V> {
   readonly onOpenChange?: (open: boolean) => void;
   readonly placeholder?: string;
   readonly size?: 'sm' | 'md' | 'lg';
+  /**
+   * `stealth`: closed, only the value and a down chevron, set in the text
+   * around it, for a choice that reads as a caption to something else.
+   */
+  readonly variant?: 'default' | 'stealth';
+  /**
+   * What the closed trigger shows of the chosen item, if not its label: a
+   * flag for a language, say. Give it text for screen readers too.
+   */
+  readonly renderValue?: (item: Option<V>) => ReactNode;
+  /**
+   * What a row in the list shows, if not its label. Typing still jumps to a
+   * row by its label.
+   */
+  readonly renderItem?: (item: Option<V>) => ReactNode;
   readonly disabled?: boolean;
   readonly name?: string;
   readonly id?: string;
@@ -45,6 +61,9 @@ export function Select<V>({
   onOpenChange,
   placeholder = 'Choose…',
   size = 'md',
+  variant = 'default',
+  renderValue,
+  renderItem,
   disabled,
   name,
   id,
@@ -76,17 +95,20 @@ export function Select<V>({
           <BaseSelect.Trigger
             className={cx('tk-select-trigger', className)}
             data-size={size}
+            data-variant={variant}
             aria-label={ariaLabel}
           >
             <span className="tk-select-value" data-placeholder={selected ? undefined : ''}>
               <PopupMorph.Part side="trigger" when={Boolean(selected)}>
                 {/* Base UI lines the chosen row's text up with this element. */}
-                <BaseSelect.Value>{selected?.label ?? placeholder}</BaseSelect.Value>
+                <BaseSelect.Value>
+                  {selected ? (renderValue?.(selected) ?? selected.label) : placeholder}
+                </BaseSelect.Value>
               </PopupMorph.Part>
             </span>
             <PopupMorph.Part name="icon" side="trigger" when={Boolean(selected)} fit="icon">
               <BaseSelect.Icon className="tk-select-icon">
-                <Icon name="chevron-updown" />
+                <Icon name={variant === 'stealth' ? 'chevron-down' : 'chevron-updown'} />
               </BaseSelect.Icon>
             </PopupMorph.Part>
           </BaseSelect.Trigger>
@@ -97,6 +119,7 @@ export function Select<V>({
               <BaseSelect.Popup
                 className="tk-popup tk-list-popup tk-select-popup"
                 data-size={size}
+                data-variant={variant}
                 data-indicator="end"
               >
                 <BaseSelect.List className="tk-list">
@@ -107,11 +130,12 @@ export function Select<V>({
                         key={String(item.value)}
                         value={item.value}
                         disabled={item.disabled}
+                        label={item.label}
                         className="tk-list-item"
                       >
                         <PopupMorph.Part side="popup" when={chosen}>
                           <BaseSelect.ItemText className="tk-list-text">
-                            {item.label}
+                            {renderItem?.(item) ?? item.label}
                           </BaseSelect.ItemText>
                         </PopupMorph.Part>
                         <PopupMorph.Part name="icon" side="popup" when={chosen} fit="icon">

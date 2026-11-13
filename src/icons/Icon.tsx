@@ -46,6 +46,10 @@ const glyphs = {
   'zoom-in': { stroke: `${lens}M7 5v4M5 7h4` },
   'zoom-out': { stroke: `${lens}M5 7h4` },
   menu: { stroke: 'M3 4.5h10M3 8h10M3 11.5h10' },
+  // Two columns of three dots: a handle, to take hold of and drag.
+  grip: {
+    fill: 'M5.75 2.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM10.25 2.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM5.75 6.9a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM10.25 6.9a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM5.75 11.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM10.25 11.4a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z',
+  },
   sliders: { stroke: 'M3 5h10M3 11h10M6 3v4M10 9v4' },
   info: { stroke: `${circle}M8 7.25v4`, fill: 'M8 4.4a.9.9 0 1 1 0 1.8.9.9 0 0 1 0-1.8z' },
   warning: { stroke: `${triangle}M8 6.5v2.75`, fill: 'M8 10.1a.8.8 0 1 1 0 1.6.8.8 0 0 1 0-1.6z' },

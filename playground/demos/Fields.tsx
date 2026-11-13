@@ -22,6 +22,13 @@ export default function Fields() {
         <Field.Error match="valueMissing">Every waypoint needs a code.</Field.Error>
       </Field.Root>
       <Field.Root>
+        <Field.Label>Trail marker</Field.Label>
+        <Input variant="underline" placeholder="Painted on the third gate" />
+        <Field.Description>
+          Underline: a line to write on, for a value that reads as text.
+        </Field.Description>
+      </Field.Root>
+      <Field.Root>
         <Field.Label>Field notes</Field.Label>
         <Textarea placeholder="Heard an owl near the second bridge…" />
       </Field.Root>

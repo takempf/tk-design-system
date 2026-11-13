@@ -302,6 +302,30 @@
       min-height: var(--tk-control-h-lg);
       font-size: var(--tk-text-lg);
     }
+
+    /* Stealth: closed, only the value and a down chevron, set in the text
+       around it: no box, no floor on its width. Hovered or open, the text
+       comes up to full strength; focus still rings it. */
+    &[data-variant='stealth'] {
+      gap: var(--tk-space-1);
+      width: auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border-color: transparent;
+      background: transparent;
+      color: var(--tk-fg-muted);
+
+      &:hover:not([data-disabled]),
+      &[data-popup-open] {
+        border-color: transparent;
+        color: var(--tk-fg);
+      }
+
+      & .tk-select-icon {
+        color: inherit;
+      }
+    }
   }
 
   .tk-select-value {
@@ -431,6 +455,32 @@
     top: 50%;
     right: calc(var(--tk-space-2) + 1em + var(--tk-space-1));
     translate: 0 -50%;
+  }
+
+  /* Stealth: the trigger set in the text around it, as wide as what it shows. */
+  .tk-combobox-control[data-variant='stealth'] {
+    display: inline-flex;
+    width: auto;
+  }
+
+  /* Its search row still lands on it. The trigger has no inset, and is a line
+     tall where the row is a control's: move the popup out by the row's inset
+     and its border, so the search text sits on the trigger's text (or, aligned
+     to the trigger's end for want of room, the chevron on its chevron), and up
+     (opened upward, down) by half the difference in height. */
+  .tk-combobox-popup[data-variant='stealth'] {
+    --_rise: calc((var(--_item-h) + var(--tk-border-width) - var(--anchor-height, 0px)) / 2);
+    --_x: calc(-1 * (var(--tk-space-3) + var(--tk-border-width)));
+    --_y: calc(-1 * var(--_rise));
+    translate: var(--_x) var(--_y);
+
+    &[data-align='end'] {
+      --_x: calc(var(--tk-space-2) + var(--tk-border-width));
+    }
+
+    &[data-side='top'] {
+      --_y: var(--_rise);
+    }
   }
 
   /* Popover & tooltip ----------------------------------------------------- */
@@ -719,6 +769,12 @@
      the value. */
   .tk-select-popup[data-side='none'] {
     translate: 0 var(--tk-border-width);
+  }
+
+  /* A stealth trigger has no inset, so its list opens that much further left:
+     the chosen row's text still lands on the trigger's. */
+  .tk-select-popup[data-variant='stealth'] {
+    margin-inline-start: calc(-1 * var(--tk-space-3));
   }
 
   /* Menu: the trigger's label, and the same label as the popup's first row ---- */

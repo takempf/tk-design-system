@@ -22,10 +22,22 @@ export const Fieldset = {
 
 export type InputProps = Omit<ComponentProps<typeof BaseInput>, 'size'> & {
   readonly size?: 'sm' | 'md' | 'lg';
+  /**
+   * `underline`: no box, only a line to write on, for a value that reads as
+   * text where it sits (a name in a row) rather than as a form.
+   */
+  readonly variant?: 'default' | 'underline';
 };
 
-export function Input({ className, size = 'md', ...props }: InputProps) {
-  return <BaseInput {...props} data-size={size} className={withBase('tk-input', className)} />;
+export function Input({ className, size = 'md', variant = 'default', ...props }: InputProps) {
+  return (
+    <BaseInput
+      {...props}
+      data-size={size}
+      data-variant={variant}
+      className={withBase('tk-input', className)}
+    />
+  );
 }
 
 export type TextareaProps = ComponentProps<'textarea'> & {

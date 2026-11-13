@@ -201,13 +201,23 @@ designs in pairs. The playground's Glyphs page shows every mark at 40px.
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
 
+`Input` takes `variant="underline"`: no box, only a line to write on, for a value that
+reads as text where it sits (a name in a row) rather than as a form. `Select` takes
+`variant="stealth"`: closed, it is only the value and a down chevron, set in the text
+around it, and it opens into the usual list. `Select` also takes `renderValue` (what the
+closed trigger shows of the choice: a flag in place of a language's name, say) and
+`renderItem` (what each row shows); typing still jumps to a row by its label.
+`Icon name="grip"` marks a drag handle.
+
 `Combobox` comes in two variants. Both take `items`, or `groups` to show items under
 headings, and accept `clearable` (a button that clears the value), `virtualized` (render
 only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and `name`.
 
 - **Searchable select** (the default). A trigger that opens over itself into a list, the
   trigger itself turning into the search field. `multiple` checks off several options; the list stays open and the trigger
-  lists them.
+  lists them. Typing highlights the first match, so Enter takes it. `variant="stealth"`
+  sets the trigger in the text around it, like a stealth `Select`, and `renderValue` and
+  `renderItem` work as they do on `Select`; the search still matches labels.
 - **Editable field** (`variant="input"`). The user types straight into the field.
   `multiple={false}` picks one value, and the field shows its label. Otherwise the selected
   values are removable chips: Backspace removes the last one, and Left arrow moves into
