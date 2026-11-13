@@ -149,12 +149,19 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
   const variant = props.variant === 'stealth' ? 'stealth' : undefined;
   const chevron = variant ? 'chevron-down' : 'chevron-updown';
   const renderValue = multiple ? undefined : (props as SingleSelectComboboxProps<V>).renderValue;
-  const popup = usePopupMorph({ open, onOpenChange, prefix: 'combobox' });
+  const [query, setQuery] = useState('');
+  const popup = usePopupMorph({
+    open,
+    onOpenChange: (next) => {
+      if (!next) setQuery('');
+      onOpenChange?.(next);
+    },
+    prefix: 'combobox',
+  });
   const [current, setCurrent] = useControllable<V | null | V[]>(
     props.value,
     props.defaultValue ?? (multiple ? [] : null),
   );
-  const [query, setQuery] = useState('');
   const options = groups ? groups.flatMap((group) => group.items) : (items ?? []);
   const find = (value: V) => options.find((option) => Object.is(option.value, value));
   const chosen = multiple
@@ -167,10 +174,6 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
   const container = usePortalContainer();
   const alignChosen = useChosenRowBesideSearch();
   const reveal = useRef<Reveal>(null);
-  const changeOpen = (next: boolean) => {
-    popup.setOpen(next);
-    if (!next) setQuery('');
-  };
 
   return (
     <PopupMorph.Provider value={popup.state}>
@@ -194,7 +197,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
         // Typing highlights the first match, so Enter takes it.
         autoHighlight
         open={popup.open}
-        onOpenChange={changeOpen}
+        onOpenChange={popup.setOpen}
         onOpenChangeComplete={popup.onOpenChangeComplete}
         onItemHighlighted={(item, details) => {
           if (item !== undefined && details.reason !== 'pointer') reveal.current?.(details.index);
@@ -281,7 +284,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
                       className="tk-select-icon tk-combobox-close"
                       aria-hidden="true"
                       onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => changeOpen(false)}
+                      onClick={() => popup.setOpen(false)}
                     >
                       <Icon name={chevron} />
                     </span>

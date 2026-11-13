@@ -80,20 +80,38 @@ export function usePopupMorph<Rest extends unknown[] = []>({
   const flight = useRef<ViewTransition | null>(null);
   const turn = useRef(0);
   const [faded, setFaded] = useState(false);
+  const committed = useRef(current);
+  committed.current = current;
   // What this hook last asked for: a controlled `open` that differs changed on its own.
   const requested = useRef(current);
+  // Where `open` is already heading while a morph captures its old state, so a
+  // second event from the same press (pointerdown, then mousedown or focus-out)
+  // doesn't start a second transition that skips the first.
+  const heading = useRef(current);
+  const pending = useRef(false);
+  if (!pending.current) heading.current = current;
 
   const setOpen = useCallback(
     (next: boolean, ...rest: Rest) => {
+      if (next === heading.current) return;
+      heading.current = next;
+      pending.current = true;
       const onPage = Boolean(trigger.current?.isConnected);
       const carried = onPage && willMorph();
       const update = () => {
+        pending.current = false;
         latest.current.onOpenChange?.(next, ...rest);
         const details = rest[0] as { isCanceled?: boolean } | undefined;
-        if (details?.isCanceled) return;
+        if (details?.isCanceled) {
+          heading.current = committed.current;
+          return;
+        }
         requested.current = next;
         setInner(next);
         setFaded(onPage && !carried);
+        queueMicrotask(() => {
+          if (!pending.current) heading.current = committed.current;
+        });
       };
       turn.current++;
       if (onPage) {
@@ -115,13 +133,18 @@ export function usePopupMorph<Rest extends unknown[] = []>({
 
   // Base UI reports the change complete when the popup's own animations end,
   // and the morph is not one of them.
-  const complete = useCallback((next: boolean) => {
-    const current = turn.current;
-    const done = () => {
-      if (current === turn.current) latest.current.onOpenChangeComplete?.(next);
-    };
-    if (flight.current) flight.current.finished.then(done);
-    else done();
+  const complete = useCallback((completed: boolean) => {
+    if (completed !== heading.current) return;
+    const at = turn.current;
+    const running = flight.current;
+    flight.current = null;
+    if (running) {
+      running.finished.finally(() => {
+        if (turn.current === at) latest.current.onOpenChangeComplete?.(completed);
+      });
+    } else {
+      latest.current.onOpenChangeComplete?.(completed);
+    }
   }, []);
 
   const state = useMemo(
