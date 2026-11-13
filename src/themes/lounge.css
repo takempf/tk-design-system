@@ -50,8 +50,8 @@
     --tk-code-tag: var(--tk-accent);
     --tk-code-selection: color-mix(in oklab, var(--tk-primary) 38%, transparent);
 
-    /* Chat density: a 16px root, a quiet sans, headings wide and heavy. */
-    --tk-root-size: 16px;
+    /* 18px root, a quiet sans, headings wide and heavy. */
+    --tk-root-size: 18px;
     --tk-font-display: var(--tk-font-label);
     --tk-display-stretch: 116%;
     --tk-tracking: 0.004em;
