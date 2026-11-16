@@ -930,6 +930,7 @@
     background: var(--tk-surface);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
     outline: var(--tk-focus-width) solid transparent;
     outline-offset: var(--tk-focus-offset);
     transition:
@@ -944,6 +945,11 @@
     /* Ringed while typing; the chips and actions inside ring themselves. */
     &:has(.tk-combobox-field-input:is(:focus, :focus-visible)) {
       outline-color: var(--tk-focus-color);
+    }
+
+    /* Open, or morphing open or shut, the ring is round the grown frame. */
+    &:is([data-popup-open], :has(> [data-tk-frameless])) {
+      outline-style: none;
     }
   }
 
@@ -1055,6 +1061,10 @@
     padding: var(--tk-space-1);
     background: var(--tk-surface-raised);
     pointer-events: auto;
+
+    &:not(:has([role='option'], .tk-list-empty:not(:empty), .tk-combobox-status:not(:empty))) {
+      display: none;
+    }
   }
 
   /* Its fill's corners square on the side the list carries on from, in step
@@ -1080,6 +1090,7 @@
     inset: calc(var(--tk-border-width) * -1);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
     opacity: 0;
     pointer-events: none;
 
@@ -1091,7 +1102,7 @@
       border-color: var(--tk-danger);
     }
 
-    .tk-combobox-field:has(.tk-combobox-field-input:focus-visible) > & {
+    .tk-combobox-field:has(.tk-combobox-field-input:is(:focus, :focus-visible)) > & {
       outline: var(--tk-focus-width) solid var(--tk-focus-color);
       outline-offset: var(--tk-focus-offset);
     }
