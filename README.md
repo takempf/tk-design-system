@@ -207,7 +207,7 @@ reads as text where it sits (a name in a row) rather than as a form. `Select` ta
 around it, and it opens into the usual list. `Select` also takes `renderValue` (what the
 closed trigger shows of the choice: a flag in place of a language's name, say) and
 `renderItem` (what each row shows); typing still jumps to a row by its label.
-`Icon name="grip"` marks a drag handle.
+`Icon name="grip"` marks a drag handle; `Icon name="globe"` a website.
 
 `Combobox` comes in two variants. Both take `items`, or `groups` to show items under
 headings, and accept `clearable` (a button that clears the value), `virtualized` (render

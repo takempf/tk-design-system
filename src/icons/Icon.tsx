@@ -61,6 +61,11 @@ const glyphs = {
   },
   stop: { fill: 'M4 4h8v8H4z' },
   external: { stroke: 'M9 3h4v4M13 3 7.5 8.5M11 9.5V13H3V5h3.5' },
+  // A website: the equator meets the outline flush; the meridian touches it at the poles.
+  globe: {
+    stroke: circle,
+    inner: 'M2.75 8h10.5M8 2.75a2.25 5.25 0 1 1 0 10.5 2.25 5.25 0 0 1 0-10.5z',
+  },
   ember: { stroke: 'M8 2.25 13.75 8 8 13.75 2.25 8z', fill: 'M8 5.75 10.25 8 8 10.25 5.75 8z' },
   tree: { stroke: 'M8 2.5l4.75 8.25h-9.5zM8 10.75v3' },
   moon: { stroke: 'M10.4 3.2a5.25 5.25 0 1 0 2.4 7.2 4.4 4.4 0 0 1-2.4-7.2z' },
