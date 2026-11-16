@@ -172,7 +172,7 @@ like their components. Add `.tk-serif` for the serif.
 
 `Button` · `Toggle`/`ToggleGroup` · `Menu` · `Tooltip` · `Popover` · `Dialog` ·
 `AlertDialog` · `Field`/`Fieldset` · `Input` · `Textarea` · `Checkbox` · `Switch` ·
-`Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `Accordion` ·
+`Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `SideNav` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
 `Loading`/`Skeleton`/`Spinner`/`SpinnerIcon` (the spinner is a low-poly solid tumbling,
@@ -235,6 +235,16 @@ only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and
 
 The playground has a demo for each: grouped multiselect, single field, chips, remote search,
 creatable (with a dialog), ten thousand virtualized rows, and a form with validation.
+
+`SideNav` is a side menu: `SideNav.Root` (the `<nav>`), `SideNav.Group` (items under an
+optional `label`, set in the label face) and `SideNav.Item` (a link, with an `icon` that
+`iconColor` can tint). One marker glides to the current page, the item with
+`aria-current="page"`, and the label under it inverts, even mid-glide. `active` sets that
+attribute; a router's link sets it itself, so `render={<NavLink to="/people" />}` needs no
+`active`. Items are `<a>`s unless `render` says otherwise. `collapsed` makes the nav an icon
+rail: labels move into tooltips (they stay readable to screen readers) and group headings
+thin to rules. `numbered` counts the items 01, 02, … down the whole list. The playground's
+own section list is one.
 
 ## Code
 

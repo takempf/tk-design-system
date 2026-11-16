@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Decipher,
@@ -12,6 +12,7 @@ import {
   resetScenerySettings,
   SceneryWindow,
   Separator,
+  SideNav,
   Slider,
   Switch,
   setScenerySettings,
@@ -32,7 +33,7 @@ import { SceneryLab } from './pages/SceneryLab';
 import { ThemeCompare } from './pages/ThemeCompare';
 import { Typography } from './pages/Typography';
 import { demos, Specimen } from './Specimen';
-import { type Section, sections } from './sections';
+import { sections } from './sections';
 import { playgroundThemes } from './themes';
 
 const pages: Record<string, () => ReactNode> = {
@@ -202,75 +203,21 @@ export function App() {
   );
 }
 
-/*
-  One marker glides from item to item. Over the links sits the same list again in
-  the highlight's colours, clipped to the marker's box, so text inverts exactly
-  where the marker is, even mid-glide. The box is measured, then both transition.
-*/
+/* The section list is the design system's own SideNav, numbered like a game menu. */
 function Nav({ activeId }: { activeId: string }) {
-  const track = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const element = track.current;
-    if (!element) return;
-    const place = () => {
-      const item = element.querySelector<HTMLElement>('[aria-current="page"]');
-      if (!item) return;
-      const box = item.getBoundingClientRect();
-      const origin = element.getBoundingClientRect();
-      element.style.setProperty('--pg-marker-x', `${box.left - origin.left}px`);
-      element.style.setProperty('--pg-marker-y', `${box.top - origin.top}px`);
-      element.style.setProperty('--pg-marker-w', `${box.width}px`);
-      element.style.setProperty('--pg-marker-h', `${box.height}px`);
-    };
-    place();
-    const observer = new ResizeObserver(place);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [activeId]);
-
-  // Transitions switch on a frame after the first placement, so the marker
-  // starts where it belongs instead of flying in on load.
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => track.current?.setAttribute('data-placed', ''));
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
   return (
-    <nav className="pg-nav" aria-label="Sections">
-      <div className="pg-nav-track" ref={track}>
-        <div className="pg-nav-list">
-          {sections.map((item, i) => (
-            <a
-              key={item.id}
-              href={`#/${item.id}`}
-              className="pg-nav-item"
-              aria-current={item.id === activeId ? 'page' : undefined}
-            >
-              <NavLabel item={item} number={i + 1} />
-            </a>
-          ))}
-        </div>
-        <span className="pg-nav-marker" />
-        <div className="pg-nav-list pg-nav-lit" aria-hidden>
-          {sections.map((item, i) => (
-            <span key={item.id} className="pg-nav-item">
-              <NavLabel item={item} number={i + 1} />
-            </span>
-          ))}
-        </div>
-      </div>
-    </nav>
-  );
-}
-
-function NavLabel({ item, number }: { item: Section; number: number }) {
-  return (
-    <>
-      <span className="pg-nav-number">{String(number).padStart(2, '0')}</span>
-      <Icon name={item.mark} className="pg-nav-mark" />
-      <span className="pg-nav-title">{item.title}</span>
-    </>
+    <SideNav.Root className="pg-nav" aria-label="Sections" numbered>
+      {sections.map((item) => (
+        <SideNav.Item
+          key={item.id}
+          href={`#/${item.id}`}
+          active={item.id === activeId}
+          icon={<Icon name={item.mark} />}
+        >
+          {item.title}
+        </SideNav.Item>
+      ))}
+    </SideNav.Root>
   );
 }
 

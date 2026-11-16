@@ -60,107 +60,6 @@
   text-transform: var(--tk-type-label-transform);
 }
 
-/* The links, the marker and a lit copy of the links, stacked in one cell. */
-.pg-nav-track {
-  --pg-marker-x: 0px;
-  --pg-marker-y: 0px;
-  --pg-marker-w: 0px;
-  --pg-marker-h: 0px;
-  position: relative;
-  display: grid;
-}
-
-.pg-nav-list {
-  grid-area: 1 / 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pg-nav-item {
-  position: relative;
-  isolation: isolate;
-  display: grid;
-  grid-template-columns: 1.75rem 1.25rem 1fr;
-  align-items: center;
-  gap: var(--tk-space-2);
-  padding: var(--tk-space-2) var(--tk-space-3);
-  border-radius: var(--tk-radius);
-  corner-shape: var(--tk-corner-shape);
-  color: var(--tk-fg-subtle);
-  text-decoration: none;
-  transition: color var(--tk-duration-2) var(--tk-ease-out);
-
-  /* A faint ghost of the marker. On the current item the marker covers it, so
-     a click leaves no gap while the marker glides over. */
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    corner-shape: inherit;
-    background: var(--tk-highlight);
-    opacity: 0;
-    transition: opacity var(--tk-duration-2) var(--tk-ease-out);
-  }
-
-  &:is(:hover, :focus-visible) {
-    color: var(--tk-fg);
-
-    &::before {
-      opacity: 0.125;
-    }
-  }
-}
-
-.pg-nav-marker {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--pg-marker-w);
-  height: var(--pg-marker-h);
-  translate: var(--pg-marker-x) var(--pg-marker-y);
-  border-radius: var(--tk-radius);
-  corner-shape: var(--tk-corner-shape);
-  background: var(--tk-highlight);
-  pointer-events: none;
-}
-
-.pg-nav-lit {
-  position: relative;
-  pointer-events: none;
-  clip-path: inset(
-    var(--pg-marker-y) calc(100% - var(--pg-marker-x) - var(--pg-marker-w))
-      calc(100% - var(--pg-marker-y) - var(--pg-marker-h)) var(--pg-marker-x)
-  );
-
-  & .pg-nav-item {
-    color: var(--tk-highlight-fg);
-  }
-}
-
-/* Both edges ride the same numbers on the same curve, so they never part. */
-.pg-nav-track[data-placed] :is(.pg-nav-marker, .pg-nav-lit) {
-  transition-property: translate, width, height, clip-path;
-  transition-duration: var(--tk-duration-morph);
-  transition-timing-function: var(--tk-ease-morph);
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-}
-
-.pg-nav-number {
-  font-family: var(--tk-font-mono);
-  font-size: var(--tk-text-xs);
-  opacity: 0.7;
-}
-
-.pg-nav-mark {
-  font-size: 1.1rem;
-}
-
 .pg-rail-footer {
   display: flex;
   flex-direction: column;
@@ -671,25 +570,24 @@
     min-height: 4rem;
   }
 
+  /* The side nav lies down into a row of tabs that scrolls sideways. */
   .pg-nav {
     overflow-x: auto;
     scrollbar-width: none;
+
+    & .tk-side-nav-track {
+      width: max-content;
+    }
+
+    & .tk-side-nav-list {
+      flex-direction: row;
+    }
+
+    & .tk-side-nav-number {
+      display: none;
+    }
   }
 
-  .pg-nav-track {
-    width: max-content;
-  }
-
-  .pg-nav-list {
-    flex-direction: row;
-  }
-
-  .pg-nav-item {
-    grid-template-columns: auto auto;
-    white-space: nowrap;
-  }
-
-  .pg-nav-number,
   .pg-rail-footer {
     display: none;
   }
@@ -700,6 +598,22 @@
 }
 
 /* Demo helpers ----------------------------------------------------------- */
+
+/* A sidebar's width, and a rail's when collapsed. */
+.demo-side-nav {
+  width: 15rem;
+  padding: var(--tk-space-2);
+  border-right: var(--tk-border-width) solid var(--tk-border-subtle);
+  transition: width var(--tk-duration-3) var(--tk-ease-out);
+
+  &[data-collapsed] {
+    width: 4rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
 
 .demo-grid {
   display: grid;
