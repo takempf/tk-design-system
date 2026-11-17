@@ -1,0 +1,147 @@
+/*
+  Dancheong — the painted eaves of a palace, made plain.
+  Dancheong lays a few pigments over wood: noerok, the verdigris ground; red
+  ochre and vermilion; azurite blue; a yellow; and white and ink-black to edge
+  every band. This theme keeps only what that needs: hanji paper and meok ink
+  for the page, verdigris for anything you can press, vermilion for labels and
+  the way through. The eight hues are the pigments, and its scenery is Korean:
+  the five peaks behind the throne, the eaves themselves, a bojagi.
+
+  It comes in both schemes. By day it is ink on hanji; by night, the same
+  pigments on ink-black lacquer. Every color is a light-dark() pair, so it
+  follows the system unless `data-tk-scheme` (Theme's `scheme`) pins one.
+  Shapes stay square-cut like timber, knobs round like rafter ends, and
+  motion is unhurried: things settle like a brush lifting.
+*/
+@layer tk.themes {
+  [data-tk-theme='dancheong'] {
+    color-scheme: light dark;
+
+    /* Hanji by day, lacquer by night. Surfaces step toward the reader: the
+       ground, then wells and fields, then raised paper. */
+    --tk-bg: light-dark(#eae7df, #12171a);
+    --tk-surface: light-dark(#f5f2ec, #191f22);
+    --tk-surface-raised: light-dark(#fbf9f5, #20282b);
+    --tk-surface-hover: light-dark(#dfdbd2, #293236);
+    /* Meok: a blue-black ink, and hanji's own white in the dark. */
+    --tk-fg: light-dark(#1e2329, #ebe8df);
+    --tk-fg-muted: light-dark(#4d535a, #b4b1a9);
+    --tk-fg-subtle: light-dark(#6a6f76, #89867e);
+    --tk-fg-bright: light-dark(#090e13, #fbf8f2);
+    --tk-fg-inverse: light-dark(#fbf9f5, #12171a);
+    --tk-border-subtle: light-dark(#d9d6cd, #232a2d);
+    --tk-border: light-dark(#bebab1, #384145);
+    --tk-border-strong: light-dark(#7b8187, #636e71);
+    /* Noerok, the verdigris ground every pattern is painted on: deep on paper,
+       pale on lacquer. */
+    --tk-primary: light-dark(#175c53, #7ac1b3);
+    --tk-primary-hover: light-dark(#0a4a42, #95d2c6);
+    --tk-primary-fg: light-dark(#fbf9f5, #12171a);
+    --tk-highlight: var(--tk-primary);
+    --tk-highlight-fg: var(--tk-primary-fg);
+    --tk-accent: light-dark(#0f695e, #70c3b3);
+    /* Vermilion (jangdan) for labels and wayfinding. */
+    --tk-accent-2: light-dark(#b83b23, #eb7353);
+    --tk-focus-color: var(--tk-accent);
+    --tk-selection-bg: color-mix(in oklab, var(--tk-accent) 24%, var(--tk-surface-raised));
+    --tk-selection-fg: var(--tk-fg-bright);
+    /* The pigments: vermilion, orange, ochre yellow, the bright green
+       (yangnok), noerok, azurite (samcheong), purple and the crimson pink
+       (yeonji). Text-dark on paper, lit on lacquer. */
+    --tk-red: light-dark(#b63325, #ee6f61);
+    --tk-orange: light-dark(#a55200, #e99959);
+    --tk-yellow: light-dark(#8d6601, #e5c370);
+    --tk-green: light-dark(#357a3a, #77cb84);
+    --tk-teal: light-dark(#1e7267, #73c6b6);
+    --tk-blue: light-dark(#2f59ab, #74a6ef);
+    --tk-purple: light-dark(#6f4797, #b994e4);
+    --tk-pink: light-dark(#a73b6d, #ea86af);
+    --tk-overlay: color-mix(in oklab, light-dark(#1e2329, #050708) 38%, transparent);
+
+    --tk-code-bg: var(--tk-surface-raised);
+    --tk-code-selection: color-mix(in oklab, var(--tk-accent) 24%, transparent);
+    --tk-code-function: var(--tk-blue);
+    --tk-code-keyword: var(--tk-accent-2);
+    --tk-code-comment-style: normal;
+
+    /* One quiet sans, headings set tight; labels spaced out like a signboard. */
+    --tk-weight-regular: 450;
+    --tk-weight-medium: 560;
+    --tk-weight-bold: 660;
+    --tk-tracking: 0.01em;
+    --tk-tracking-display: -0.022em;
+    --tk-type-display-weight: 700;
+    --tk-type-label-size: var(--tk-text-xs);
+    --tk-type-label-weight: 620;
+    --tk-type-label-tracking: 0.16em;
+    --tk-type-label-stretch: 100%;
+
+    /* Square-cut timber, round rafter ends. */
+    --tk-radius: 4px;
+    --tk-radius-sm: 3px;
+    --tk-radius-lg: 8px;
+    --tk-radius-popup: 6px;
+    --tk-knob-radius: 50%;
+    --tk-radio-color: var(--tk-label);
+    --tk-icon-stroke: 1.4;
+    --tk-icon-cap: round;
+    --tk-icon-join: round;
+    --tk-focus-width: 2px;
+    --tk-focus-offset: 2px;
+
+    /* Unhurried, and no spring: a brush lifting off. */
+    --tk-duration-1: 120ms;
+    --tk-duration-2: 190ms;
+    --tk-duration-3: 320ms;
+    --tk-duration-morph: 420ms;
+    --tk-ease-out: cubic-bezier(0.22, 0.9, 0.24, 1);
+    --tk-ease-in-out: cubic-bezier(0.6, 0, 0.3, 1);
+    --tk-ease-morph: cubic-bezier(0.3, 0.8, 0.1, 1);
+    --tk-enter-offset: 6px;
+    --tk-enter-scale: 0.985;
+
+    /* Words decipher through Hangul's letters. */
+    --tk-decipher-glyphs: 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ';
+    --tk-decipher-share: 0.4;
+    --tk-decipher-duration: 700ms;
+
+    /* Mother-of-pearl on lacquer by night; by day a negative, the scene a
+       faint verdigris wash on the paper. The sun is the ember. */
+    --tk-scenery-scene: 'peaks';
+    --tk-scenery-ink-0: light-dark(oklch(0.955 0.007 88), oklch(0.21 0.01 228));
+    --tk-scenery-ink-1: light-dark(oklch(0.928 0.012 110), oklch(0.243 0.016 208));
+    --tk-scenery-ink-2: light-dark(oklch(0.9 0.018 150), oklch(0.278 0.024 192));
+    --tk-scenery-ink-3: light-dark(oklch(0.872 0.024 170), oklch(0.315 0.032 184));
+    --tk-scenery-ink-4: light-dark(oklch(0.844 0.03 178), oklch(0.355 0.04 180));
+    --tk-scenery-ember: light-dark(oklch(0.8 0.075 35), oklch(0.46 0.12 34));
+    /* Flat painted shapes: hardly softened, a fine dither. */
+    --tk-scenery-softness: 2;
+    --tk-scenery-key: 0.22;
+    --tk-scenery-tone-low: 0.08;
+    --tk-scenery-tone-high: 0.62;
+
+    &[data-tk-scheme='light'] {
+      color-scheme: light;
+    }
+
+    &[data-tk-scheme='dark'] {
+      color-scheme: dark;
+    }
+  }
+
+  /* Text over scenery prints plainly by day; by night a soft shadow lifts it
+     off the lacquer. */
+  [data-tk-theme='dancheong'] .tk-panel:has(> .tk-scenery) {
+    text-shadow: 0 1px 2px light-dark(transparent, rgb(0 0 0 / 0.55));
+  }
+
+  /* Inside a pinned scheme, a nested Dancheong keeps it. Spelled out rather
+     than inherited, so builds that polyfill light-dark() follow it too. */
+  [data-tk-scheme='light'] [data-tk-theme='dancheong']:not([data-tk-scheme]) {
+    color-scheme: light;
+  }
+
+  [data-tk-scheme='dark'] [data-tk-theme='dancheong']:not([data-tk-scheme]) {
+    color-scheme: dark;
+  }
+}

@@ -145,6 +145,22 @@ export function crop(
 }
 
 let colorProbe: CanvasRenderingContext2D | null = null;
+let schemeProbe: HTMLElement | null = null;
+
+/**
+ * A color as `element` would paint it. Canvas knows nothing of color schemes, so
+ * a theme's `light-dark()` ink is resolved by the browser inside the element,
+ * under whichever scheme reaches it there.
+ */
+function resolveColor(element: Element, value: string): string {
+  if (!value.includes('light-dark(')) return value;
+  schemeProbe ??= Object.assign(document.createElement('span'), { hidden: true });
+  schemeProbe.style.color = value;
+  element.append(schemeProbe);
+  const color = getComputedStyle(schemeProbe).color;
+  schemeProbe.remove();
+  return color;
+}
 
 function parseColor(value: string, fallback: Vec3): Vec3 {
   colorProbe ??= document.createElement('canvas').getContext('2d', { willReadFrequently: true });
@@ -171,17 +187,18 @@ function parseColor(value: string, fallback: Vec3): Vec3 {
 function readLook(element: Element): Look {
   const style = getComputedStyle(element);
   const read = (name: string) => style.getPropertyValue(`--tk-scenery-${name}`).trim();
+  const color = (name: string) => resolveColor(element, read(name));
   const number = (name: string, fallback: number) => {
     const value = Number.parseFloat(read(name));
     return Number.isFinite(value) ? value : fallback;
   };
   const scene = read('scene').replace(/['"]/g, '');
-  const inks = [0, 1, 2, 3, 4].map((i) => parseColor(read(`ink-${i}`), [i / 4, i / 4, i / 4]));
+  const inks = [0, 1, 2, 3, 4].map((i) => parseColor(color(`ink-${i}`), [i / 4, i / 4, i / 4]));
   return {
     scene: scene in scenes ? scene : defaultScene,
     attachment: read('attachment') === 'local' ? 'local' : 'fixed',
     inks,
-    ember: parseColor(read('ember'), [1, 0.3, 0.2]),
+    ember: parseColor(color('ember'), [1, 0.3, 0.2]),
     bayer: number('bayer', 8),
     pixel: Math.max(1, Math.round(number('pixel', 2))),
     toneLow: number('tone-low', 0.1),
@@ -206,6 +223,8 @@ class SceneryRenderer {
   private surfaces = new Set<Surface>();
   private settings: ScenerySettings = scenerySettings.getState();
   private motion = matchMedia('(prefers-reduced-motion: reduce)');
+  /** Themes that come in both schemes ink their scenery by it. */
+  private dark = matchMedia('(prefers-color-scheme: dark)');
   private themeObserver: MutationObserver;
   private rootObserver: MutationObserver;
   private unsubscribe: () => void;
@@ -243,13 +262,14 @@ class SceneryRenderer {
     document.addEventListener('scroll', this.scrolled, { capture: true, passive: true });
     window.addEventListener('resize', this.request);
     this.motion.addEventListener('change', this.refresh);
-    // A theme switch anywhere re-inks the surfaces beneath it. Only the theme
-    // attribute is watched in the subtree: surfaces restyle their own canvases
+    this.dark.addEventListener('change', this.invalidate);
+    // A theme or scheme switch anywhere re-inks the surfaces beneath it. Only
+    // those attributes are watched in the subtree: surfaces restyle their own canvases
     // every frame, and watching `style` everywhere would feed back on itself.
     this.themeObserver = new MutationObserver(() => this.invalidate());
     this.themeObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-tk-theme'],
+      attributeFilter: ['data-tk-theme', 'data-tk-scheme'],
       subtree: true,
     });
     // Re-observing the same node would replace these options, so the document
@@ -765,6 +785,7 @@ class SceneryRenderer {
     document.removeEventListener('scroll', this.scrolled, true);
     window.removeEventListener('resize', this.request);
     this.motion.removeEventListener('change', this.refresh);
+    this.dark.removeEventListener('change', this.invalidate);
     this.themeObserver.disconnect();
     this.rootObserver.disconnect();
     this.unsubscribe();
