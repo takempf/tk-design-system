@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { cx } from '../utils';
-import type { ThemeName } from './themes';
+import type { ThemeName, ThemeScheme } from './themes';
 
 interface ThemeContextValue {
   readonly name: ThemeName;
@@ -25,6 +25,12 @@ export const usePortalContainer = (): HTMLElement | undefined => use(ThemeContex
 
 type ThemeProps = {
   readonly name: ThemeName;
+  /**
+   * Pins a theme that comes in both schemes (Dancheong) to one. Left out, it
+   * follows the system, or the scheme of a pinned theme it sits inside. Themes
+   * with a single scheme ignore it.
+   */
+  readonly scheme?: ThemeScheme;
   readonly children?: ReactNode;
 } & (({ readonly scope?: 'element' } & ComponentProps<'div'>) | { readonly scope: 'document' });
 
@@ -36,7 +42,7 @@ type ThemeProps = {
  * matching empty `display: contents` container there for them to inherit from.
  */
 export function Theme(props: ThemeProps) {
-  const { name, children } = props;
+  const { name, scheme, children } = props;
   const documentScope = props.scope === 'document';
   const [portal, setPortal] = useState<HTMLElement>();
 
@@ -52,6 +58,17 @@ export function Theme(props: ThemeProps) {
   }, [documentScope, name]);
 
   useLayoutEffect(() => {
+    if (!documentScope || !scheme) return;
+    const root = document.documentElement;
+    const previous = root.dataset.tkScheme;
+    root.dataset.tkScheme = scheme;
+    return () => {
+      if (previous === undefined) delete root.dataset.tkScheme;
+      else root.dataset.tkScheme = previous;
+    };
+  }, [documentScope, scheme]);
+
+  useLayoutEffect(() => {
     if (documentScope) return;
     const node = document.createElement('div');
     node.className = 'tk-portal';
@@ -64,8 +81,11 @@ export function Theme(props: ThemeProps) {
   }, [documentScope]);
 
   useLayoutEffect(() => {
-    if (portal) portal.dataset.tkTheme = name;
-  }, [portal, name]);
+    if (!portal) return;
+    portal.dataset.tkTheme = name;
+    if (scheme) portal.dataset.tkScheme = scheme;
+    else delete portal.dataset.tkScheme;
+  }, [portal, name, scheme]);
 
   // Every popup reads this context, so it changes only when the theme or portal does.
   const value = useMemo(
@@ -76,10 +96,15 @@ export function Theme(props: ThemeProps) {
   if (props.scope === 'document') {
     return <ThemeContext value={value}>{children}</ThemeContext>;
   }
-  const { scope: _scope, name: _name, className, ...rest } = props;
+  const { scope: _scope, name: _name, scheme: _scheme, className, ...rest } = props;
   return (
     <ThemeContext value={value}>
-      <div {...rest} data-tk-theme={name} className={cx('tk-theme', className)}>
+      <div
+        {...rest}
+        data-tk-theme={name}
+        data-tk-scheme={scheme}
+        className={cx('tk-theme', className)}
+      >
         {children}
       </div>
     </ThemeContext>

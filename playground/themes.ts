@@ -7,5 +7,6 @@ export const playgroundThemes: readonly ThemeInfo[] = [
     id: 'tide',
     name: 'Tide',
     description: 'Yours, not the library’s: coral and sea-glass on deep water, pebble controls.',
+    schemes: ['dark'],
   },
 ];

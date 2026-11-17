@@ -18,6 +18,7 @@ import {
   setScenerySettings,
   Theme,
   type ThemeName,
+  type ThemeScheme,
   Toaster,
   Toggle,
   ToggleGroup,
@@ -51,6 +52,17 @@ const readHash = (): string => {
   return sections.some((section) => section.id === id) ? id : 'hall';
 };
 
+type SchemeChoice = ThemeScheme | 'auto';
+
+const readScheme = (): SchemeChoice => {
+  try {
+    const stored = localStorage.getItem('tk-playground-scheme');
+    return stored === 'light' || stored === 'dark' ? stored : 'auto';
+  } catch {
+    return 'auto';
+  }
+};
+
 const readTheme = (): ThemeName => {
   try {
     return localStorage.getItem('tk-playground-theme') ?? 'grove';
@@ -61,6 +73,9 @@ const readTheme = (): ThemeName => {
 
 export function App() {
   const [theme, setTheme] = useState<ThemeName>(readTheme);
+  const [scheme, setScheme] = useState<SchemeChoice>(readScheme);
+  const bothSchemes =
+    (playgroundThemes.find((candidate) => candidate.id === theme)?.schemes.length ?? 0) > 1;
   const [sectionId, setSectionId] = useState(readHash);
   const pointer = useRef<{ x: number; y: number } | undefined>(undefined);
   const index = sections.findIndex((section) => section.id === sectionId);
@@ -84,6 +99,16 @@ export function App() {
     pointer.current = undefined;
     try {
       localStorage.setItem('tk-playground-theme', next);
+    } catch {}
+  };
+
+  const changeScheme = (next: SchemeChoice) => {
+    if (next === scheme) return;
+    wipe(() => setScheme(next), pointer.current);
+    pointer.current = undefined;
+    try {
+      if (next === 'auto') localStorage.removeItem('tk-playground-scheme');
+      else localStorage.setItem('tk-playground-scheme', next);
     } catch {}
   };
 
@@ -116,7 +141,7 @@ export function App() {
   const sectionDemos = demos.filter((demo) => demo.meta.section === section.id);
 
   return (
-    <Theme scope="document" name={theme}>
+    <Theme scope="document" name={theme} scheme={scheme === 'auto' ? undefined : scheme}>
       <TooltipProvider delay={400}>
         <Toaster>
           <div className="pg">
@@ -158,6 +183,21 @@ export function App() {
                       </Toggle>
                     ))}
                   </ToggleGroup>
+                  {bothSchemes && (
+                    <ToggleGroup
+                      size="sm"
+                      value={[scheme]}
+                      onValueChange={(value) => value[0] && changeScheme(value[0] as SchemeChoice)}
+                      onPointerDown={(event) => {
+                        pointer.current = { x: event.clientX, y: event.clientY };
+                      }}
+                      aria-label="Scheme"
+                    >
+                      <Toggle value="auto">Auto</Toggle>
+                      <Toggle value="light">Light</Toggle>
+                      <Toggle value="dark">Dark</Toggle>
+                    </ToggleGroup>
+                  )}
                   <ScenerySettingsButton />
                 </div>
               </header>

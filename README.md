@@ -54,7 +54,7 @@ text's own, so it pairs with a role or with prose: `tk-type-body-lg tk-serif`,
 ```
 src/
   styles/tokens.css      every token, on :root and every [data-tk-theme]
-  themes/*.css           grove, bureau, lounge, paper — token overrides (+ anything beyond)
+  themes/*.css           grove, bureau, lounge, paper, dancheong — token overrides (+ anything beyond)
   styles/components/*    one class per part: .tk-button, .tk-list-item, .tk-prose, …
   styles/type.css        text utilities: .tk-type-*, .tk-ink-*, .tk-nums-*, …
   components/            thin typed wrappers over @base-ui/react parts
@@ -84,6 +84,7 @@ separate fade/move/morph easings, entrance offset/scale/blur) and scenery.
 | `bureau` | brutalist concrete and red wayfinding; fades flicker like a fluorescent tube |
 | `lounge` | a chat app after hours: ink-indigo panes, blurple controls and focus, soft red-orange labels; wide heavy headings, popouts on soft shadows, a small spring |
 | `paper`  | light: warm stock, serif display, typewriter labels; scenery prints as a negative |
+| `dancheong` | light and dark: painted eaves made plain. Ink on hanji by day, the same pigments on ink-black lacquer by night; verdigris (noerok) to press, vermilion labels, the pigments as hues; Hangul deciphers; Korean scenery |
 
 ### Writing a theme
 
@@ -104,6 +105,25 @@ separate fade/move/morph easings, entrance offset/scale/blur) and scenery.
 Then `<Theme name="tide">` (a subtree) or `<Theme scope="document" name="tide">`.
 Scoped themes keep a matching empty container on `<body>` for popups, so a menu opened
 inside a Paper panel is Paper even on a Grove page.
+
+### Light and dark
+
+Most themes are one scheme (`themes[i].schemes` says which). A theme can come in both by
+declaring `color-scheme: light dark` and writing each color as a `light-dark()` pair,
+scenery inks included; Dancheong does. It then follows the system, unless `scheme` pins
+one: `<Theme name="dancheong" scheme="dark">` (the attribute is `data-tk-scheme`, on
+`<html>` for a document theme). A Dancheong nested inside a pinned one keeps its scheme.
+Scenery re-inks when the scheme changes, whichever way it changes.
+
+```css
+[data-tk-theme='tide'] {
+  color-scheme: light dark;
+  --tk-bg: light-dark(#f2ece2, #0b1622);
+  --tk-scenery-ink-0: light-dark(oklch(0.95 0.01 80), oklch(0.135 0.018 248));
+  &[data-tk-scheme='light'] { color-scheme: light; }
+  &[data-tk-scheme='dark'] { color-scheme: dark; }
+}
+```
 
 ### Color
 
@@ -423,7 +443,10 @@ finished frame, so many windows cost the same as one, and with `fixed` attachmen
 picture holds still while the page scrolls over it (scrolling also nudges the camera).
 
 Scenes: `trapper` (tk-ai's original), `grove`, `stones`, `monolith`, `canopy`,
-`contour`, `aurora`. Each is a GLSL file defining `vec4 render(vec2 fragCoord)` on top
+`contour`, `aurora`, and three Korean ones: `peaks` (the sun, moon and five peaks of the
+screen behind the Joseon throne, with waterfalls, pines and a rolling sea), `dancheong`
+(looking up under a temple's eave corner: banded rafter ends, lotus roundels, lanterns)
+and `bojagi` (a ramie patchwork cloth hung in a window). Each is a GLSL file defining `vec4 render(vec2 fragCoord)` on top
 of `scenery/shaders/prelude.glsl`; add one by adding to `scenes`.
 
 Knobs, all CSS: `--tk-scenery-scene`, `-attachment`, `-ink-0…4`, `-ember`, `-bayer` (2/4/8),

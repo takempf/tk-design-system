@@ -105,5 +105,11 @@ export { Logo, type LogoProps, logoPaths } from './icons/Logo';
 export * from './motion';
 export * from './scenery';
 export { Theme, usePortalContainer, useTheme } from './theme/Theme';
-export { type BundledTheme, type ThemeInfo, type ThemeName, themes } from './theme/themes';
+export {
+  type BundledTheme,
+  type ThemeInfo,
+  type ThemeName,
+  type ThemeScheme,
+  themes,
+} from './theme/themes';
 export { cx } from './utils';
