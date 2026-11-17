@@ -1,8 +1,11 @@
 import aurora from './aurora.glsl?raw';
+import bojagi from './bojagi.glsl?raw';
 import canopy from './canopy.glsl?raw';
 import contour from './contour.glsl?raw';
+import dancheong from './dancheong.glsl?raw';
 import grove from './grove.glsl?raw';
 import monolith from './monolith.glsl?raw';
+import peaks from './peaks.glsl?raw';
 import stones from './stones.glsl?raw';
 import trapper from './trapper.glsl?raw';
 
@@ -52,6 +55,23 @@ export const scenes: Record<string, SceneInfo> = {
     name: 'Aurora',
     description: 'Northern lights over a pine ridge. One cabin window is lit.',
     source: aurora,
+  },
+  dancheong: {
+    name: 'Dancheong',
+    description:
+      'Under the painted eaves of a temple corner: banded rafter ends, lotus roundels, lanterns.',
+    source: dancheong,
+  },
+  bojagi: {
+    name: 'Bojagi',
+    description: 'A ramie patchwork cloth hung in a window, light through its scraps, a breeze.',
+    source: bojagi,
+  },
+  peaks: {
+    name: 'Peaks',
+    description:
+      'The sun, the moon and the five peaks that stood behind the throne. Waterfalls, pines, a rolling sea.',
+    source: peaks,
   },
 };
 
