@@ -20,6 +20,8 @@
 
     /* Palette — the only raw colors a theme needs to supply. */
     --tk-bg: #1f1f1f;
+    /* Laid over --tk-bg on the page itself (body): background layers, or none. */
+    --tk-bg-pattern: none;
     --tk-surface: #0c0c0c;
     --tk-surface-raised: #171717;
     --tk-surface-hover: #202020;

@@ -17,21 +17,22 @@
   [data-tk-theme='dancheong'] {
     color-scheme: light dark;
 
-    /* Hanji by day, lacquer by night. Surfaces step toward the reader: the
-       ground, then wells and fields, then raised paper. */
-    --tk-bg: light-dark(#eae7df, #12171a);
-    --tk-surface: light-dark(#f5f2ec, #191f22);
-    --tk-surface-raised: light-dark(#fbf9f5, #20282b);
-    --tk-surface-hover: light-dark(#dfdbd2, #293236);
+    /* Hanji by day, lacquer by night: a soft dark, about as light as
+       Lounge's, never black. Surfaces step toward the reader: the ground,
+       then wells and fields, then raised paper. */
+    --tk-bg: light-dark(#eae7df, #191e21);
+    --tk-surface: light-dark(#f5f2ec, #202629);
+    --tk-surface-raised: light-dark(#fbf9f5, #272f33);
+    --tk-surface-hover: light-dark(#dfdbd2, #303a3e);
     /* Meok: a blue-black ink, and hanji's own white in the dark. */
     --tk-fg: light-dark(#1e2329, #ebe8df);
-    --tk-fg-muted: light-dark(#4d535a, #b4b1a9);
-    --tk-fg-subtle: light-dark(#6a6f76, #89867e);
+    --tk-fg-muted: light-dark(#4d535a, #b7b4ac);
+    --tk-fg-subtle: light-dark(#6a6f76, #928f87);
     --tk-fg-bright: light-dark(#090e13, #fbf8f2);
     --tk-fg-inverse: light-dark(#fbf9f5, #12171a);
-    --tk-border-subtle: light-dark(#d9d6cd, #232a2d);
-    --tk-border: light-dark(#bebab1, #384145);
-    --tk-border-strong: light-dark(#7b8187, #636e71);
+    --tk-border-subtle: light-dark(#d9d6cd, #2a3135);
+    --tk-border: light-dark(#bebab1, #40494d);
+    --tk-border-strong: light-dark(#7b8187, #6c777a);
     /* Noerok, the verdigris ground every pattern is painted on: deep on paper,
        pale on lacquer. */
     --tk-primary: light-dark(#175c53, #7ac1b3);
@@ -57,6 +58,42 @@
     --tk-purple: light-dark(#6f4797, #b994e4);
     --tk-pink: light-dark(#a73b6d, #ea86af);
     --tk-overlay: color-mix(in oklab, light-dark(#1e2329, #050708) 38%, transparent);
+
+    /* The page is ruled like a painter's layout: a faint dot at every line
+       of body text (--tk-space-6), and every fourth line a pigment, verdigris
+       and vermilion, then ochre and azurite, as the bands go on a rafter
+       end. Centred, so the grid sits square under centred content. */
+    --tk-bg-pattern:
+      radial-gradient(
+        circle at calc(50% - 2 * var(--tk-space-6)) calc(1.5 * var(--tk-space-6)),
+        color-mix(in oklab, var(--tk-teal) 50%, var(--tk-bg)) 1.1px,
+        transparent 1.6px
+      )
+      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      radial-gradient(
+        circle at calc(50% + 2 * var(--tk-space-6)) calc(1.5 * var(--tk-space-6)),
+        color-mix(in oklab, var(--tk-accent-2) 50%, var(--tk-bg)) 1.1px,
+        transparent 1.6px
+      )
+      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      radial-gradient(
+        circle at calc(50% - 2 * var(--tk-space-6)) calc(5.5 * var(--tk-space-6)),
+        color-mix(in oklab, var(--tk-yellow) 50%, var(--tk-bg)) 1.1px,
+        transparent 1.6px
+      )
+      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      radial-gradient(
+        circle at calc(50% + 2 * var(--tk-space-6)) calc(5.5 * var(--tk-space-6)),
+        color-mix(in oklab, var(--tk-blue) 50%, var(--tk-bg)) 1.1px,
+        transparent 1.6px
+      )
+      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      radial-gradient(
+        circle,
+        color-mix(in oklab, var(--tk-fg) 14%, var(--tk-bg)) 0.8px,
+        transparent 1.25px
+      )
+      50% 0 / var(--tk-space-6) var(--tk-space-6);
 
     --tk-code-bg: var(--tk-surface-raised);
     --tk-code-selection: color-mix(in oklab, var(--tk-accent) 24%, transparent);
