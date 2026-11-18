@@ -16,6 +16,6 @@ export default defineConfig({
       { find: /^tk-design-system\/(.+)$/, replacement: `${src}/$1` },
     ],
   },
-  server: { port: 5180 },
+  server: { port: 5180, strictPort: true, allowedHosts: ['clean-slate-1.tail3f767a.ts.net'] },
   build: { outDir: 'dist-playground', chunkSizeWarningLimit: 1500 },
 });
