@@ -151,11 +151,14 @@
     --tk-scenery-ink-3: light-dark(oklch(0.872 0.024 170), oklch(0.315 0.032 184));
     --tk-scenery-ink-4: light-dark(oklch(0.844 0.03 178), oklch(0.355 0.04 180));
     --tk-scenery-ember: light-dark(oklch(0.8 0.075 35), oklch(0.46 0.12 34));
-    /* Flat painted shapes: hardly softened, a fine dither. */
-    --tk-scenery-softness: 2;
+    /* Seen through hanji: the painting well softened, in a coarse 4×4
+       dither of big pixels. */
+    --tk-scenery-pixel: 4;
+    --tk-scenery-bayer: 4;
+    --tk-scenery-softness: 16;
     --tk-scenery-key: 0.22;
-    --tk-scenery-tone-low: 0.08;
-    --tk-scenery-tone-high: 0.62;
+    --tk-scenery-tone-low: 0.14;
+    --tk-scenery-tone-high: 0.65;
 
     &[data-tk-scheme='light'] {
       color-scheme: light;
