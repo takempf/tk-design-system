@@ -15,7 +15,22 @@
     position: relative;
     margin: 0;
     min-height: 100dvh;
-    background: var(--tk-bg-pattern), var(--tk-bg);
+    background: var(--tk-bg);
+    /* So the page pattern (below) sits under everything else on the page. */
+    isolation: isolate;
+  }
+
+  /* The theme's page pattern (--tk-bg-pattern), held still behind the
+     scrolling page. A fixed layer, not background-attachment: fixed, which
+     iOS ignores and which can keep Chrome scrolling on the main thread. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: 100lvh;
+    z-index: -1;
+    background: var(--tk-bg-pattern);
+    pointer-events: none;
   }
 
   /* Every theme scope carries its own type and ink, not only the document. */

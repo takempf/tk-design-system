@@ -131,8 +131,8 @@ A theme's color comes in four groups, and everything else is derived from them:
 
 - **Surfaces and ink:** `--tk-bg`, `--tk-surface…`, `--tk-fg…`, `--tk-border…`,
   `--tk-primary…`, `--tk-highlight…`. `--tk-bg-pattern` lays background layers over
-  `--tk-bg` on the page itself (`body`); it is `none` unless a theme rules the page,
-  as Dancheong does with a dot grid on the body text's line.
+  `--tk-bg` on the page itself, fixed while the page scrolls; it is `none` unless a
+  theme rules the page, as Dancheong does with diagonal dots on the body text's lines.
 - **Two accents:** `--tk-accent` for focus and interactive color, and `--tk-accent-2`
   for wayfinding. `--tk-label` (eyebrows, tab indicators) defaults to the second.
 - **Eight standard hues:** `--tk-red`, `-orange`, `-yellow`, `-green`, `-teal`,

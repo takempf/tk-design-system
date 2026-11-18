@@ -59,41 +59,50 @@
     --tk-pink: light-dark(#a73b6d, #ea86af);
     --tk-overlay: color-mix(in oklab, light-dark(#1e2329, #050708) 38%, transparent);
 
-    /* The page is ruled like a painter's layout: a faint dot at every line
-       of body text (--tk-space-6), and every fourth line a pigment, verdigris
-       and vermilion, then ochre and azurite, as the bands go on a rafter
-       end. Centred, so the grid sits square under centred content. */
+    /* The page is ruled like a painter's layout, and held still while it
+       scrolls. Dots stand on the lines of body text (--tk-space-6), every
+       other one, so each column sits half a line below the last and they
+       run in 45° diagonals. Along each diagonal a pigment comes round every
+       fourth dot, verdigris, vermilion, ochre, azurite, as the bands go on a
+       rafter end. Every tile starts at the page's centre line, so the grid
+       sits square under centred content. */
     --tk-bg-pattern:
       radial-gradient(
-        circle at calc(50% - 2 * var(--tk-space-6)) calc(1.5 * var(--tk-space-6)),
+        circle at calc(0.5 * var(--tk-space-6)) calc(0.5 * var(--tk-space-6)),
         color-mix(in oklab, var(--tk-teal) 50%, var(--tk-bg)) 1.1px,
         transparent 1.6px
       )
-      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      calc(50% + 8 * var(--tk-space-6)) 0 / calc(16 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
       radial-gradient(
-        circle at calc(50% + 2 * var(--tk-space-6)) calc(1.5 * var(--tk-space-6)),
+        circle at calc(4.5 * var(--tk-space-6)) calc(4.5 * var(--tk-space-6)),
         color-mix(in oklab, var(--tk-accent-2) 50%, var(--tk-bg)) 1.1px,
         transparent 1.6px
       )
-      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      calc(50% + 8 * var(--tk-space-6)) 0 / calc(16 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
       radial-gradient(
-        circle at calc(50% - 2 * var(--tk-space-6)) calc(5.5 * var(--tk-space-6)),
+        circle at calc(8.5 * var(--tk-space-6)) calc(0.5 * var(--tk-space-6)),
         color-mix(in oklab, var(--tk-yellow) 50%, var(--tk-bg)) 1.1px,
         transparent 1.6px
       )
-      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      calc(50% + 8 * var(--tk-space-6)) 0 / calc(16 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
       radial-gradient(
-        circle at calc(50% + 2 * var(--tk-space-6)) calc(5.5 * var(--tk-space-6)),
+        circle at calc(12.5 * var(--tk-space-6)) calc(4.5 * var(--tk-space-6)),
         color-mix(in oklab, var(--tk-blue) 50%, var(--tk-bg)) 1.1px,
         transparent 1.6px
       )
-      50% 0 / calc(8 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
+      calc(50% + 8 * var(--tk-space-6)) 0 / calc(16 * var(--tk-space-6)) calc(8 * var(--tk-space-6)),
       radial-gradient(
-        circle,
+        circle at 25% 25%,
         color-mix(in oklab, var(--tk-fg) 14%, var(--tk-bg)) 0.8px,
         transparent 1.25px
       )
-      50% 0 / var(--tk-space-6) var(--tk-space-6);
+      calc(50% + var(--tk-space-6)) 0 / calc(2 * var(--tk-space-6)) calc(2 * var(--tk-space-6)),
+      radial-gradient(
+        circle at 75% 75%,
+        color-mix(in oklab, var(--tk-fg) 14%, var(--tk-bg)) 0.8px,
+        transparent 1.25px
+      )
+      calc(50% + var(--tk-space-6)) 0 / calc(2 * var(--tk-space-6)) calc(2 * var(--tk-space-6));
 
     --tk-code-bg: var(--tk-surface-raised);
     --tk-code-selection: color-mix(in oklab, var(--tk-accent) 24%, transparent);
