@@ -10,19 +10,20 @@
 @layer tk.themes {
   [data-tk-theme='lounge'] {
     /* Surfaces climb in small, blue-tinted steps: recessed wells, the room,
-       raised cards and popouts. */
-    --tk-bg: #1b1c27;
-    --tk-surface: #14151e;
-    --tk-surface-raised: #232533;
-    --tk-surface-hover: #2c2f41;
+       raised cards and popouts. The room sits at a chat client's lightness,
+       a dim grey rather than near-black. */
+    --tk-bg: #30323e;
+    --tk-surface: #292a34;
+    --tk-surface-raised: #393b4a;
+    --tk-surface-hover: #434659;
     --tk-fg: #dfe1ee;
-    --tk-fg-muted: #a6aac0;
-    --tk-fg-subtle: #8286a1;
+    --tk-fg-muted: #b6bad0;
+    --tk-fg-subtle: #969bb6;
     --tk-fg-bright: #f7f7fd;
     --tk-fg-inverse: #14151e;
-    --tk-border-subtle: #272a3a;
-    --tk-border: #363a4f;
-    --tk-border-strong: #5c617d;
+    --tk-border-subtle: #3d4152;
+    --tk-border: #4d5268;
+    --tk-border-strong: #757b98;
     --tk-primary: #5865f2;
     --tk-primary-hover: #4954dd;
     --tk-primary-fg: #ffffff;
@@ -30,8 +31,8 @@
     --tk-highlight: #4f5be6;
     --tk-highlight-fg: #ffffff;
     /* Blurple lifted to read as text and rings on the dark. */
-    --tk-accent: #8c95ff;
-    --tk-accent-2: #f3866a;
+    --tk-accent: #98a2ff;
+    --tk-accent-2: #fa8d70;
     /* Hues at one soft pastel weight, cool-leaning so they sit on indigo. */
     --tk-red: #f4808a;
     --tk-orange: #f3a066;
@@ -119,12 +120,12 @@
     --tk-decipher-ink: var(--tk-accent);
 
     --tk-scenery-scene: 'contour';
-    --tk-scenery-ink-0: oklch(0.145 0.02 280);
-    --tk-scenery-ink-1: oklch(0.18 0.03 280);
-    --tk-scenery-ink-2: oklch(0.215 0.042 280);
-    --tk-scenery-ink-3: oklch(0.255 0.056 281);
-    --tk-scenery-ink-4: oklch(0.3 0.072 282);
-    --tk-scenery-ember: oklch(0.36 0.1 38);
+    --tk-scenery-ink-0: oklch(0.234 0.02 280);
+    --tk-scenery-ink-1: oklch(0.269 0.03 280);
+    --tk-scenery-ink-2: oklch(0.304 0.042 280);
+    --tk-scenery-ink-3: oklch(0.344 0.056 281);
+    --tk-scenery-ink-4: oklch(0.389 0.072 282);
+    --tk-scenery-ember: oklch(0.449 0.1 38);
     --tk-scenery-bayer: 8;
     --tk-scenery-pixel: 4;
     --tk-scenery-softness: 10;
