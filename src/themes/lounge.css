@@ -10,20 +10,20 @@
 @layer tk.themes {
   [data-tk-theme='lounge'] {
     /* Surfaces climb in small, blue-tinted steps: recessed wells, the room,
-       raised cards and popouts. The room sits at a chat client's lightness,
-       a dim grey rather than near-black. */
-    --tk-bg: #30323e;
-    --tk-surface: #292a34;
-    --tk-surface-raised: #393b4a;
-    --tk-surface-hover: #434659;
+       raised cards and popouts. The room sits a step above near-black: lit
+       enough to read as a room, dim enough not to wash out. */
+    --tk-bg: #20222e;
+    --tk-surface: #1b1c26;
+    --tk-surface-raised: #272937;
+    --tk-surface-hover: #2f3143;
     --tk-fg: #dfe1ee;
     --tk-fg-muted: #b6bad0;
     --tk-fg-subtle: #969bb6;
     --tk-fg-bright: #f7f7fd;
     --tk-fg-inverse: #14151e;
-    --tk-border-subtle: #3d4152;
-    --tk-border: #4d5268;
-    --tk-border-strong: #757b98;
+    --tk-border-subtle: #2a2e3e;
+    --tk-border: #363a4f;
+    --tk-border-strong: #545975;
     --tk-primary: #5865f2;
     --tk-primary-hover: #4954dd;
     --tk-primary-fg: #ffffff;
@@ -120,12 +120,12 @@
     --tk-decipher-ink: var(--tk-accent);
 
     --tk-scenery-scene: 'contour';
-    --tk-scenery-ink-0: oklch(0.234 0.02 280);
-    --tk-scenery-ink-1: oklch(0.269 0.03 280);
-    --tk-scenery-ink-2: oklch(0.304 0.042 280);
-    --tk-scenery-ink-3: oklch(0.344 0.056 281);
-    --tk-scenery-ink-4: oklch(0.389 0.072 282);
-    --tk-scenery-ember: oklch(0.449 0.1 38);
+    --tk-scenery-ink-0: oklch(0.187 0.02 280);
+    --tk-scenery-ink-1: oklch(0.215 0.03 280);
+    --tk-scenery-ink-2: oklch(0.243 0.042 280);
+    --tk-scenery-ink-3: oklch(0.275 0.056 281);
+    --tk-scenery-ink-4: oklch(0.311 0.072 282);
+    --tk-scenery-ember: oklch(0.359 0.1 38);
     --tk-scenery-bayer: 8;
     --tk-scenery-pixel: 4;
     --tk-scenery-softness: 10;
