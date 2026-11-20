@@ -23,6 +23,7 @@
 @import './styles/components/controls.css';
 @import './styles/components/popups.css';
 @import './styles/components/surfaces.css';
+@import './styles/components/navigation.css';
 @import './styles/components/loading.css';
 @import './styles/components/code.css';
 @import './styles/components/prose.css';

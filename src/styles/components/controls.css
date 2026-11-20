@@ -221,19 +221,20 @@
       opacity: 1;
     }
 
-    &:hover:not([data-disabled]) {
+    /* A box round an input (see .tk-input-group) is in the state its input is. */
+    &:hover:not([data-disabled], :has(> .tk-input-control[data-disabled])) {
       border-color: var(--tk-border-strong);
     }
 
-    &:is(:focus, :focus-visible) {
+    &:is(:focus, :focus-visible, :has(> .tk-input-control:is(:focus, :focus-visible))) {
       outline-color: var(--tk-focus-color);
     }
 
-    &[data-invalid] {
+    &:is([data-invalid], :has(> .tk-input-control[data-invalid])) {
       border-color: var(--tk-danger);
     }
 
-    &[data-disabled] {
+    &:is([data-disabled], :has(> .tk-input-control[data-disabled])) {
       opacity: 0.4;
       cursor: not-allowed;
     }
@@ -247,6 +248,130 @@
       min-height: var(--tk-control-h-lg);
       padding-inline: var(--tk-space-4);
       font-size: var(--tk-text-lg);
+    }
+
+    /* Underline: no box, only a line to write on, the text flush with the
+       words around it. The line darkens on hover and, on focus, thickens in
+       the focus colour, standing in for the ring a box gets. */
+    &[data-variant='underline'] {
+      --_line: var(--tk-focus-color);
+      padding-inline: 0;
+      border-width: 0 0 var(--tk-border-width);
+      border-radius: 0;
+      background: transparent;
+      transition-property: border-color, box-shadow;
+
+      &:is(:focus, :focus-visible, :has(> .tk-input-control:is(:focus, :focus-visible))) {
+        outline-color: transparent;
+        border-color: var(--_line);
+        box-shadow: inset 0 calc(-1 * var(--tk-focus-width)) 0 var(--_line);
+      }
+
+      &:is([data-invalid], :has(> .tk-input-control[data-invalid])) {
+        --_line: var(--tk-danger);
+      }
+    }
+  }
+
+  /* An input with a start or an end: the box is a wrapper, laid out in a row,
+     and the input inside it is bare. Its slots and anything in them are
+     centred on the box by the row, whatever the box's height. */
+  .tk-input-group {
+    display: flex;
+    gap: var(--tk-space-2);
+    align-items: center;
+    cursor: text;
+  }
+
+  .tk-input-control {
+    flex: 1;
+    align-self: stretch;
+    width: 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-overflow: ellipsis;
+    outline: none;
+
+    &::placeholder {
+      color: var(--tk-fg-subtle);
+      opacity: 1;
+    }
+  }
+
+  /* A start or an end, in an input's box or a combobox's field: a unit or a
+     prefix in quiet text, or InputAction buttons. A button at the box's edge
+     sits nearer it than text would, as the field's own clear button does. */
+  .tk-input-affix {
+    display: flex;
+    flex: none;
+    gap: var(--tk-space-1);
+    align-items: center;
+    align-self: stretch;
+    color: var(--tk-fg-subtle);
+    white-space: nowrap;
+
+    .tk-input-group > &[data-side='start']:has(> .tk-input-action:first-child) {
+      margin-inline-start: calc(var(--tk-space-2) * -1);
+    }
+
+    :is(.tk-input-group, .tk-combobox-field)
+      > &[data-side='end']:has(> .tk-input-action:last-child) {
+      margin-inline-end: calc(var(--tk-space-2) * -1);
+    }
+
+    /* An underline has no inset to reach into. */
+    .tk-input-group[data-variant='underline'] > & {
+      margin-inline: 0;
+    }
+  }
+
+  /* An icon button in a field (InputAction), and the field's own clear and
+     show-all. Sized by the field's text, so it fits whatever the field's size. */
+  .tk-input-action {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.75em;
+    height: 1.75em;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+    background: transparent;
+    color: var(--tk-fg-subtle);
+    font-size: var(--_field-text, inherit);
+    cursor: pointer;
+    transition:
+      opacity var(--tk-duration-1) var(--tk-ease-out),
+      background-color var(--tk-duration-1) var(--tk-ease-out),
+      color var(--tk-duration-1) var(--tk-ease-out);
+
+    &:hover:not([data-disabled]) {
+      background: var(--tk-surface-hover);
+      color: var(--tk-fg);
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      opacity: 0;
+    }
+
+    &[data-disabled] {
+      cursor: not-allowed;
+    }
+
+    & .tk-icon {
+      font-size: 0.9em;
+      transition: rotate var(--tk-duration-3) var(--tk-ease-morph);
+    }
+
+    /* As large as the icon it stands in for. */
+    & .tk-spinner {
+      font-size: 0.8em;
     }
   }
 

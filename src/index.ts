@@ -40,6 +40,8 @@ export {
   Field,
   Fieldset,
   Input,
+  InputAction,
+  type InputActionProps,
   type InputProps,
   Textarea,
   type TextareaProps,
@@ -79,6 +81,12 @@ export {
   type SliderProps,
 } from './components/Range';
 export { type Option, Select, type SelectProps } from './components/Select';
+export {
+  SideNav,
+  type SideNavGroupProps,
+  type SideNavItemProps,
+  type SideNavRootProps,
+} from './components/SideNav';
 export { SpinnerIcon, type SpinnerIconProps } from './components/SpinnerIcon';
 export { Toaster, toasts, useToasts } from './components/Toast';
 export {

@@ -35,6 +35,16 @@ const trees = [
   'Yew',
 ].map((label) => ({ value: label.toLowerCase(), label, disabled: label === 'Elm' }));
 
+const landmarks = [
+  { value: 'river', label: 'River', glyph: '🏞️' },
+  { value: 'mountain', label: 'Mountain', glyph: '⛰️' },
+  { value: 'cabin', label: 'Cabin', glyph: '🛖' },
+  { value: 'campfire', label: 'Campfire', glyph: '🔥' },
+  { value: 'tent', label: 'Tent', glyph: '⛺' },
+  { value: 'lake', label: 'Lake', glyph: '🌊' },
+];
+const glyphOf = (value: string) => landmarks.find((landmark) => landmark.value === value)?.glyph;
+
 export default function ComboboxDemo() {
   return (
     <Stack gap={5}>
@@ -48,6 +58,30 @@ export default function ComboboxDemo() {
         <Combobox items={trees} defaultValue="rowan" placeholder="Choose a tree…" clearable />
         <Field.Description>Already chosen, with a button to clear it.</Field.Description>
       </Field.Root>
+      {/* Stealth, with renderValue and renderItem: closed, only the glyph; open,
+          a search over glyph and name. */}
+      <p>
+        Planted by the{' '}
+        <Combobox
+          variant="stealth"
+          size="sm"
+          items={landmarks}
+          defaultValue="river"
+          placeholder="Landmark"
+          aria-label="Landmark"
+          renderValue={(item) => (
+            <>
+              <span aria-hidden="true">{glyphOf(item.value)}</span>
+              <span className="tk-visually-hidden">{item.label}</span>
+            </>
+          )}
+          renderItem={(item) => (
+            <>
+              <span aria-hidden="true">{glyphOf(item.value)}</span> {item.label}
+            </>
+          )}
+        />
+      </p>
     </Stack>
   );
 }

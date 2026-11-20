@@ -60,6 +60,13 @@ interface InputComboboxBase<V> {
   readonly clearable?: boolean;
   /** A button that opens every suggestion, before anything is typed. So does the down arrow. */
   readonly browsable?: boolean;
+  /** In the field, after its search icon and before what's typed: a prefix, or an `InputAction`. */
+  readonly start?: ReactNode;
+  /**
+   * In the field, after what's typed: `InputAction` buttons of your own, such
+   * as a microphone. They sit after the clear button and before show-all.
+   */
+  readonly end?: ReactNode;
   /** Announced, and shown above the suggestions: progress, errors, counts. */
   readonly status?: ReactNode;
   /** Suggestions are on their way: the field shows it, and an empty list says nothing yet. */
@@ -109,6 +116,8 @@ const field = (item: unknown, key: 'label' | 'value') =>
 const labelOf = (item: unknown) => field(item, 'label') ?? String(item);
 // One empty list, so Base UI isn't handed new items on every render.
 const none: never[] = [];
+// Hold off swapping the search icon until the request actually feels slow.
+const SPINNER_DELAY_MS = 150;
 
 /** Layout keys for the chips and the field after them, which glide as chips come and go. */
 const chipKey = (value: string) => `chip:${value}`;
@@ -137,6 +146,8 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
     minQueryLength = 1,
     clearable,
     browsable,
+    start,
+    end,
     status,
     loading,
     placeholder = 'Search…',
@@ -162,8 +173,17 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   const [requestedOpen, setOpen] = useState(false);
   // Opened from the button or the down arrow: everything, whatever has been typed.
   const [browsing, setBrowsing] = useState(false);
+  const [spinning, setSpinning] = useState(false);
+  useEffect(() => {
+    if (!loading) {
+      setSpinning(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setSpinning(true), SPINNER_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [loading]);
+
   const typed = query.trim();
-  const open = requestedOpen && !disabled && (browsing || typed.length >= minQueryLength);
   const highlighted = useRef<Row<V> | undefined>(undefined);
   const inputGroup = useRef<HTMLDivElement>(null);
   const surface = useRef<HTMLDivElement>(null);
@@ -179,6 +199,43 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
   // The suggestions follow `open` through a morph, a frame behind it, so the
   // transition never holds up the typing that opens them.
   const popup = usePopupMorph({ prefix: 'field' });
+
+  // Hold the last settled suggestions while an external search is in flight so
+  // typing never drops the popup down to an empty strip for a frame.
+  const settled = useRef<{
+    items: readonly V[];
+    groups: readonly ComboboxGroup<V>[] | undefined;
+  }>({ items, groups });
+  const incomingHasItems = groups
+    ? groups.some((group) => group.items.length > 0)
+    : items.length > 0;
+  if (!popup.open || !loading || incomingHasItems) {
+    settled.current = { items, groups };
+  }
+  const holding = popup.open && loading && filter === null && !incomingHasItems;
+  const shownItems = holding ? settled.current.items : items;
+  const shownGroups = holding ? settled.current.groups : groups;
+
+  const all = shownGroups ? shownGroups.flatMap((group) => group.items) : shownItems;
+  const lowered = typed.toLowerCase();
+  const creatable =
+    onCreate !== undefined &&
+    typed !== '' &&
+    !all.some((item) => itemToStringLabel(item).trim().toLowerCase() === lowered);
+  let rows: readonly (Row<V> | ComboboxGroup<Row<V>>)[] = shownGroups ?? shownItems;
+  if (creatable) {
+    rows = shownGroups
+      ? [...shownGroups, { id: 'tk-create', label: '', items: [create] }]
+      : [...shownItems, create];
+  }
+
+  const hasRows =
+    creatable ||
+    (shownGroups ? shownGroups.some((group) => group.items.length > 0) : shownItems.length > 0);
+  // Do not crack open an empty popup before the first search resolves.
+  const ready = popup.open || !loading || hasRows || Boolean(status);
+  const open = requestedOpen && !disabled && (browsing || typed.length >= minQueryLength) && ready;
+
   const { setOpen: setShown } = popup;
   const wanted = useRef(false);
   useLayoutEffect(() => {
@@ -227,20 +284,6 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
     highlighted.current = undefined;
     setOpen(false);
   };
-
-  const all = groups ? groups.flatMap((group) => group.items) : items;
-  const lowered = typed.toLowerCase();
-  const creatable =
-    onCreate !== undefined &&
-    typed !== '' &&
-    !all.some((item) => itemToStringLabel(item).trim().toLowerCase() === lowered);
-  const rows: readonly (Row<V> | ComboboxGroup<Row<V>>)[] = groups
-    ? creatable
-      ? [...groups, { id: 'tk-create', label: '', items: [create] }]
-      : groups
-    : creatable
-      ? [...items, create]
-      : items;
 
   const matches = (item: V, text: string) =>
     filter
@@ -402,10 +445,15 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
             }
           }}
         >
-          {loading ? (
+          {spinning ? (
             <SpinnerIcon className="tk-combobox-field-icon" />
           ) : (
             <Icon name="search" className="tk-combobox-field-icon" />
+          )}
+          {start != null && start !== false && (
+            <span className="tk-input-affix" data-side="start">
+              {start}
+            </span>
           )}
           {multiple ? (
             <BaseCombobox.Chips
@@ -434,15 +482,19 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           ) : (
             input
           )}
-          {(clearable || browsable) && (
-            <span className="tk-combobox-actions">
+          {(clearable || browsable || (end != null && end !== false)) && (
+            <span className="tk-input-affix" data-side="end">
               {clearable && (
-                <BaseCombobox.Clear className="tk-combobox-action" aria-label="Clear">
+                <BaseCombobox.Clear className="tk-input-action" aria-label="Clear">
                   <Icon name="close" />
                 </BaseCombobox.Clear>
               )}
+              {end}
               {browsable && (
-                <BaseCombobox.Trigger className="tk-combobox-action" aria-label="Show all">
+                <BaseCombobox.Trigger
+                  className="tk-input-action tk-combobox-browse"
+                  aria-label="Show all"
+                >
                   <Icon name="chevron-down" />
                 </BaseCombobox.Trigger>
               )}
@@ -473,7 +525,7 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
                 <div className="tk-combobox-suggestions-body">
                   <BaseCombobox.Status className="tk-combobox-status">{status}</BaseCombobox.Status>
                   <BaseCombobox.Empty className="tk-list-empty">
-                    {loading ? null : emptyMessage}
+                    {loading && status ? null : emptyMessage}
                   </BaseCombobox.Empty>
                   <BaseCombobox.List
                     className="tk-list tk-combobox-suggestions-list"

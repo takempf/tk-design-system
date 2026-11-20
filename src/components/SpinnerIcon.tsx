@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { reducedMotion } from '../motion/reducedMotion';
 import { bayerMatrix, crispSize, Raster, type Vec4 } from '../raster/raster';
 import { renderSpinner } from '../raster/spinner';
@@ -65,18 +65,21 @@ export function SpinnerIcon({ className }: SpinnerIconProps) {
   const inksRef = useRef<HTMLSpanElement>(null);
   const [size, setSize] = useState({ cells: 0, width: 0 });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
-    const observer = new ResizeObserver(() =>
-      setSize(crispSize(wrap.clientWidth, PIXEL, window.devicePixelRatio || 1)),
-    );
+    const measure = (): void => {
+      const next = crispSize(wrap.clientWidth, PIXEL, window.devicePixelRatio || 1);
+      setSize((prev) => (prev.cells === next.cells && prev.width === next.width ? prev : next));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
     observer.observe(wrap);
     return () => observer.disconnect();
   }, []);
 
   const { cells } = size;
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext('2d');
     const inkElements = inksRef.current?.children;

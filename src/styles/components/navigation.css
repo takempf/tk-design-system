@@ -1,0 +1,219 @@
+@layer tk.components {
+  /* Side nav -------------------------------------------------------------- */
+
+  /* The links, the marker and a lit copy of the links, stacked in one cell.
+     The current item is measured into --tk-marker-* (see SideNav.tsx); the lit
+     copy, in the marker's colours, is cut to the marker's box. */
+  .tk-side-nav-track {
+    --tk-marker-x: 0px;
+    --tk-marker-y: 0px;
+    --tk-marker-w: 0px;
+    --tk-marker-h: 0px;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+  }
+
+  .tk-side-nav-list {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    counter-reset: tk-side-nav;
+  }
+
+  .tk-side-nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+
+    &:not(:first-child),
+    & + :not(.tk-side-nav-group) {
+      margin-top: var(--tk-space-4);
+    }
+  }
+
+  .tk-side-nav-heading {
+    padding: 0 var(--tk-space-3) var(--tk-space-1);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .tk-side-nav-item {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    gap: var(--tk-space-2);
+    min-width: 0;
+    min-height: var(--tk-control-h);
+    padding: var(--tk-space-1) var(--tk-space-3);
+    border: 0;
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: none;
+    color: var(--tk-fg-subtle);
+    font: inherit;
+    text-align: start;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    counter-increment: tk-side-nav;
+    outline: var(--tk-focus-width) solid transparent;
+    outline-offset: var(--tk-focus-offset);
+    transition:
+      color var(--tk-duration-2) var(--tk-ease-out),
+      outline-color var(--tk-duration-1) var(--tk-ease-out);
+
+    /* A faint ghost of the marker. On the current item the marker covers it,
+       so a click leaves no gap while the marker glides over. */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      corner-shape: inherit;
+      background: var(--tk-highlight);
+      opacity: 0;
+      transition: opacity var(--tk-duration-2) var(--tk-ease-out);
+    }
+
+    &:focus-visible {
+      outline-color: var(--tk-focus-color);
+    }
+
+    &:focus-visible,
+    &:active {
+      color: var(--tk-fg);
+
+      &::before {
+        opacity: 0.125;
+      }
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        color: var(--tk-fg);
+
+        &::before {
+          opacity: 0.125;
+        }
+      }
+    }
+  }
+
+  .tk-side-nav-number {
+    flex: none;
+    width: 1.75rem;
+    font-family: var(--tk-font-mono);
+    font-size: var(--tk-text-xs);
+    opacity: 0.7;
+
+    &::before {
+      content: counter(tk-side-nav, decimal-leading-zero);
+    }
+  }
+
+  .tk-side-nav-icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    color: var(--tk-side-nav-icon-color, currentColor);
+    font-size: 1.1rem;
+  }
+
+  .tk-side-nav-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .tk-side-nav-marker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--tk-marker-w);
+    height: var(--tk-marker-h);
+    translate: var(--tk-marker-x) var(--tk-marker-y);
+    border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
+    background: var(--tk-highlight);
+    pointer-events: none;
+  }
+
+  .tk-side-nav-lit {
+    position: relative;
+    pointer-events: none;
+    clip-path: inset(
+      var(--tk-marker-y) calc(100% - var(--tk-marker-x) - var(--tk-marker-w))
+        calc(100% - var(--tk-marker-y) - var(--tk-marker-h)) var(--tk-marker-x)
+    );
+
+    & .tk-side-nav-item {
+      color: var(--tk-highlight-fg);
+    }
+
+    /* An item's own icon colour would fight the marker; lit, it's the text's. */
+    & .tk-side-nav-icon {
+      color: inherit;
+    }
+  }
+
+  /* No current page: the marker fades where it last stood. */
+  .tk-side-nav-track > :is(.tk-side-nav-marker, .tk-side-nav-lit) {
+    transition: opacity var(--tk-duration-2) var(--tk-ease-out);
+  }
+
+  .tk-side-nav-track[data-empty] > :is(.tk-side-nav-marker, .tk-side-nav-lit) {
+    opacity: 0;
+  }
+
+  /* Both edges ride the same numbers on the same curve, so they never part. */
+  .tk-side-nav-track[data-placed] > :is(.tk-side-nav-marker, .tk-side-nav-lit) {
+    transition-property: translate, width, height, clip-path, opacity;
+    transition-duration: var(--tk-duration-morph);
+    transition-timing-function: var(--tk-ease-morph);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tk-side-nav-track > :is(.tk-side-nav-marker, .tk-side-nav-lit) {
+      transition: none;
+    }
+  }
+
+  /* Collapsed: an icon rail. Labels stay for screen readers (a tooltip shows
+     them on hover and focus); headings thin to rules. */
+  .tk-side-nav[data-collapsed] {
+    & .tk-side-nav-item {
+      justify-content: center;
+      padding-inline: 0;
+    }
+
+    & .tk-side-nav-number {
+      display: none;
+    }
+
+    & .tk-side-nav-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    & .tk-side-nav-heading {
+      height: var(--tk-border-width);
+      margin: 0 var(--tk-space-3) var(--tk-space-2);
+      padding: 0;
+      background: var(--tk-border-subtle);
+      color: transparent;
+    }
+  }
+}

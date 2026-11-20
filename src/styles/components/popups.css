@@ -302,6 +302,30 @@
       min-height: var(--tk-control-h-lg);
       font-size: var(--tk-text-lg);
     }
+
+    /* Stealth: closed, only the value and a down chevron, set in the text
+       around it: no box, no floor on its width. Hovered or open, the text
+       comes up to full strength; focus still rings it. */
+    &[data-variant='stealth'] {
+      gap: var(--tk-space-1);
+      width: auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 0;
+      border-color: transparent;
+      background: transparent;
+      color: var(--tk-fg-muted);
+
+      &:hover:not([data-disabled]),
+      &[data-popup-open] {
+        border-color: transparent;
+        color: var(--tk-fg);
+      }
+
+      & .tk-select-icon {
+        color: inherit;
+      }
+    }
   }
 
   .tk-select-value {
@@ -431,6 +455,32 @@
     top: 50%;
     right: calc(var(--tk-space-2) + 1em + var(--tk-space-1));
     translate: 0 -50%;
+  }
+
+  /* Stealth: the trigger set in the text around it, as wide as what it shows. */
+  .tk-combobox-control[data-variant='stealth'] {
+    display: inline-flex;
+    width: auto;
+  }
+
+  /* Its search row still lands on it. The trigger has no inset, and is a line
+     tall where the row is a control's: move the popup out by the row's inset
+     and its border, so the search text sits on the trigger's text (or, aligned
+     to the trigger's end for want of room, the chevron on its chevron), and up
+     (opened upward, down) by half the difference in height. */
+  .tk-combobox-popup[data-variant='stealth'] {
+    --_rise: calc((var(--_item-h) + var(--tk-border-width) - var(--anchor-height, 0px)) / 2);
+    --_x: calc(-1 * (var(--tk-space-3) + var(--tk-border-width)));
+    --_y: calc(-1 * var(--_rise));
+    translate: var(--_x) var(--_y);
+
+    &[data-align='end'] {
+      --_x: calc(var(--tk-space-2) + var(--tk-border-width));
+    }
+
+    &[data-side='top'] {
+      --_y: var(--_rise);
+    }
   }
 
   /* Popover & tooltip ----------------------------------------------------- */
@@ -721,6 +771,12 @@
     translate: 0 var(--tk-border-width);
   }
 
+  /* A stealth trigger has no inset, so its list opens that much further left:
+     the chosen row's text still lands on the trigger's. */
+  .tk-select-popup[data-variant='stealth'] {
+    margin-inline-start: calc(-1 * var(--tk-space-3));
+  }
+
   /* Menu: the trigger's label, and the same label as the popup's first row ---- */
 
   .tk-menu-label {
@@ -874,6 +930,7 @@
     background: var(--tk-surface);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
     outline: var(--tk-focus-width) solid transparent;
     outline-offset: var(--tk-focus-offset);
     transition:
@@ -888,6 +945,11 @@
     /* Ringed while typing; the chips and actions inside ring themselves. */
     &:has(.tk-combobox-field-input:is(:focus, :focus-visible)) {
       outline-color: var(--tk-focus-color);
+    }
+
+    /* Open, or morphing open or shut, the ring is round the grown frame. */
+    &:is([data-popup-open], :has(> [data-tk-frameless])) {
+      outline-style: none;
     }
   }
 
@@ -938,10 +1000,14 @@
     }
   }
 
+  /* Alone in the field, it gives up room to the field's icon and actions,
+     and its text trails off. Among chips it keeps enough to type in, and
+     wraps onto a line of its own before it would have less. */
   .tk-combobox-field-input {
     flex: 1 1 9rem;
     width: 0;
-    min-width: min(9rem, 100%);
+    min-width: 0;
+    text-overflow: ellipsis;
     min-height: calc(var(--_field-h) - var(--tk-space-1) * 2 - var(--tk-border-width) * 2);
     padding: 0;
     font-size: var(--_field-text);
@@ -953,6 +1019,10 @@
     &::placeholder {
       color: var(--tk-fg-subtle);
     }
+  }
+
+  .tk-combobox-chips > .tk-combobox-field-input {
+    min-width: min(9rem, 100%);
   }
 
   /* Open, the suggestions are the field grown. They are laid over the field,
@@ -999,6 +1069,10 @@
     padding: var(--tk-space-1);
     background: var(--tk-surface-raised);
     pointer-events: auto;
+
+    &:not(:has([role='option'], .tk-list-empty:not(:empty), .tk-combobox-status:not(:empty))) {
+      display: none;
+    }
   }
 
   /* Its fill's corners square on the side the list carries on from, in step
@@ -1024,6 +1098,7 @@
     inset: calc(var(--tk-border-width) * -1);
     border: var(--tk-border-width) solid var(--tk-border);
     border-radius: var(--tk-radius);
+    corner-shape: var(--tk-corner-shape);
     opacity: 0;
     pointer-events: none;
 
@@ -1035,7 +1110,7 @@
       border-color: var(--tk-danger);
     }
 
-    .tk-combobox-field:has(.tk-combobox-field-input:focus-visible) > & {
+    .tk-combobox-field:has(.tk-combobox-field-input:is(:focus, :focus-visible)) > & {
       outline: var(--tk-focus-width) solid var(--tk-focus-color);
       outline-offset: var(--tk-focus-offset);
     }
@@ -1101,56 +1176,10 @@
     }
   }
 
-  /* Clear and show-all, at the field's end (the clear also sits in a select's trigger). */
-  .tk-combobox-actions {
-    display: flex;
-    flex: none;
-    gap: var(--tk-space-1);
-    align-items: center;
-    align-self: stretch;
-    margin-right: calc(var(--tk-space-2) * -1);
-  }
-
-  .tk-combobox-action {
-    display: grid;
-    place-items: center;
-    width: 1.75em;
-    height: 1.75em;
-    padding: 0;
-    border: 0;
-    border-radius: var(--tk-radius-sm);
-    corner-shape: var(--tk-corner-shape);
-    background: transparent;
-    color: var(--tk-fg-subtle);
-    font-size: var(--_field-text, inherit);
-    cursor: pointer;
-    transition:
-      opacity var(--tk-duration-1) var(--tk-ease-out),
-      background-color var(--tk-duration-1) var(--tk-ease-out),
-      color var(--tk-duration-1) var(--tk-ease-out);
-
-    &:hover:not([data-disabled]) {
-      background: var(--tk-surface-hover);
-      color: var(--tk-fg);
-    }
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      opacity: 0;
-    }
-
-    &[data-disabled] {
-      cursor: not-allowed;
-    }
-
-    & .tk-icon {
-      font-size: 0.9em;
-      transition: rotate var(--tk-duration-3) var(--tk-ease-morph);
-    }
-
-    &[data-popup-open] .tk-icon {
-      rotate: 180deg;
-    }
+  /* Clear and show-all, at the field's end, are InputActions (see controls.css).
+     Open, show-all's chevron turns over. */
+  .tk-combobox-browse[data-popup-open] .tk-icon {
+    rotate: 180deg;
   }
 
   /* Announced as it changes; takes no room while it has nothing to say. */

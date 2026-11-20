@@ -183,7 +183,9 @@ const corners = [
 /** A frame's fill, edge and corners as they settle, not part-way through a transition. */
 function lookOf(frame: HTMLElement): Look {
   const { transition } = frame.style;
+  const frameless = 'tkFrameless' in frame.dataset;
   frame.style.transition = 'none';
+  if (frameless) delete frame.dataset.tkFrameless;
   const style = getComputedStyle(frame);
   const look = {
     fill: style.backgroundColor,
@@ -198,6 +200,7 @@ function lookOf(frame: HTMLElement): Look {
     corners: corners.map((corner) => style[corner]),
     shape: style.getPropertyValue('corner-shape'),
   };
+  if (frameless) frame.dataset.tkFrameless = '';
   frame.style.transition = transition;
   return look;
 }

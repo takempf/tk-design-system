@@ -36,7 +36,7 @@ export const sections: readonly Section[] = [
     id: 'surfaces',
     title: 'Surfaces',
     mark: 'dot-in-square',
-    blurb: 'Panels, dialogs, popovers, tabs, disclosure and progress.',
+    blurb: 'Panels, dialogs, popovers, tabs, side navigation, disclosure and progress.',
   },
   {
     id: 'code',

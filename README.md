@@ -193,8 +193,8 @@ like their components. Add `.tk-serif` for the serif.
 ## Components
 
 `Button` · `Toggle`/`ToggleGroup` · `Menu` · `Tooltip` · `Popover` · `Dialog` ·
-`AlertDialog` · `Field`/`Fieldset` · `Input` · `Textarea` · `Checkbox` · `Switch` ·
-`Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `Accordion` ·
+`AlertDialog` · `Field`/`Fieldset` · `Input`/`InputAction` · `Textarea` · `Checkbox` · `Switch` ·
+`Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `SideNav` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
 `Loading`/`Skeleton`/`Spinner`/`SpinnerIcon` (the spinner is a low-poly solid tumbling,
@@ -223,13 +223,29 @@ designs in pairs. The playground's Glyphs page shows every mark at 40px.
 Compound components mirror Base UI's anatomy; their `Popup` part bundles the portal and
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
 
+`Input` takes `variant="underline"`: no box, only a line to write on, for a value that
+reads as text where it sits (a name in a row) rather than as a form. It also takes
+`start` and `end`, which go inside the box before and after the text: a prefix such as
+`https://`, a unit, or `InputAction` buttons (icon buttons that match a combobox's
+clear button, with a `loading` spinner). The slots are centred on the box at any size,
+and the input's text trails off before reaching them. With either slot, the box wraps the
+input, and a string `className` styles the box. Keep passing a slot that fills only
+sometimes, as `null` when it is empty, so the input isn't replaced. `Select` takes
+`variant="stealth"`: closed, it is only the value and a down chevron, set in the text
+around it, and it opens into the usual list. `Select` also takes `renderValue` (what the
+closed trigger shows of the choice: a flag in place of a language's name, say) and
+`renderItem` (what each row shows); typing still jumps to a row by its label.
+`Icon name="grip"` marks a drag handle; `Icon name="globe"` a website.
+
 `Combobox` comes in two variants. Both take `items`, or `groups` to show items under
 headings, and accept `clearable` (a button that clears the value), `virtualized` (render
 only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and `name`.
 
 - **Searchable select** (the default). A trigger that opens over itself into a list, the
   trigger itself turning into the search field. `multiple` checks off several options; the list stays open and the trigger
-  lists them.
+  lists them. Typing highlights the first match, so Enter takes it. `variant="stealth"`
+  sets the trigger in the text around it, like a stealth `Select`, and `renderValue` and
+  `renderItem` work as they do on `Select`; the search still matches labels.
 - **Editable field** (`variant="input"`). The user types straight into the field.
   `multiple={false}` picks one value, and the field shows its label. Otherwise the selected
   values are removable chips: Backspace removes the last one, and Left arrow moves into
@@ -243,10 +259,21 @@ only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and
   when no suggestion is highlighted. `renderItem` and `renderChip` take rich content; the
   component still owns styling, positioning, keyboard navigation, dismissal and removal.
   Cancel `onValueChange`'s event details to use a result as an action (such as opening a
-  tab) instead of selecting it.
+  tab) instead of selecting it. `start` and `end` take `InputAction` buttons or text, as
+  an `Input`'s do: `start` after the field's icon, `end` between clear and show-all.
 
 The playground has a demo for each: grouped multiselect, single field, chips, remote search,
 creatable (with a dialog), ten thousand virtualized rows, and a form with validation.
+
+`SideNav` is a side menu: `SideNav.Root` (the `<nav>`), `SideNav.Group` (items under an
+optional `label`, set in the label face) and `SideNav.Item` (a link, with an `icon` that
+`iconColor` can tint). One marker glides to the current page, the item with
+`aria-current="page"`, and the label under it inverts, even mid-glide. `active` sets that
+attribute; a router's link sets it itself, so `render={<NavLink to="/people" />}` needs no
+`active`. Items are `<a>`s unless `render` says otherwise. `collapsed` makes the nav an icon
+rail: labels move into tooltips (they stay readable to screen readers) and group headings
+thin to rules. `numbered` counts the items 01, 02, … down the whole list. The playground's
+own section list is one.
 
 ## Code
 
