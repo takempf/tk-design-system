@@ -60,6 +60,13 @@ interface InputComboboxBase<V> {
   readonly clearable?: boolean;
   /** A button that opens every suggestion, before anything is typed. So does the down arrow. */
   readonly browsable?: boolean;
+  /** In the field, after its search icon and before what's typed: a prefix, or an `InputAction`. */
+  readonly start?: ReactNode;
+  /**
+   * In the field, after what's typed: `InputAction` buttons of your own, such
+   * as a microphone. They sit after the clear button and before show-all.
+   */
+  readonly end?: ReactNode;
   /** Announced, and shown above the suggestions: progress, errors, counts. */
   readonly status?: ReactNode;
   /** Suggestions are on their way: the field shows it, and an empty list says nothing yet. */
@@ -139,6 +146,8 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
     minQueryLength = 1,
     clearable,
     browsable,
+    start,
+    end,
     status,
     loading,
     placeholder = 'Search…',
@@ -441,6 +450,11 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           ) : (
             <Icon name="search" className="tk-combobox-field-icon" />
           )}
+          {start != null && start !== false && (
+            <span className="tk-input-affix" data-side="start">
+              {start}
+            </span>
+          )}
           {multiple ? (
             <BaseCombobox.Chips
               ref={chips.ref}
@@ -468,15 +482,19 @@ export function InputCombobox<V>(props: InputComboboxProps<V>) {
           ) : (
             input
           )}
-          {(clearable || browsable) && (
-            <span className="tk-combobox-actions">
+          {(clearable || browsable || (end != null && end !== false)) && (
+            <span className="tk-input-affix" data-side="end">
               {clearable && (
-                <BaseCombobox.Clear className="tk-combobox-action" aria-label="Clear">
+                <BaseCombobox.Clear className="tk-input-action" aria-label="Clear">
                   <Icon name="close" />
                 </BaseCombobox.Clear>
               )}
+              {end}
               {browsable && (
-                <BaseCombobox.Trigger className="tk-combobox-action" aria-label="Show all">
+                <BaseCombobox.Trigger
+                  className="tk-input-action tk-combobox-browse"
+                  aria-label="Show all"
+                >
                   <Icon name="chevron-down" />
                 </BaseCombobox.Trigger>
               )}

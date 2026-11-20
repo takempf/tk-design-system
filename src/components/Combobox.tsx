@@ -237,7 +237,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
             {clearable && (
               <PopupMorph.Part name="clear" side="trigger" fit="icon">
                 <BaseCombobox.Clear
-                  className="tk-combobox-action tk-combobox-clear"
+                  className="tk-input-action tk-combobox-clear"
                   aria-label="Clear"
                 >
                   <Icon name="close" />
@@ -271,7 +271,7 @@ function SelectCombobox<V>(props: SelectComboboxProps<V>) {
                   {clearable && (
                     <PopupMorph.Part name="clear" side="popup" fit="icon">
                       <BaseCombobox.Clear
-                        className="tk-combobox-action tk-combobox-clear"
+                        className="tk-input-action tk-combobox-clear"
                         aria-label="Clear"
                       >
                         <Icon name="close" />

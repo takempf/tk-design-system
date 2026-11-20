@@ -40,6 +40,8 @@ export {
   Field,
   Fieldset,
   Input,
+  InputAction,
+  type InputActionProps,
   type InputProps,
   Textarea,
   type TextareaProps,

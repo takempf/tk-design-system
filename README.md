@@ -171,7 +171,7 @@ like their components. Add `.tk-serif` for the serif.
 ## Components
 
 `Button` · `Toggle`/`ToggleGroup` · `Menu` · `Tooltip` · `Popover` · `Dialog` ·
-`AlertDialog` · `Field`/`Fieldset` · `Input` · `Textarea` · `Checkbox` · `Switch` ·
+`AlertDialog` · `Field`/`Fieldset` · `Input`/`InputAction` · `Textarea` · `Checkbox` · `Switch` ·
 `Radio`/`RadioGroup` · `Slider` · `Select` · `Combobox` · `Tabs` · `SideNav` · `Accordion` ·
 `Collapsible` · `Progress` · `Meter` · `Toaster`/`toasts` · `Panel` · `Eyebrow` ·
 `Badge` · `Kbd` · `Separator` · `Stack` · `Code` · `CodeBlock` · `CodeEditor` ·
@@ -202,7 +202,13 @@ Compound components mirror Base UI's anatomy; their `Popup` part bundles the por
 positioner. Every part accepts Base UI's props, `render`, and state-function classNames.
 
 `Input` takes `variant="underline"`: no box, only a line to write on, for a value that
-reads as text where it sits (a name in a row) rather than as a form. `Select` takes
+reads as text where it sits (a name in a row) rather than as a form. It also takes
+`start` and `end`, which go inside the box before and after the text: a prefix such as
+`https://`, a unit, or `InputAction` buttons (icon buttons that match a combobox's
+clear button, with a `loading` spinner). The slots are centred on the box at any size,
+and the input's text trails off before reaching them. With either slot, the box wraps the
+input, and a string `className` styles the box. Keep passing a slot that fills only
+sometimes, as `null` when it is empty, so the input isn't replaced. `Select` takes
 `variant="stealth"`: closed, it is only the value and a down chevron, set in the text
 around it, and it opens into the usual list. `Select` also takes `renderValue` (what the
 closed trigger shows of the choice: a flag in place of a language's name, say) and
@@ -231,7 +237,8 @@ only the rows in view, for long flat lists), `limit`, `readOnly`, `required` and
   when no suggestion is highlighted. `renderItem` and `renderChip` take rich content; the
   component still owns styling, positioning, keyboard navigation, dismissal and removal.
   Cancel `onValueChange`'s event details to use a result as an action (such as opening a
-  tab) instead of selecting it.
+  tab) instead of selecting it. `start` and `end` take `InputAction` buttons or text, as
+  an `Input`'s do: `start` after the field's icon, `end` between clear and show-all.
 
 The playground has a demo for each: grouped multiselect, single field, chips, remote search,
 creatable (with a dialog), ten thousand virtualized rows, and a form with validation.
