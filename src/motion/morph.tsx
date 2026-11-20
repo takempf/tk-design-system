@@ -98,6 +98,26 @@ function measureNesting(scope: string | undefined, depths: Map<string, number>):
   }
 }
 
+/** Which morph last set `data-tk-vt`, so an earlier one never clears another's type. */
+let vtOwner: object | null = null;
+
+function setTransitionType(type: MorphType | undefined, owner: object): void {
+  vtOwner = owner;
+  if (type) document.documentElement.dataset.tkVt = type;
+  else delete document.documentElement.dataset.tkVt;
+}
+
+function clearTransitionType(owner: object): void {
+  if (vtOwner !== owner) return;
+  delete document.documentElement.dataset.tkVt;
+  vtOwner = null;
+}
+
+const isWebKit =
+  typeof navigator !== 'undefined' &&
+  /AppleWebKit/.test(navigator.userAgent) &&
+  !/Chrome|Chromium|Edg|CriOS|FxiOS/.test(navigator.userAgent);
+
 /** A view-transition pseudo-element of the document, by its name. */
 const pseudo = (part: 'group' | 'old' | 'new', name: string) =>
   `::view-transition-${part}(${CSS.escape(name)})`;
@@ -115,7 +135,7 @@ function follow(
   keyframes: Keyframe[],
   timing: Timing,
   into: Animation[],
-): void {
+): boolean {
   try {
     into.push(
       document.documentElement.animate(keyframes, {
@@ -124,8 +144,26 @@ function follow(
         pseudoElement: pseudo(part, name),
       }),
     );
+    return true;
   } catch {
     // Browsers that can't animate the transition's pseudo-elements keep the CSS defaults.
+    return false;
+  }
+}
+
+/** Cancels the browser's generated `::view-transition-group` animation when replaced cleanly. */
+function cancelGroupAnimation(name: string, ownAnimations: readonly Animation[]): void {
+  const target = pseudo('group', name);
+  for (const animation of document.getAnimations()) {
+    if (ownAnimations.includes(animation)) continue;
+    const effect = animation.effect;
+    if (
+      effect instanceof KeyframeEffect &&
+      effect.target === document.documentElement &&
+      effect.pseudoElement === target
+    ) {
+      animation.cancel();
+    }
   }
 }
 
@@ -160,6 +198,7 @@ interface Look {
   readonly fill: string;
   readonly edge: string;
   readonly width: string;
+  readonly shadow: string;
   /** The focus ring round the frame: its outline, transparent when it has none. */
   readonly ring: { readonly color: string; readonly width: string; readonly offset: string };
   readonly corners: readonly string[];
@@ -180,6 +219,14 @@ const corners = [
   'borderBottomLeftRadius',
 ] as const;
 
+const isTransparent = (color: string): boolean =>
+  !color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)';
+
+function boxShadowOf(look: Look): string {
+  const inset = `inset 0 0 0 ${look.width} ${look.edge}`;
+  return look.shadow ? `${inset}, ${look.shadow}` : inset;
+}
+
 /** A frame's fill, edge and corners as they settle, not part-way through a transition. */
 function lookOf(frame: HTMLElement): Look {
   const { transition } = frame.style;
@@ -191,10 +238,9 @@ function lookOf(frame: HTMLElement): Look {
     fill: style.backgroundColor,
     edge: style.borderTopColor,
     width: style.borderTopWidth,
+    shadow: style.boxShadow === 'none' ? '' : style.boxShadow,
     ring:
-      style.outlineStyle === 'none' ||
-      style.outlineColor === 'transparent' ||
-      style.outlineColor === 'rgba(0, 0, 0, 0)'
+      style.outlineStyle === 'none' || isTransparent(style.outlineColor)
         ? { color: 'transparent', width: '0px', offset: '0px' }
         : { color: style.outlineColor, width: style.outlineWidth, offset: style.outlineOffset },
     corners: corners.map((corner) => style[corner]),
@@ -222,7 +268,7 @@ function cornerIn(radius: string, rect: DOMRect): string {
  */
 const fillOf = ({ look }: End): Keyframe => ({
   backgroundColor: look.fill,
-  boxShadow: `inset 0 0 0 ${look.width} ${look.edge}`,
+  boxShadow: boxShadowOf(look),
   outlineStyle: 'solid',
   outlineColor: look.ring.color,
   outlineWidth: look.ring.width,
@@ -233,6 +279,22 @@ const shapeOf = ({ look, rect }: End): Keyframe => ({
   borderRadius: look.corners.map((corner) => cornerIn(corner, rect)).join(' '),
   ...(look.shape && { cornerShape: look.shape }),
 });
+
+function sameLook(a: Look, b: Look): boolean {
+  return (
+    a.fill === b.fill &&
+    a.edge === b.edge &&
+    a.width === b.width &&
+    a.shadow === b.shadow &&
+    a.ring.color === b.ring.color &&
+    a.ring.width === b.ring.width &&
+    a.ring.offset === b.ring.offset
+  );
+}
+
+function sameShape(a: End, b: End): boolean {
+  return shapeOf(a).borderRadius === shapeOf(b).borderRadius && a.look.shape === b.look.shape;
+}
 
 const area = (rect: DOMRect) => rect.width * rect.height;
 
@@ -270,12 +332,28 @@ function holdStill(
   end: DOMRect,
   timing: Timing,
   into: Animation[],
-) {
-  const at = (content: DOMRect, frame: DOMRect) => ({
-    objectPosition: `${content.left - frame.left}px ${content.top - frame.top}px`,
-  });
-  follow(name, 'old', [at(from, start), at(from, end)], timing, into);
-  follow(name, 'new', [at(to, start), at(to, end)], timing, into);
+  forceObjectFitNone = false,
+): void {
+  const at = (content: DOMRect, frame: DOMRect) =>
+    `${content.left - frame.left}px ${content.top - frame.top}px`;
+  const apply = (part: 'old' | 'new', content: DOMRect) => {
+    const startPos = at(content, start);
+    const endPos = at(content, end);
+    if (startPos !== endPos) {
+      const startFrame: Keyframe = forceObjectFitNone
+        ? { objectFit: 'none', objectPosition: startPos }
+        : { objectPosition: startPos };
+      const endFrame: Keyframe = forceObjectFitNone
+        ? { objectFit: 'none', objectPosition: endPos }
+        : { objectPosition: endPos };
+      follow(name, part, [startFrame, endFrame], timing, into);
+    } else if (forceObjectFitNone) {
+      const staticFrame: Keyframe = { objectFit: 'none', objectPosition: endPos };
+      follow(name, part, [staticFrame, staticFrame], { duration: 0 }, into);
+    }
+  };
+  apply('old', from);
+  apply('new', to);
 }
 
 /**
@@ -327,6 +405,7 @@ function captureContainers(
   named: Iterable<HTMLElement>,
   owner: object,
   old = false,
+  before?: Map<string, End>,
 ): Map<string, End> {
   const ends = new Map<string, End>();
   const containers = [...named].filter((element) => element.dataset.tkMorph === 'container');
@@ -338,7 +417,12 @@ function captureContainers(
     });
   }
   for (const element of containers) {
-    if (old && !isHollow(element)) continue;
+    const hollow = isHollow(element);
+    if (old && !hollow) continue;
+    const prev = before?.get(nameOf(element));
+    const current = ends.get(nameOf(element));
+    const shrinking = !old && prev && current && area(current.rect) < area(prev.rect);
+    if (!hollow && shrinking) continue;
     const frame = frameOf(element);
     frame.dataset.tkFrameless = '';
     framedBy.set(frame, owner);
@@ -364,17 +448,27 @@ function parseTime(value: string): number {
   return value.trim().endsWith('ms') ? time : time * 1000;
 }
 
+const timeCache = new Map<string, number>();
+
 /** When, as a share of the duration, an easing first reaches `progress`. */
 function timeAt(easing: string, progress: number): number {
+  const key = `${easing}\0${progress}`;
+  const cached = timeCache.get(key);
+  if (cached !== undefined) return cached;
+  let result = progress;
   try {
     const effect = new KeyframeEffect(null, null, { duration: 100, easing, fill: 'both' });
     const probe = new Animation(effect);
     for (let time = 0; time <= 100; time++) {
       probe.currentTime = time;
-      if ((effect.getComputedTiming().progress ?? 0) >= progress) return time / 100;
+      if ((effect.getComputedTiming().progress ?? 0) >= progress) {
+        result = time / 100;
+        break;
+      }
     }
   } catch {}
-  return progress;
+  timeCache.set(key, result);
+  return result;
 }
 
 /**
@@ -393,6 +487,85 @@ function turnFill(from: End, to: End, easing: string): Keyframe[] {
     { ...fillOf(to), offset: timeAt(easing, end) },
     { ...fillOf(to), offset: 1 },
   ];
+}
+
+function moveCompositedFrame(
+  name: string,
+  from: End,
+  to: End,
+  timing: Timing,
+  easing: string,
+  animations: Animation[],
+): void {
+  const growing = area(to.rect) >= area(from.rect);
+  const base = growing ? to : from;
+  const staticFrame: Keyframe = {
+    ...fillOf(base),
+    ...shapeOf(base),
+    width: `${base.rect.width}px`,
+    height: `${base.rect.height}px`,
+    transformOrigin: '0 0',
+  };
+  follow(name, 'group', [staticFrame, staticFrame], { duration: 0 }, animations);
+  const place = (rect: DOMRect): Keyframe => ({
+    transform: `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / base.rect.width}, ${rect.height / base.rect.height})`,
+  });
+  if (follow(name, 'group', [place(from.rect), place(to.rect)], timing, animations)) {
+    cancelGroupAnimation(name, animations);
+  }
+  if (!growing && isTransparent(to.look.fill)) {
+    const held: Keyframe = { backgroundColor: from.look.fill, boxShadow: boxShadowOf(from.look) };
+    const gone: Keyframe = { backgroundColor: 'transparent', boxShadow: 'none' };
+    follow(
+      name,
+      'group',
+      [
+        { ...held, offset: 0 },
+        { ...held, offset: timeAt(easing, 0.6) },
+        { ...gone, offset: timeAt(easing, 0.95) },
+        { ...gone, offset: 1 },
+      ],
+      { duration: timing.duration },
+      animations,
+    );
+  }
+  if (isWebKit) cutToFrame(from, to, to.rect, timing, animations);
+}
+
+function moveFallbackFrame(
+  name: string,
+  from: End,
+  to: End,
+  start: End,
+  end: End,
+  clipped: boolean,
+  hollow: boolean,
+  timing: Timing,
+  easing: string,
+  animations: Animation[],
+): void {
+  if (clipped) {
+    const box = ({ rect }: End): Keyframe => ({
+      transform: `translate(${rect.left}px, ${rect.top}px)`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`,
+    });
+    follow(name, 'group', [box(start), box(end)], timing, animations);
+  }
+  if (sameShape(start, end)) {
+    const shape = shapeOf(end);
+    follow(name, 'group', [shape, shape], { duration: 0 }, animations);
+  } else {
+    follow(name, 'group', [shapeOf(start), shapeOf(end)], timing, animations);
+  }
+  if (sameLook(start.look, end.look)) {
+    const fill = fillOf(end);
+    follow(name, 'group', [fill, fill], { duration: 0 }, animations);
+  } else {
+    follow(name, 'group', turnFill(start, end, easing), { duration: timing.duration }, animations);
+  }
+  holdStill(name, from.rect, to.rect, start.rect, end.rect, timing, animations, !hollow);
+  if (isWebKit) cutToFrame(start, end, to.rect, timing, animations);
 }
 
 /**
@@ -427,20 +600,15 @@ function moveFrames(before: Map<string, End>, after: Map<string, End>, animation
     const timing = { duration, easing };
     const start = { ...from, rect: onScreen(from.rect) };
     const end = { ...to, rect: onScreen(to.rect) };
-    // The browser moves the box between the ends' whole boxes; from or to a
-    // box larger than the window, it moves between the parts on screen.
-    if (!sameBox(start.rect, from.rect) || !sameBox(end.rect, to.rect)) {
-      const box = ({ rect }: End): Keyframe => ({
-        transform: `translate(${rect.left}px, ${rect.top}px)`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`,
-      });
-      follow(name, 'group', [box(start), box(end)], timing, animations);
+    const hollow = isHollow(to.element) || isHollow(from.element);
+    const clipped = !sameBox(start.rect, from.rect) || !sameBox(end.rect, to.rect);
+    const validSize =
+      start.rect.width > 0 && start.rect.height > 0 && end.rect.width > 0 && end.rect.height > 0;
+    if (!hollow && !clipped && validSize) {
+      moveCompositedFrame(name, start, end, timing, easing, animations);
+    } else {
+      moveFallbackFrame(name, from, to, start, end, clipped, hollow, timing, easing, animations);
     }
-    follow(name, 'group', [shapeOf(start), shapeOf(end)], timing, animations);
-    follow(name, 'group', turnFill(start, end, easing), { duration }, animations);
-    holdStill(name, from.rect, to.rect, start.rect, end.rect, timing, animations);
-    cutToFrame(start, end, to.rect, timing, animations);
   }
   for (const [name, from] of before) {
     if (!after.has(name)) fade(name, from, 1, 0, 0.5);
@@ -526,9 +694,10 @@ export function morph(
     unnameParts(named, owner);
     restoreFrames(before, owner);
     named = nameParts(scope, owner);
-    after = captureContainers(named, owner);
+    after = captureContainers(named, owner, false, before);
     measureNesting(scope, depths);
   };
+  setTransitionType(type, owner);
   let transition: ViewTransition;
   try {
     transition = document.startViewTransition({ update: run, types: type ? [type] : [] });
@@ -547,6 +716,7 @@ export function morph(
   holdScenery(transition.finished);
   transition.finished.finally(() => {
     done = true;
+    clearTransitionType(owner);
     for (const animation of animations) animation.cancel();
     unnameParts(named, owner);
     restoreFrames(before, owner);

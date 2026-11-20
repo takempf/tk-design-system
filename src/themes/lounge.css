@@ -82,12 +82,10 @@
 
     /* Elevation, read by the rules below. */
     --tk-lounge-shadow-popup:
-      0 1px 2px rgb(0 0 0 / 0.35),
-      0 3px 6px -2px rgb(0 0 0 / 0.55),
+      0 1px 2px rgb(0 0 0 / 0.35), 0 3px 6px -2px rgb(0 0 0 / 0.55),
       0 6px 10px -4px rgb(0 0 0 / 0.45);
     --tk-lounge-shadow-dialog:
-      0 2px 4px rgb(0 0 0 / 0.35),
-      0 6px 12px -3px rgb(0 0 0 / 0.55),
+      0 2px 4px rgb(0 0 0 / 0.35), 0 6px 12px -3px rgb(0 0 0 / 0.55),
       0 12px 18px -5px rgb(0 0 0 / 0.5);
 
     --tk-duration-1: 110ms;
@@ -145,10 +143,6 @@
   .tk-dialog[data-tk-theme='lounge'] {
     border-color: var(--tk-border-subtle);
     box-shadow: var(--tk-lounge-shadow-dialog);
-  }
-
-  [data-tk-theme='lounge'] .tk-backdrop {
-    backdrop-filter: blur(2px);
   }
 
   /* Lounge's surface is the darkest well, which suits a field but would sink

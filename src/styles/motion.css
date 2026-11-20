@@ -80,6 +80,7 @@
   ::view-transition-group(.tk-container) {
     box-sizing: border-box;
     overflow: clip;
+    transform-origin: 0 0;
     /* Until morph() paints the ends' own look, and wherever it can't. */
     border-radius: var(--tk-radius-popup);
     corner-shape: var(--tk-corner-shape);
@@ -95,9 +96,9 @@
     width: 100%;
     height: 100%;
     overflow: clip;
-    object-fit: none;
-    object-position: 0 0;
+    object-fit: fill;
     animation-timing-function: var(--tk-ease-fade);
+    animation-fill-mode: both;
   }
 
   /* Only shared parts travel. The content the frame leaves is gone as it sets
@@ -108,7 +109,7 @@
   }
 
   ::view-transition-new(.tk-container) {
-    animation-delay: calc(var(--tk-duration-morph) - var(--tk-duration-2));
+    animation-delay: calc(var(--tk-duration-morph) * 0.2);
     animation-duration: var(--tk-duration-2);
   }
 
@@ -117,6 +118,8 @@
      uncovers one end's and covers the other's. */
   ::view-transition-old(.tk-hollow),
   ::view-transition-new(.tk-hollow) {
+    object-fit: none;
+    object-position: 0 0;
     animation: none;
   }
 
@@ -125,6 +128,7 @@
     border-color: transparent !important;
     background: transparent !important;
     outline-color: transparent !important;
+    box-shadow: none !important;
   }
   /* biome-ignore-end lint/complexity/noImportantStyles: a snapshot without its frame must beat every component and theme rule */
 
@@ -210,7 +214,7 @@
     animation: tk-vt-shrink-out var(--tk-duration-morph) var(--tk-ease-morph) both;
   }
 
-  :root:active-view-transition-type(forward) {
+  :root[data-tk-vt='forward'] {
     &::view-transition-new(.tk-directional):only-child {
       animation: tk-vt-from-right var(--tk-duration-3) var(--tk-ease-out) both;
     }
@@ -220,7 +224,7 @@
     }
   }
 
-  :root:active-view-transition-type(back) {
+  :root[data-tk-vt='back'] {
     &::view-transition-new(.tk-directional):only-child {
       animation: tk-vt-from-left var(--tk-duration-3) var(--tk-ease-out) both;
     }

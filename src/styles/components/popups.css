@@ -46,6 +46,8 @@
   /* Opening inside a morph, a popup fades in place instead: its box must already
      be where it will stay when the view transition captures it. */
   :root:active-view-transition :is(.tk-popup, .tk-dialog)[data-starting-style] {
+    transition: none;
+    opacity: 1;
     transform: none;
     filter: none;
   }
@@ -873,7 +875,7 @@
   /* Carried by a morph, a popup is in place at once and leaves at once: the
      morph moves its frame and content from the trigger and back. With no
      trigger to grow out of, it rises in and sinks away like any other. */
-  :root:active-view-transition-type(open, close) [data-tk-container='popup'] {
+  :root:is([data-tk-vt='open'], [data-tk-vt='close']) [data-tk-container='popup'] {
     transition: none;
     opacity: 1;
     transform: none;
@@ -888,8 +890,7 @@
   /* Base UI unmounts a dialog, backdrop and all, once the popup's own
      animations end; this one keeps it until the morph lands, so the backdrop
      fades out instead of vanishing. (The morph's end cuts it short too.) */
-  :root:active-view-transition-type(close)
-  .tk-dialog[data-tk-container='popup'][data-ending-style] {
+  :root[data-tk-vt='close'] .tk-dialog[data-tk-container='popup'][data-ending-style] {
     animation: tk-hold var(--tk-duration-morph) linear;
   }
 
@@ -901,7 +902,7 @@
 
   /* Carried by a morph, the backdrop dims in step with the dialog's frame as
      it grows, and clears as it goes home, instead of snapping on ahead of it. */
-  :root:active-view-transition-type(open, close) .tk-backdrop {
+  :root:is([data-tk-vt='open'], [data-tk-vt='close']) .tk-backdrop {
     transition-duration: var(--tk-duration-morph);
     transition-timing-function: var(--tk-ease-morph);
   }
