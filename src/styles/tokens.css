@@ -297,6 +297,16 @@
     --tk-decipher-flicker: 120ms;
     --tk-decipher-duration: 650ms;
 
+    /* Pictures (<Image>): how one arrives over what held its place. A fade rides
+       the fade clock; a dither develops it cell by cell, from the upper left, in
+       the scenery's own grain. A preview, a small copy of the picture, is blurred
+       until the picture is in. */
+    --tk-image-fade-duration: var(--tk-duration-3);
+    --tk-image-dither-duration: 560ms;
+    --tk-image-dither-pixel: var(--tk-scenery-pixel);
+    --tk-image-dither-bayer: var(--tk-scenery-bayer);
+    --tk-image-preview-blur: 12px;
+
     /* SpinnerIcon's solid, dimmest face to brightest: the text it sits in, at rising strength. */
     --tk-spinner-ink-1: color-mix(in oklab, currentColor 22%, transparent);
     --tk-spinner-ink-2: color-mix(in oklab, currentColor 55%, transparent);

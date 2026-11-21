@@ -133,6 +133,9 @@ Outside popups: tab panels rise in where the last one was, accordion panels open
 checks grow in and shrink away, toasts slide in from the edge, toggle groups slide one
 marker between choices. Streamed text arrives at an even pace, each word glitching in once
 as it lands, and a number's changing digits roll through the digits on their way, like an odometer.
+A picture arrives over whatever held its place (the wash, its color, a blurred copy, the picture
+before it): it fades in, or develops through the scenery's dither from the upper left. One that
+was already loaded is simply there.
 
 ## Building a component with a popup
 

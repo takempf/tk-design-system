@@ -200,7 +200,8 @@ like their components. Add `.tk-serif` for the serif.
 `Loading`/`Skeleton`/`Spinner`/`SpinnerIcon` (the spinner is a low-poly solid tumbling,
 lit and dithered in `--tk-spinner-ink-1…3`, by default the text it sits in at rising
 strength; `SpinnerIcon` is the bare one for a control that already says it's busy, as
-`Button`'s `loading` and a `'loading'` toast use) ·
+`Button`'s `loading` and a `'loading'` toast use) · `Image` (a picture that holds its
+place while it loads, then fades or dithers in) ·
 `Icon` (utility icons, 46 animal glyphs, plus geometric marks —
 dot, circle, square, triangle, diamond and nested pairs — at one stroke weight
 and one optical size) · `Logo` (the tk mark, solid in `currentColor`, sized by height;
@@ -274,6 +275,31 @@ attribute; a router's link sets it itself, so `render={<NavLink to="/people" />}
 rail: labels move into tooltips (they stay readable to screen readers) and group headings
 thin to rules. `numbered` counts the items 01, 02, … down the whole list. The playground's
 own section list is one.
+
+`Image` is a picture that holds its place while it loads, so nothing moves when it lands.
+
+```tsx
+<Image src={photo.url} alt="The ridge at dusk" ratio="3 / 2" reveal="dither" />
+<Image src={face.url} alt="Ada" shape="circle" color={face.average} style={{ width: '3rem' }} />
+```
+
+- **Its frame** is what you size: with `ratio` (`3 / 2`, `'4 / 3'`), numeric `width` and
+  `height`, or CSS. `shape="circle"` makes it a square, round frame for a face. `fit="contain"`
+  shows the whole picture in place of cropping it. `className` and `style` go to the frame;
+  everything else (`src`, `srcSet`, `sizes`, `loading`, lazy by default) goes to the `<img>`.
+- **Until it's in,** the frame shows the skeleton's wash and sheen, after a beat so a quick
+  load never flashes it. With `color` (the picture's average, as image services report it),
+  it shows that at once; with `preview` (a tiny copy, as a data URL), it shows the copy
+  blurred. When `src` changes, the old picture stays until the new one is in.
+- **Then it arrives** as `reveal` says. `fade` (the default) rises in on the fade clock, so it
+  flickers in Bureau. `dither` develops it cell by cell, from the upper left, in the grain of
+  the theme's scenery. `none` just shows it. A picture the browser already had shows at once,
+  as does every picture under reduced motion.
+- **If it can't load,** `fallback` (a picture mark by default; initials suit a face) keeps its
+  place, read out under the picture's `alt`.
+- **Tokens:** `--tk-image-fade-duration`, `--tk-image-dither-duration`,
+  `--tk-image-dither-pixel` and `--tk-image-dither-bayer` (the scenery's, by default), and
+  `--tk-image-preview-blur`.
 
 ## Code
 

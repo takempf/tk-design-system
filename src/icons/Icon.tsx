@@ -91,6 +91,11 @@ const glyphs = {
     stroke: 'M5 12.75V3.25M2.75 5.5 5 3.25 7.25 5.5M11 3.25v9.5M8.75 10.5 11 12.75l2.25-2.25',
   },
   folder: { stroke: 'M2.25 3.75h4.25l1.5 1.5h5.75v7H2.25z' },
+  // A picture: its frame, a sun, and two hills meeting the frame's edges.
+  image: {
+    stroke:
+      'M2.75 3.25h10.5v9.5h-10.5zM2.75 11.25 6.25 7.75l5 5M9.5 11l1.5-1.5 2.25 2.25M10.5 4.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z',
+  },
   columns: { stroke: 'M2.75 3.25h10.5v9.5h-10.5zM8 3.25v9.5' },
   rows: { stroke: 'M2.75 3.25h10.5v9.5h-10.5zM2.75 8h10.5' },
   branch: {

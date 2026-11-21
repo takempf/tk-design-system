@@ -25,6 +25,7 @@
 @import './styles/components/surfaces.css';
 @import './styles/components/navigation.css';
 @import './styles/components/loading.css';
+@import './styles/components/image.css';
 @import './styles/components/code.css';
 @import './styles/components/prose.css';
 @import './styles/type.css';

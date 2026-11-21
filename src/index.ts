@@ -46,6 +46,13 @@ export {
   Textarea,
   type TextareaProps,
 } from './components/Field';
+export {
+  Image,
+  type ImageFit,
+  type ImageProps,
+  type ImageReveal,
+  type ImageShape,
+} from './components/Image';
 export type {
   InputComboboxProps,
   MultipleInputComboboxProps,

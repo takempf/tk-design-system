@@ -1,0 +1,124 @@
+@layer tk.components {
+  /* Image ------------------------------------------------------------------ */
+
+  /* The frame holds the picture's place from the start, and is what's sized:
+     by its width and ratio, or by CSS. The picture sits in its flow, so a
+     frame with neither takes the picture's own height once it's in;
+     everything else lies over the frame's whole box. */
+  .tk-image {
+    --_wash: color-mix(in oklab, var(--tk-fg) 6%, transparent);
+    --_sheen: color-mix(in oklab, var(--tk-fg) 7%, transparent);
+    position: relative;
+    display: block;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--tk-radius-sm);
+    corner-shape: var(--tk-corner-shape);
+
+    &[data-shape='circle'] {
+      border-radius: 50%;
+      corner-shape: round;
+    }
+  }
+
+  .tk-image-picture,
+  .tk-image-previous,
+  .tk-image-preview {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    .tk-image[data-fit='contain'] > &,
+    .tk-image[data-fit='contain'] > * > & {
+      object-fit: contain;
+    }
+  }
+
+  /* Above whatever holds its place, and hidden until it's ready to arrive: the
+     reveal brings it in, or it's simply there when it was already loaded. */
+  .tk-image-picture {
+    position: relative;
+    z-index: 1;
+
+    .tk-image:not([data-status='loaded']) > & {
+      opacity: 0;
+    }
+
+    .tk-image[data-status='error'] > & {
+      display: none;
+    }
+  }
+
+  .tk-image-placeholder,
+  .tk-image-previous,
+  .tk-image-fallback,
+  .tk-image-dither {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Until the picture is in: the skeleton's wash and sheen, after a beat, so a
+     picture that loads quickly never flashes it. */
+  .tk-image-placeholder {
+    overflow: hidden;
+    background: var(--_wash);
+    animation: tk-loading-in var(--tk-duration-2) var(--tk-ease-out) 150ms both;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, var(--_sheen) 50%, transparent);
+      translate: -100% 0;
+      animation: tk-sheen 1.6s var(--tk-ease-in-out) infinite;
+    }
+
+    /* The picture's own color, or a small copy of it, is the picture already:
+       there at once. A copy needs no sheen to say something's coming. */
+    &[data-kind='color'],
+    &[data-kind='preview'] {
+      background: var(--tk-image-color, var(--_wash));
+      animation: none;
+    }
+
+    &[data-kind='preview']::after {
+      content: none;
+    }
+  }
+
+  /* Blurred past its own edges, so the frame never shows the blur's soft rim. */
+  .tk-image-preview {
+    filter: blur(var(--tk-image-preview-blur));
+    scale: 1.15;
+  }
+
+  /* The picture before this one, held until this one is in. */
+  .tk-image-previous {
+    z-index: 0;
+  }
+
+  /* The picture developing, cell by cell, over what held its place. */
+  .tk-image-dither {
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* The picture couldn't load: its place kept, marked in quiet ink. */
+  .tk-image-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tk-image-color, var(--_wash));
+    color: var(--tk-fg-subtle);
+  }
+
+  .tk-image-fallback-mark {
+    width: 1.25em;
+    height: 1.25em;
+    max-width: 50%;
+    max-height: 50%;
+  }
+}
