@@ -13,6 +13,7 @@ import {
 import { Icon } from '../icons/Icon';
 import { reducedMotion } from '../motion/reducedMotion';
 import { bayerMatrix } from '../raster/raster';
+import { sweep } from '../raster/sweep';
 import { cx, mergeRefs } from '../utils';
 
 /** How a picture arrives over what held its place. */
@@ -88,6 +89,18 @@ function step(set: Dispatch<SetStateAction<State>>, key: string, from: Status, t
 
 const isNumeric = (value: unknown) =>
   typeof value === 'number' || (typeof value === 'string' && /^\d+(\.\d+)?$/.test(value));
+
+/** The light crossing a placeholder, in the cells the picture will develop in. */
+function Sweep() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useLayoutEffect(() => {
+    const canvas = ref.current;
+    const frame = canvas?.parentElement;
+    if (canvas && frame) return sweep(canvas, frame);
+    return;
+  }, []);
+  return <canvas ref={ref} className="tk-image-sweep" />;
+}
 
 /**
  * A picture that holds its place while it loads, so nothing moves when it lands. Until
@@ -215,7 +228,7 @@ export function Image({
           data-kind={preview ? 'preview' : color ? 'color' : 'wash'}
           aria-hidden="true"
         >
-          {preview && <img className="tk-image-preview" src={preview} alt="" />}
+          {preview ? <img className="tk-image-preview" src={preview} alt="" /> : <Sweep />}
         </span>
       )}
       {(src || srcSet) && (

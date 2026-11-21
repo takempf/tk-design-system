@@ -1,58 +1,18 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { reducedMotion } from '../motion/reducedMotion';
+import { createClock } from '../raster/clock';
+import { rgba } from '../raster/ink';
 import { bayerMatrix, crispSize, Raster, type Vec4 } from '../raster/raster';
 import { renderSpinner } from '../raster/spinner';
 import { cx } from '../utils';
 
-/** Scenery's frame rate. */
-const FRAME_MS = 1000 / 15;
+/** Every spinner draws off one clock at the scenery's frame rate, so they turn in step. */
+const subscribe = createClock(15);
 /** One CSS pixel per dither cell: at icon size, two would leave seven or eight cells across. */
 const PIXEL = 1;
 /** 4×4, since an 8×8 pattern is half as wide as the icon. */
 const BAYER = bayerMatrix(4);
 const TRANSPARENT: Vec4 = [0, 0, 0, 0];
-
-type Frame = (time: number) => void;
-
-/** Every spinner draws off one clock, so a page of them runs one loop and they turn in step. */
-const frames = new Set<Frame>();
-let loop = 0;
-
-function subscribe(frame: Frame) {
-  frames.add(frame);
-  if (frames.size === 1) {
-    let last = Number.NEGATIVE_INFINITY;
-    loop = requestAnimationFrame(function tick(now) {
-      loop = requestAnimationFrame(tick);
-      if (now - last < FRAME_MS) return;
-      last = now;
-      for (const draw of frames) draw(now / 1000);
-    });
-  }
-  return () => {
-    frames.delete(frame);
-    if (frames.size === 0) cancelAnimationFrame(loop);
-  };
-}
-
-let probe: CanvasRenderingContext2D | null | undefined;
-const resolved = new Map<string, Vec4>();
-
-/** Any computed CSS colour as RGBA, resolved once per distinct value through a 2D context. */
-function rgba(color: string): Vec4 {
-  let value = resolved.get(color);
-  if (!value) {
-    probe ??= document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-    if (!probe) return [128, 128, 128, 255];
-    probe.clearRect(0, 0, 1, 1);
-    probe.fillStyle = color;
-    probe.fillRect(0, 0, 1, 1);
-    const [r = 0, g = 0, b = 0, a = 0] = probe.getImageData(0, 0, 1, 1).data;
-    value = [r, g, b, a];
-    resolved.set(color, value);
-  }
-  return value;
-}
 
 export interface SpinnerIconProps {
   readonly className?: string;

@@ -7,7 +7,6 @@
      everything else lies over the frame's whole box. */
   .tk-image {
     --_wash: color-mix(in oklab, var(--tk-fg) 6%, transparent);
-    --_sheen: color-mix(in oklab, var(--tk-fg) 7%, transparent);
     position: relative;
     display: block;
     overflow: hidden;
@@ -58,33 +57,31 @@
     inset: 0;
   }
 
-  /* Until the picture is in: the skeleton's wash and sheen, after a beat, so a
-     picture that loads quickly never flashes it. */
+  /* Until the picture is in: a wash, after a beat, so a picture that loads
+     quickly never flashes it, with light crossing it in the dither's cells. */
   .tk-image-placeholder {
     overflow: hidden;
     background: var(--_wash);
     animation: tk-loading-in var(--tk-duration-2) var(--tk-ease-out) 150ms both;
 
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent, var(--_sheen) 50%, transparent);
-      translate: -100% 0;
-      animation: tk-sheen 1.6s var(--tk-ease-in-out) infinite;
-    }
-
     /* The picture's own color, or a small copy of it, is the picture already:
-       there at once. A copy needs no sheen to say something's coming. */
+       there at once. A copy needs no light to say something's coming. */
     &[data-kind='color'],
     &[data-kind='preview'] {
       background: var(--tk-image-color, var(--_wash));
       animation: none;
     }
+  }
 
-    &[data-kind='preview']::after {
-      content: none;
-    }
+  /* Drawn a cell to a canvas pixel, and scaled up crisp; it runs to the next
+     whole cell past the frame's edge, and the frame clips it. */
+  .tk-image-sweep {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--tk-image-sweep-ink);
+    image-rendering: pixelated;
+    pointer-events: none;
   }
 
   /* Blurred past its own edges, so the frame never shows the blur's soft rim. */

@@ -287,8 +287,9 @@ own section list is one.
   `height`, or CSS. `shape="circle"` makes it a square, round frame for a face. `fit="contain"`
   shows the whole picture in place of cropping it. `className` and `style` go to the frame;
   everything else (`src`, `srcSet`, `sizes`, `loading`, lazy by default) goes to the `<img>`.
-- **Until it's in,** the frame shows the skeleton's wash and sheen, after a beat so a quick
-  load never flashes it. With `color` (the picture's average, as image services report it),
+- **Until it's in,** the frame shows a wash, after a beat so a quick load never flashes it,
+  with light crossing it in the dither's cells. The light runs down the page's diagonal, so
+  it crosses a grid of pictures in turn. With `color` (the picture's average, as image services report it),
   it shows that at once; with `preview` (a tiny copy, as a data URL), it shows the copy
   blurred. When `src` changes, the old picture stays until the new one is in.
 - **Then it arrives** as `reveal` says. `fade` (the default) rises in on the fade clock, so it
@@ -298,8 +299,8 @@ own section list is one.
 - **If it can't load,** `fallback` (a picture mark by default; initials suit a face) keeps its
   place, read out under the picture's `alt`.
 - **Tokens:** `--tk-image-fade-duration`, `--tk-image-dither-duration`,
-  `--tk-image-dither-pixel` and `--tk-image-dither-bayer` (the scenery's, by default), and
-  `--tk-image-preview-blur`.
+  `--tk-image-dither-pixel` and `--tk-image-dither-bayer` (the scenery's, by default),
+  `--tk-image-sweep-ink` and `--tk-image-preview-blur`.
 
 ## Code
 
