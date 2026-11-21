@@ -523,6 +523,7 @@
     position: fixed;
     inset: 0;
     background: var(--tk-overlay);
+    will-change: opacity;
     transition: opacity var(--tk-duration-2) var(--tk-ease-fade);
 
     &[data-starting-style],
@@ -888,23 +889,17 @@
   }
 
   /* Base UI unmounts a dialog, backdrop and all, once the popup's own
-     animations end; this one keeps it until the morph lands, so the backdrop
-     fades out instead of vanishing. (The morph's end cuts it short too.) */
+     animations end; delaying a 1ms no-op until the morph lands keeps the
+     portal mounted while staying in the before phase (fill: none), so the
+     browser neither ticks style invalidations nor fails compositing. */
   :root[data-tk-vt='close'] .tk-dialog[data-tk-container='popup'][data-ending-style] {
-    animation: tk-hold var(--tk-duration-morph) linear;
+    animation: tk-hold 1ms linear var(--tk-duration-morph);
   }
 
   @keyframes tk-hold {
     to {
       opacity: 0;
     }
-  }
-
-  /* Carried by a morph, the backdrop dims in step with the dialog's frame as
-     it grows, and clears as it goes home, instead of snapping on ahead of it. */
-  :root:is([data-tk-vt='open'], [data-tk-vt='close']) .tk-backdrop {
-    transition-duration: var(--tk-duration-morph);
-    transition-timing-function: var(--tk-ease-morph);
   }
 
   .tk-dialog-content {

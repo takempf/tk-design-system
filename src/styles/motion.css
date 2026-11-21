@@ -97,6 +97,7 @@
     height: 100%;
     overflow: clip;
     object-fit: fill;
+    mix-blend-mode: normal;
     animation-timing-function: var(--tk-ease-fade);
     animation-fill-mode: both;
   }
@@ -359,5 +360,30 @@
       /* biome-ignore lint/complexity/noImportantStyles: the reduced-motion kill switch must beat every animation rule */
       animation: none !important;
     }
+  }
+}
+
+@layer tk.utilities {
+  /* Suppress non-composited hover/focus color and outline transitions on
+     controls while a morph is in flight, preventing per-frame repaints of
+     the page and dialog layers. Scoped to interactive controls and
+     :focus-visible (not `*`) to avoid full-document invalidation and keep
+     .tk-backdrop's composited opacity fade running. */
+  :root[data-tk-vt]
+  :is(
+    .tk-button,
+    .tk-input,
+    .tk-input-action,
+    .tk-select-trigger,
+    .tk-combobox-field,
+    .tk-switch,
+    .tk-toggle,
+    button,
+    input,
+    textarea,
+    select,
+    :focus-visible
+  ) {
+    transition: none;
   }
 }

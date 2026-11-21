@@ -198,7 +198,6 @@ interface Look {
   readonly fill: string;
   readonly edge: string;
   readonly width: string;
-  readonly shadow: string;
   /** The focus ring round the frame: its outline, transparent when it has none. */
   readonly ring: { readonly color: string; readonly width: string; readonly offset: string };
   readonly corners: readonly string[];
@@ -222,11 +221,6 @@ const corners = [
 const isTransparent = (color: string): boolean =>
   !color || color === 'transparent' || color === 'rgba(0, 0, 0, 0)';
 
-function boxShadowOf(look: Look): string {
-  const inset = `inset 0 0 0 ${look.width} ${look.edge}`;
-  return look.shadow ? `${inset}, ${look.shadow}` : inset;
-}
-
 /** A frame's fill, edge and corners as they settle, not part-way through a transition. */
 function lookOf(frame: HTMLElement): Look {
   const { transition } = frame.style;
@@ -238,7 +232,6 @@ function lookOf(frame: HTMLElement): Look {
     fill: style.backgroundColor,
     edge: style.borderTopColor,
     width: style.borderTopWidth,
-    shadow: style.boxShadow === 'none' ? '' : style.boxShadow,
     ring:
       style.outlineStyle === 'none' || isTransparent(style.outlineColor)
         ? { color: 'transparent', width: '0px', offset: '0px' }
@@ -268,7 +261,7 @@ function cornerIn(radius: string, rect: DOMRect): string {
  */
 const fillOf = ({ look }: End): Keyframe => ({
   backgroundColor: look.fill,
-  boxShadow: boxShadowOf(look),
+  boxShadow: `inset 0 0 0 ${look.width} ${look.edge}`,
   outlineStyle: 'solid',
   outlineColor: look.ring.color,
   outlineWidth: look.ring.width,
@@ -285,7 +278,6 @@ function sameLook(a: Look, b: Look): boolean {
     a.fill === b.fill &&
     a.edge === b.edge &&
     a.width === b.width &&
-    a.shadow === b.shadow &&
     a.ring.color === b.ring.color &&
     a.ring.width === b.ring.width &&
     a.ring.offset === b.ring.offset
@@ -489,6 +481,21 @@ function turnFill(from: End, to: End, easing: string): Keyframe[] {
   ];
 }
 
+function fadeOutOld(name: string, timing: Timing, easing: string, animations: Animation[]): void {
+  follow(
+    name,
+    'old',
+    [
+      { opacity: 1, offset: 0 },
+      { opacity: 1, offset: timeAt(easing, 0.5) },
+      { opacity: 0, offset: timeAt(easing, 0.95) },
+      { opacity: 0, offset: 1 },
+    ],
+    { duration: timing.duration },
+    animations,
+  );
+}
+
 function moveCompositedFrame(
   name: string,
   from: End,
@@ -498,9 +505,13 @@ function moveCompositedFrame(
   animations: Animation[],
 ): void {
   const growing = area(to.rect) >= area(from.rect);
+  const transparentClose = !growing && isTransparent(to.look.fill);
   const base = growing ? to : from;
+  const frameFill: Keyframe = transparentClose
+    ? { backgroundColor: 'transparent', boxShadow: 'none', outlineStyle: 'none' }
+    : fillOf(base);
   const staticFrame: Keyframe = {
-    ...fillOf(base),
+    ...frameFill,
     ...shapeOf(base),
     width: `${base.rect.width}px`,
     height: `${base.rect.height}px`,
@@ -513,22 +524,7 @@ function moveCompositedFrame(
   if (follow(name, 'group', [place(from.rect), place(to.rect)], timing, animations)) {
     cancelGroupAnimation(name, animations);
   }
-  if (!growing && isTransparent(to.look.fill)) {
-    const held: Keyframe = { backgroundColor: from.look.fill, boxShadow: boxShadowOf(from.look) };
-    const gone: Keyframe = { backgroundColor: 'transparent', boxShadow: 'none' };
-    follow(
-      name,
-      'group',
-      [
-        { ...held, offset: 0 },
-        { ...held, offset: timeAt(easing, 0.6) },
-        { ...gone, offset: timeAt(easing, 0.95) },
-        { ...gone, offset: 1 },
-      ],
-      { duration: timing.duration },
-      animations,
-    );
-  }
+  if (transparentClose) fadeOutOld(name, timing, easing, animations);
   if (isWebKit) cutToFrame(from, to, to.rect, timing, animations);
 }
 
