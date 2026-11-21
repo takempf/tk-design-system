@@ -102,14 +102,28 @@
     animation-fill-mode: both;
   }
 
+  @keyframes tk-vt-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes tk-vt-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
   /* Only shared parts travel. The content the frame leaves is gone as it sets
      off, and the content it arrives at fades in as it lands, finishing with
      the move. */
   ::view-transition-old(.tk-container) {
+    animation-name: tk-vt-fade-out;
     animation-duration: var(--tk-duration-1);
   }
 
   ::view-transition-new(.tk-container) {
+    animation-name: tk-vt-fade-in;
     animation-delay: calc(var(--tk-duration-morph) * 0.2);
     animation-duration: var(--tk-duration-2);
   }

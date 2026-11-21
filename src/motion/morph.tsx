@@ -151,9 +151,13 @@ function follow(
   }
 }
 
-/** Cancels the browser's generated `::view-transition-group` animation when replaced cleanly. */
-function cancelGroupAnimation(name: string, ownAnimations: readonly Animation[]): void {
-  const target = pseudo('group', name);
+/** Cancels the browser's generated pseudo-element animation when replaced cleanly. */
+function cancelPseudoAnimation(
+  part: 'group' | 'old' | 'new',
+  name: string,
+  ownAnimations: readonly Animation[],
+): void {
+  const target = pseudo(part, name);
   for (const animation of document.getAnimations()) {
     if (ownAnimations.includes(animation)) continue;
     const effect = animation.effect;
@@ -482,18 +486,22 @@ function turnFill(from: End, to: End, easing: string): Keyframe[] {
 }
 
 function fadeOutOld(name: string, timing: Timing, easing: string, animations: Animation[]): void {
-  follow(
-    name,
-    'old',
-    [
-      { opacity: 1, offset: 0 },
-      { opacity: 1, offset: timeAt(easing, 0.5) },
-      { opacity: 0, offset: timeAt(easing, 0.95) },
-      { opacity: 0, offset: 1 },
-    ],
-    { duration: timing.duration },
-    animations,
-  );
+  if (
+    follow(
+      name,
+      'old',
+      [
+        { opacity: 1, offset: 0 },
+        { opacity: 1, offset: timeAt(easing, 0.5) },
+        { opacity: 0, offset: timeAt(easing, 0.95) },
+        { opacity: 0, offset: 1 },
+      ],
+      { duration: timing.duration },
+      animations,
+    )
+  ) {
+    cancelPseudoAnimation('old', name, animations);
+  }
 }
 
 function moveCompositedFrame(
@@ -522,7 +530,7 @@ function moveCompositedFrame(
     transform: `translate(${rect.left}px, ${rect.top}px) scale(${rect.width / base.rect.width}, ${rect.height / base.rect.height})`,
   });
   if (follow(name, 'group', [place(from.rect), place(to.rect)], timing, animations)) {
-    cancelGroupAnimation(name, animations);
+    cancelPseudoAnimation('group', name, animations);
   }
   if (transparentClose) fadeOutOld(name, timing, easing, animations);
   if (isWebKit) cutToFrame(from, to, to.rect, timing, animations);

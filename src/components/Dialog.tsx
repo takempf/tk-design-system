@@ -1,6 +1,6 @@
 import { AlertDialog as BaseAlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
-import type { ComponentProps } from 'react';
+import { type ComponentProps, useCallback, useImperativeHandle, useRef } from 'react';
 import { PopupMorph, usePopupMorph } from '../motion/popupMorph';
 import { usePortalContainer } from '../theme/Theme';
 import { cx, part, withBase } from '../utils';
@@ -13,19 +13,32 @@ function DialogRoot<Payload>({
   defaultOpen,
   onOpenChange,
   onOpenChangeComplete,
+  actionsRef,
   ...props
 }: BaseDialog.Root.Props<Payload>) {
+  const internalActions = useRef<BaseDialog.Root.Actions | null>(null);
+  useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: () => internalActions.current?.unmount(),
+      close: () => internalActions.current?.close(),
+    }),
+    [],
+  );
+  const unmount = useCallback(() => internalActions.current?.unmount(), []);
   const popup = usePopupMorph({
     open,
     defaultOpen,
     onOpenChange,
     onOpenChangeComplete,
+    onMorphClose: unmount,
     prefix: 'dialog',
   });
   return (
     <PopupMorph.Provider value={popup.state}>
       <BaseDialog.Root
         {...props}
+        actionsRef={internalActions}
         open={popup.open}
         onOpenChange={popup.setOpen}
         onOpenChangeComplete={popup.onOpenChangeComplete}
@@ -100,19 +113,32 @@ function AlertDialogRoot<Payload>({
   defaultOpen,
   onOpenChange,
   onOpenChangeComplete,
+  actionsRef,
   ...props
 }: BaseAlertDialog.Root.Props<Payload>) {
+  const internalActions = useRef<BaseAlertDialog.Root.Actions | null>(null);
+  useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: () => internalActions.current?.unmount(),
+      close: () => internalActions.current?.close(),
+    }),
+    [],
+  );
+  const unmount = useCallback(() => internalActions.current?.unmount(), []);
   const popup = usePopupMorph({
     open,
     defaultOpen,
     onOpenChange,
     onOpenChangeComplete,
+    onMorphClose: unmount,
     prefix: 'alert',
   });
   return (
     <PopupMorph.Provider value={popup.state}>
       <BaseAlertDialog.Root
         {...props}
+        actionsRef={internalActions}
         open={popup.open}
         onOpenChange={popup.setOpen}
         onOpenChangeComplete={popup.onOpenChangeComplete}

@@ -43,6 +43,8 @@ export interface PopupMorphOptions<Rest extends unknown[]> {
   readonly onOpenChange?: (open: boolean, ...rest: Rest) => void;
   /** Called once the popup has finished opening or closing, morph included. */
   readonly onOpenChangeComplete?: (open: boolean) => void;
+  /** Unmounts the popup after a close morph completes, avoiding CSS hold animations. */
+  readonly onMorphClose?: () => void;
   /** Names the container `tk-<prefix>-…`. */
   readonly prefix?: string;
 }
@@ -69,14 +71,15 @@ export function usePopupMorph<Rest extends unknown[] = []>({
   defaultOpen = false,
   onOpenChange,
   onOpenChangeComplete,
+  onMorphClose,
   prefix = 'popup',
 }: PopupMorphOptions<Rest> = {}): PopupMorph<Rest> {
   const name = useMorphName(prefix);
   const trigger = useRef<HTMLElement>(null);
   const [inner, setInner] = useState(defaultOpen);
   const current = open ?? inner;
-  const latest = useRef({ onOpenChange, onOpenChangeComplete });
-  latest.current = { onOpenChange, onOpenChangeComplete };
+  const latest = useRef({ onOpenChange, onOpenChangeComplete, onMorphClose });
+  latest.current = { onOpenChange, onOpenChangeComplete, onMorphClose };
   const flight = useRef<ViewTransition | null>(null);
   const turn = useRef(0);
   const [faded, setFaded] = useState(false);
@@ -92,19 +95,27 @@ export function usePopupMorph<Rest extends unknown[] = []>({
   if (!pending.current) heading.current = current;
 
   const setOpen = useCallback(
-    (next: boolean, ...rest: Rest) => {
+    (next: boolean, ...rest: Rest): void => {
       if (next === heading.current) return;
       heading.current = next;
       pending.current = true;
       const onPage = Boolean(trigger.current?.isConnected);
       const carried = onPage && willMorph();
-      const update = () => {
+      let transition: ViewTransition | null = null;
+      let held = false;
+      const update = (): void => {
         pending.current = false;
         latest.current.onOpenChange?.(next, ...rest);
-        const details = rest[0] as { isCanceled?: boolean } | undefined;
+        const details = rest[0] as
+          | { isCanceled?: boolean; preventUnmountOnClose?: () => void }
+          | undefined;
         if (details?.isCanceled) {
           heading.current = committed.current;
           return;
+        }
+        if (!next && transition && latest.current.onMorphClose && details?.preventUnmountOnClose) {
+          details.preventUnmountOnClose();
+          held = true;
         }
         requested.current = next;
         setInner(next);
@@ -113,9 +124,17 @@ export function usePopupMorph<Rest extends unknown[] = []>({
           if (!pending.current) heading.current = committed.current;
         });
       };
-      turn.current++;
+      const at = ++turn.current;
       if (onPage) {
-        flight.current = morph(update, { type: next ? 'open' : 'close', scope: name });
+        transition = morph(update, { type: next ? 'open' : 'close', scope: name });
+        flight.current = transition;
+        if (!next && transition && latest.current.onMorphClose) {
+          transition.finished.finally(() => {
+            if (held && turn.current === at && !heading.current) {
+              latest.current.onMorphClose?.();
+            }
+          });
+        }
       } else {
         flight.current = null;
         update();

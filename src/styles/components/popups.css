@@ -888,20 +888,6 @@
     }
   }
 
-  /* Base UI unmounts a dialog, backdrop and all, once the popup's own
-     animations end; delaying a 1ms no-op until the morph lands keeps the
-     portal mounted while staying in the before phase (fill: none), so the
-     browser neither ticks style invalidations nor fails compositing. */
-  :root[data-tk-vt='close'] .tk-dialog[data-tk-container='popup'][data-ending-style] {
-    animation: tk-hold 1ms linear var(--tk-duration-morph);
-  }
-
-  @keyframes tk-hold {
-    to {
-      opacity: 0;
-    }
-  }
-
   .tk-dialog-content {
     display: flex;
     flex-direction: column;
